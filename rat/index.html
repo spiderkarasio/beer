@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Раздел с крысой</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Убирает прокрутку, если нужно только одно фото */
+        }
+
+        .hero {
+            /* Подставляем ваше название файла */
+            background-image: url('rat.png');
+            
+            height: 100vh;
+            background-position: center; /* Центрирует изображение */
+            background-repeat: no-repeat;
+            background-size: cover; /* Растягивает фото на весь экран без дырок */
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: white;
+            font-family: sans-serif;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.8); /* Тень, чтобы текст был виден на фоне */
+            font-size: 5vw; /* Размер текста зависит от ширины экрана */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero">
+        <h1>RAT SECTION</h1>
+    </div>
+
+</body>
+</html>
