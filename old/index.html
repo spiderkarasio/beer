@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beer Translate</title>
+    <style>
+        body {
+            background-color: #121316;
+            color: #e8eaed;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1 { font-weight: 400; font-size: 32px; color: #bdc1c6; margin-bottom: 20px; }
+
+        .translator-container {
+            background-color: #1e1f21;
+            border: 1px solid #3c4043;
+            border-radius: 12px;
+            width: 95%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .header-tabs {
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #3c4043;
+            height: 55px;
+        }
+
+        .tab { color: #8ab4f8; font-size: 14px; font-weight: 500; border-bottom: 2px solid #8ab4f8; height: 100%; display: flex; align-items: center; padding: 0 10px; }
+        .swap-icon { margin: 0 20px; color: #9aa0a6; cursor: pointer; font-size: 24px; transition: 0.3s; }
+        .swap-icon:hover { color: #fff; transform: rotate(180deg); }
+
+        .main-panels { display: flex; flex-wrap: wrap; }
+
+        .panel { flex: 1; min-width: 300px; min-height: 250px; padding: 25px; position: relative; box-sizing: border-box; display: flex; flex-direction: column; }
+        .input-panel { border-right: 1px solid #3c4043; }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            padding: 0;
+        }
+
+        #output-field {
+            font-size: 22px;
+            color: #bdc1c6;
+            word-break: break-all;
+            white-space: pre-wrap;
+            flex-grow: 1;
+            margin-bottom: 30px;
+        }
+
+        .clear-btn { position: absolute; top: 20px; right: 20px; color: #9aa0a6; cursor: pointer; font-size: 22px; z-index: 10; }
+        .clear-btn:hover { color: #fff; }
+
+        .panel-footer { position: absolute; bottom: 12px; right: 12px; }
+        
+        .copy-btn {
+            background: transparent;
+            border: none;
+            color: #9aa0a6;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .copy-btn svg { width: 24px; height: 24px; fill: currentColor; }
+
+        @media (max-width: 768px) {
+            .input-panel { border-right: none; border-bottom: 1px solid #3c4043; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Beer Translate</h1>
+
+    <div class="translator-container">
+        <div class="header-tabs">
+            <div class="tab" id="left-label">Текст</div>
+            <div class="swap-icon" onclick="toggleMode()">⇄</div>
+            <div class="tab" id="right-label" style="border:none; color:#9aa0a6;">Пивной язык</div>
+        </div>
+
+        <div class="main-panels">
+            <div class="panel input-panel">
+                <div class="clear-btn" onclick="clearAll()">✕</div>
+                <textarea id="input-text" placeholder="Введите текст..." oninput="doTranslate()"></textarea>
+            </div>
+            <div class="panel">
+                <div id="output-field"></div>
+                <div class="panel-footer">
+                    <button class="copy-btn" id="copy-btn" onclick="copyResult()" title="Копировать">
+                        <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const beerMap = {
+        'А': 'влдаолдцт3894', 'Б': '78ем9т4325243895тм72', 'В': 'атдлжиыфвеи0653', 'Г': 'тмщышевз34',
+        'Д': '34три537уиадлвы', 'Е': 'ь02м392м7', 'Ё': 'ь02м392м8', 'Ж': 'тт32м4о35т2',
+        'З': '3и45рт647ь8', 'И': '49и357т7т50иц7', 'Й': '49и357т7т50иц8', 'К': 'тй89и5446',
+        'Л': '7ьт47тть75', 'М': '7ь65бь47456ь7', 'Н': '8674ь5б867куекв', 'О': 'ь7т3567о5643654',
+        'П': 'т76376534ывтн', 'Р': 'вьтапгь67767ь5ке', 'С': 'пиавые54', 'Т': 'т65436отекнр',
+        'У': '6т54у65т6цу3', 'Ф': '74567о5тнит7546', 'Х': '547т456756т85', 'Ц': '7ль564л7от546р546',
+        'Ч': '87645ьт5куьлнаенген', 'Ш': 'аеткуну45654н', 'Щ': 'аеткуну45654н1', 'Ъ': '22987т6и0222лвдпфы1',
+        'Ы': '22987т6и0222лвдпфы3', 'Ь': '22987т6и0222лвдпфы2', 'Э': '638ь54и96346и0345', 'Ю': 'е0ц4539и587т3450879345',
+        'Я': 'еьекутнтек6ня',
+        'A': 'z99x11v', 'B': 'bb77beer00', 'C': 'c_shakal_99', 'D': 'd88_vottak_2', 'E': 'e_pivo_1',
+        'F': 'f_44_ff', 'G': 'g_top_g_7', 'H': 'h_hh_888', 'I': 'i_eye_111', 'J': 'j_jack_55',
+        'K': 'k_kick_0', 'L': 'l_lose_77', 'M': 'm_m_444555', 'N': 'n_nitro_9', 'O': 'o_zero_00',
+        'P': 'p_pub_4', 'Q': 'q_quest_1', 'R': 'r_root_66', 'S': 's_snk_33', 'T': 't_tank_4',
+        'U': 'u_unit_22', 'V': 'v_v_666', 'W': 'w_wow_7', 'X': 'x_xxx_0', 'Y': 'y_yes_9', 'Z': 'z_zzz_1'
+    };
+
+    const reverseCodes = Object.entries(beerMap)
+        .map(([letter, code]) => ({ letter, code }))
+        .sort((a, b) => b.code.length - a.code.length);
+
+    let isBeerToText = false;
+
+    function toggleMode() {
+        isBeerToText = !isBeerToText;
+        document.getElementById('left-label').innerText = isBeerToText ? 'Пивной язык' : 'Текст';
+        document.getElementById('right-label').innerText = isBeerToText ? 'Текст' : 'Пивной язык';
+        clearAll();
+    }
+
+    function doTranslate() {
+        const input = document.getElementById('input-text').value;
+        const output = document.getElementById('output-field');
+        if (!input) { output.innerText = ''; return; }
+
+        if (!isBeerToText) {
+            let result = '';
+            for (let char of input.toUpperCase()) {
+                result += beerMap[char] || char;
+            }
+            output.innerText = result;
+        } else {
+            let result = '';
+            let i = 0;
+            while (i < input.length) {
+                let found = false;
+                for (let item of reverseCodes) {
+                    if (input.substr(i, item.code.length) === item.code) {
+                        result += item.letter;
+                        i += item.code.length;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) { result += input[i]; i++; }
+            }
+            output.innerText = result.toLowerCase();
+        }
+    }
+
+    function clearAll() {
+        document.getElementById('input-text').value = '';
+        document.getElementById('output-field').innerText = '';
+    }
+
+    // Универсальная функция копирования (HTTPS + HTTP)
+    function copyResult() {
+        const text = document.getElementById('output-field').innerText;
+        if (!text) return;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(animateCopy);
+        } else {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                animateCopy();
+            } catch (err) {
+                console.error('Ошибка копирования', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+
+    function animateCopy() {
+        const btn = document.getElementById('copy-btn');
+        const oldSvg = btn.innerHTML;
+        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+        btn.style.color = '#8ab4f8';
+        setTimeout(() => {
+            btn.innerHTML = oldSvg;
+            btn.style.color = '';
+        }, 2000);
+    }
+</script>
+</body>
+</html>
