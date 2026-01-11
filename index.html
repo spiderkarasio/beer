@@ -29,9 +29,15 @@
         }
 
         h1 { font-weight: 400; font-size: 32px; color: #bdc1c6; margin: 0; }
-        /* Стили для секретной ссылки в букве r */
-        .rat-link { color: inherit; text-decoration: none; cursor: default; }
-        .rat-link:hover { color: #8ab4f8; }
+        
+        /* Стили для секретных ссылок в буквах B и r */
+        .secret-link { 
+            color: inherit; 
+            text-decoration: none; 
+            cursor: pointer; 
+            transition: color 0.2s;
+        }
+        .secret-link:hover { color: #8ab4f8; }
 
         .author-tag { font-size: 14px; color: #5f6368; font-weight: 500; opacity: 0.7; }
 
@@ -90,14 +96,13 @@
 
         .clear-btn { position: absolute; top: 20px; right: 20px; color: #9aa0a6; cursor: pointer; font-size: 22px; }
         
-        /* Стили для футера и кнопок */
         .panel-footer { 
             position: absolute; 
             bottom: 12px; 
             right: 12px; 
             display: flex; 
             align-items: center; 
-            gap: 10px; 
+            gap: 12px; 
         }
 
         .old-version-btn {
@@ -105,10 +110,10 @@
             text-decoration: none;
             font-size: 13px;
             font-weight: 500;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border: 1px solid #3c4043;
             border-radius: 20px;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
 
         .old-version-btn:hover {
@@ -123,7 +128,9 @@
 <body>
 
     <div class="title-container">
-        <h1>Bee<a href="https://beerlanguage.ru/rat/" class="rat-link">r</a> Translate</h1>
+        <h1>
+            <a href="https://www.roblox.com/games/111530421351096/You-VS-Homer" class="secret-link">B</a>ee<a href="https://beerlanguage.ru/rat/" class="secret-link">r</a> Translate
+        </h1>
         <span class="author-tag">by spiderkaras</span>
     </div>
 
@@ -144,7 +151,6 @@
                 <div id="output-field"></div>
                 <div class="panel-footer">
                     <a href="https://beerlanguage.ru/old/" class="old-version-btn">Old version</a>
-                    
                     <button class="copy-btn" id="copy-btn" onclick="copyResult()">
                         <svg id="copy-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                     </button>
@@ -154,7 +160,7 @@
     </div>
 
 <script>
-    /* Весь ваш JS код остается без изменений, физика подхватит новые элементы автоматически */
+    /* ПЕРЕВОДЧИК И ФИЗИКА (БЕЗ ИЗМЕНЕНИЙ) */
     const beerMap = {'А': 'влдаолдцт3894', 'Б': '78ем9т4325243895тм72', 'В': 'атдлжиыфвеи0653', 'Г': 'тмщышевз34', 'Д': '34три537уиадлвы', 'Е': 'ь02м392м7', 'Ё': 'ь02м392м8', 'Ж': 'тт32м4о35т2', 'З': '3и45рт647ь8', 'И': '49и357т7т50иц7', 'Й': '49и357т7т50иц8', 'К': 'тй89и5446', 'Л': '7ьт47тть75', 'М': '7ь65бь47456ь7', 'Н': '8674ь5б867куекв', 'О': 'ь7т3567о5643654', 'П': 'т76376534ывтн', 'Р': 'вьтапгь67767ь5ке', 'С': 'пиавые54', 'Т': 'т65436отекнр', 'У': '6т54у65т6цу3', 'Ф': '74567о5тнит7546', 'Х': '547т456756т85', 'Ц': '7ль564л7от546р546', 'Ч': '87645ьт5куьлнаенген', 'Ш': 'аеткуну45654н', 'Щ': 'аеткуну45654н1', 'Ъ': '22987т6и0222лвдпфы1', 'Ы': '22987т6и0222лвдпфы3', 'Ь': '22987т6и0222лвдпфы2', 'Э': '638ь54и96346и0345', 'Ю': 'е0ц4539и587т3450879345', 'Я': 'еьекутнтек6ня', 'A': 'z99x11v', 'B': 'bb77beer00', 'C': 'c_shakal_99', 'D': 'd88_vottak_2', 'E': 'e_pivo_1', 'F': 'f_44_ff', 'G': 'g_top_g_7', 'H': 'h_hh_888', 'I': 'i_eye_111', 'J': 'j_jack_55', 'K': 'k_kick_0', 'L': 'l_lose_77', 'M': 'm_m_444555', 'N': 'n_nitro_9', 'O': 'o_zero_00', 'P': 'p_pub_4', 'Q': 'q_quest_1', 'R': 'r_root_66', 'S': 's_snk_33', 'T': 't_tank_4', 'U': 'u_unit_22', 'V': 'v_v_666', 'W': 'w_wow_7', 'X': 'x_xxx_0', 'Y': 'y_yes_9', 'Z': 'z_zzz_1'};
     const reverseCodes = Object.entries(beerMap).map(([letter, code]) => ({ letter, code })).sort((a, b) => b.code.length - a.code.length);
     let isBeerToText = false;
@@ -188,23 +194,16 @@
     function copyResult() { 
         const text = document.getElementById('output-field').innerText; 
         if (!text) return;
-        
         navigator.clipboard.writeText(text).then(() => {
             const btn = document.getElementById('copy-btn');
             const svg = document.getElementById('copy-icon');
             const originalIcon = svg.innerHTML;
-            
             svg.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
             btn.style.color = '#8ab4f8';
-            
-            setTimeout(() => {
-                svg.innerHTML = originalIcon;
-                btn.style.color = '';
-            }, 2000);
+            setTimeout(() => { svg.innerHTML = originalIcon; btn.style.color = ''; }, 2000);
         });
     }
 
-    /* ФИЗИКА */
     let gravityActive = false;
     let physicsObjects = [];
     let dragTarget = null;
@@ -215,7 +214,6 @@
     function startGravity() {
         if (gravityActive) return;
         gravityActive = true;
-
         const selectors = ['.title-container', '.input-panel', '.panel:last-child', '.translator-container', '.header-tabs > div', '.swap-icon', '.old-version-btn'];
         let elements = [];
         selectors.forEach(s => document.querySelectorAll(s).forEach(el => elements.push(el)));
@@ -231,12 +229,9 @@
 
         physicsObjects.forEach(obj => {
             const el = obj.el;
-            el.style.width = obj.w + 'px';
-            el.style.height = obj.h + 'px';
-            el.style.position = 'absolute';
-            el.style.left = '0'; el.style.top = '0';
-            el.style.margin = '0';
-            el.style.zIndex = '1000';
+            el.style.width = obj.w + 'px'; el.style.height = obj.h + 'px';
+            el.style.position = 'absolute'; el.style.left = '0'; el.style.top = '0';
+            el.style.margin = '0'; el.style.zIndex = '1000';
             document.body.appendChild(el);
         });
 
@@ -263,7 +258,6 @@
     }
 
     function handleMove(x, y) { mouse.x = x; mouse.y = y; }
-
     function handleEnd() {
         if (dragTarget) {
             dragTarget.isDragging = false;
@@ -281,7 +275,6 @@
         physicsObjects.forEach(o => {
             if (o.isDragging) {
                 o.x = mouse.x - dragOffset.x; o.y = mouse.y - dragOffset.y;
-                o.vx = 0; o.vy = 0; o.vrot *= 0.9;
             } else {
                 o.vy += 0.4; o.vx *= 0.99; o.vrot *= 0.98;
                 o.x += o.vx; o.y += o.vy; o.rot += o.vrot;
