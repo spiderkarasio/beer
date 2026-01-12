@@ -130,7 +130,7 @@
         .copy-btn { background: transparent; border: none; color: #9aa0a6; cursor: pointer; padding: 8px; border-radius: 50%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
         .copy-btn svg { width: 24px; height: 24px; fill: currentColor; }
 
-        /* MODAL GAMES */
+        /* ИГРОВОЕ ОКНО */
         .modal-overlay {
             display: none;
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -150,27 +150,24 @@
         }
         .game-header { padding: 15px; border-bottom: 1px solid #3c4043; display: flex; justify-content: space-between; align-items: center; }
         .game-menu { padding: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .game-btn { background: #303134; color: #e8eaed; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .game-btn { background: #303134; color: #e8eaed; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
         .game-btn:hover { background: #8ab4f8; color: #000; }
         .close-game { cursor: pointer; color: #9aa0a6; font-size: 24px; }
         
         .game-content { padding: 20px; display: none; flex-direction: column; align-items: center; min-height: 350px; }
         
-        /* Snake */
         #snake-canvas { background: #000; border: 2px solid #3c4043; max-width: 100%; }
         
-        /* Minesweeper */
         .mines-grid { display: grid; gap: 2px; background: #3c4043; border: 2px solid #3c4043; }
         .mine-cell { width: 30px; height: 30px; background: #bdc1c6; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; color: #000; }
         .mine-cell.revealed { background: #303134; color: #fff; }
         .mine-cell.boom { background: #f44336; }
 
-        /* GeoGuessr FIXED */
         .geo-flag-container { margin: 20px 0; min-height: 120px; display: flex; align-items: center; justify-content: center; }
         .geo-flag-img { height: 120px; border-radius: 8px; border: 1px solid #3c4043; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .geo-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
 
-        .back-btn { margin-bottom: 15px; align-self: flex-start; background: none; border: none; color: #9aa0a6; cursor: pointer; }
+        .back-btn { margin-bottom: 15px; align-self: flex-start; background: none; border: none; color: #9aa0a6; cursor: pointer; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -188,8 +185,8 @@
             <div class="swap-icon" onclick="toggleMode()">⇄</div>
             <div class="tab inactive" id="right-label">Пивной язык</div>
             <div class="right-tabs">
-                <div class="action-tab game-tab" onclick="openGameModal()">Games</div>
-                <div class="action-tab" onclick="startGravity()">Gravity</div>
+                <div class="action-tab game-tab" onclick="openGameModal()">Игры</div>
+                <div class="action-tab" onclick="startGravity()">Гравитация</div>
             </div>
         </div>
         <div class="main-panels">
@@ -200,7 +197,7 @@
             <div class="panel">
                 <div id="output-field"></div>
                 <div class="panel-footer">
-                    <a href="https://beerlanguage.ru/old/" class="old-version-btn">Old version</a>
+                    <a href="https://beerlanguage.ru/old/" class="old-version-btn">Старая версия</a>
                     <button class="copy-btn" id="copy-btn" onclick="copyResult()">
                         <svg id="copy-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                     </button>
@@ -212,25 +209,25 @@
     <div class="modal-overlay" id="gameModal">
         <div class="game-window">
             <div class="game-header">
-                <span id="gameTitle" style="font-weight:bold; color:#bdc1c6">Arcade Menu</span>
+                <span id="gameTitle" style="font-weight:bold; color:#bdc1c6">Меню Аркад</span>
                 <div class="close-game" onclick="closeGameModal()">✕</div>
             </div>
             <div class="game-menu" id="gameMenu">
-                <button class="game-btn" onclick="initMinesweeper()">💣 Mines</button>
-                <button class="game-btn" onclick="initSnake()">🐍 Snake</button>
-                <button class="game-btn" onclick="initGeo()">🌍 GeoGuess</button>
+                <button class="game-btn" onclick="initMinesweeper()">💣 Сапер</button>
+                <button class="game-btn" onclick="initSnake()">🐍 Змейка</button>
+                <button class="game-btn" onclick="initGeo()">🌍 Флаги</button>
             </div>
             <div class="game-content" id="snakeContainer">
-                <button class="back-btn" onclick="backToMenu()">← Back</button>
+                <button class="back-btn" onclick="backToMenu()">← Назад</button>
                 <canvas id="snake-canvas" width="400" height="300"></canvas>
             </div>
             <div class="game-content" id="minesContainer">
-                <button class="back-btn" onclick="backToMenu()">← Back</button>
+                <button class="back-btn" onclick="backToMenu()">← Назад</button>
                 <div class="mines-grid" id="minesGrid"></div>
             </div>
             <div class="game-content" id="geoContainer">
-                <button class="back-btn" onclick="backToMenu()">← Back</button>
-                <div id="geoScore" style="color:#8ab4f8; margin-bottom:10px;">Score: 0</div>
+                <button class="back-btn" onclick="backToMenu()">← Назад</button>
+                <div id="geoScore" style="color:#8ab4f8; margin-bottom:10px; font-weight: bold;">Счет: 0</div>
                 <div class="geo-flag-container" id="geoFlag"></div>
                 <div class="geo-options" id="geoOptions"></div>
             </div>
@@ -238,7 +235,7 @@
     </div>
 
 <script>
-    // ПЕРЕВОДЧИК
+    // --- ПЕРЕВОДЧИК ---
     const beerMap = {'А': 'влдаолдцт3894', 'Б': '78ем9т4325243895тм72', 'В': 'атдлжиыфвеи0653', 'Г': 'тмщышевз34', 'Д': '34три537уиадлвы', 'Е': 'ь02м392м7', 'Ё': 'ь02м392м8', 'Ж': 'тт32м4о35т2', 'З': '3и45рт647ь8', 'И': '49и357т7т50иц7', 'Й': '49и357т7т50иц8', 'К': 'тй89и5446', 'Л': '7ьт47тть75', 'М': '7ь65бь47456ь7', 'Н': '8674ь5б867куекв', 'О': 'ь7т3567о5643654', 'П': 'т76376534ывтн', 'Р': 'вьтапгь67767ь5ке', 'С': 'пиавые54', 'Т': 'т65436отекнр', 'У': '6т54у65т6цу3', 'Ф': '74567о5тнит7546', 'Х': '547т456756т85', 'Ц': '7ль564л7от546р546', 'Ч': '87645ьт5куьлнаенген', 'Ш': 'аеткуну45654н', 'Щ': 'аеткуну45654н1', 'Ъ': '22987т6и0222лвдпфы1', 'Ы': '22987т6и0222лвдпфы3', 'Ь': '22987т6и0222лвдпфы2', 'Э': '638ь54и96346и0345', 'Ю': 'е0ц4539и587т3450879345', 'Я': 'еьекутнтек6ня', 'A': 'z99x11v', 'B': 'bb77beer00', 'C': 'c_shakal_99', 'D': 'd88_vottak_2', 'E': 'e_pivo_1', 'F': 'f_44_ff', 'G': 'g_top_g_7', 'H': 'h_hh_888', 'I': 'i_eye_111', 'J': 'j_jack_55', 'K': 'k_kick_0', 'L': 'l_lose_77', 'M': 'm_m_444555', 'N': 'n_nitro_9', 'O': 'o_zero_00', 'P': 'p_pub_4', 'Q': 'q_quest_1', 'R': 'r_root_66', 'S': 's_snk_33', 'T': 't_tank_4', 'U': 'u_unit_22', 'V': 'v_v_666', 'W': 'w_wow_7', 'X': 'x_xxx_0', 'Y': 'y_yes_9', 'Z': 'z_zzz_1'};
     const reverseCodes = Object.entries(beerMap).map(([letter, code]) => ({ letter, code })).sort((a, b) => b.code.length - a.code.length);
     let isBeerToText = false;
@@ -272,7 +269,6 @@
         const text = document.getElementById('output-field').innerText;
         if (!text) return;
         navigator.clipboard.writeText(text).then(() => {
-            const btn = document.getElementById('copy-btn');
             const svg = document.getElementById('copy-icon');
             const old = svg.innerHTML;
             svg.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
@@ -280,7 +276,7 @@
         });
     }
 
-    // GAMES SYSTEM
+    // --- СИСТЕМА ИГР ---
     const modal = document.getElementById('gameModal');
     const menu = document.getElementById('gameMenu');
     let snakeInt;
@@ -293,28 +289,32 @@
         clearInterval(snakeInt);
     }
 
-    // GEOGUESSR FIXED (IMAGES INSTEAD OF EMOJI)
+    // --- ГЕОГЕССЕР (180+ СТРАН) ---
     const countries = [
-        {name: "США", code: "us"}, {name: "Россия", code: "ru"}, {name: "Франция", code: "fr"},
-        {name: "Германия", code: "de"}, {name: "Япония", code: "jp"}, {name: "Бразилия", code: "br"},
-        {name: "Канада", code: "ca"}, {name: "Италия", code: "it"}, {name: "Испания", code: "es"},
-        {name: "Китай", code: "cn"}, {name: "Великобритания", code: "gb"}, {name: "Австралия", code: "au"}
+        {name:"Афганистан",code:"af"},{name:"Албания",code:"al"},{name:"Алжир",code:"dz"},{name:"Андорра",code:"ad"},{name:"Ангола",code:"ao"},{name:"Аргентина",code:"ar"},{name:"Армения",code:"am"},{name:"Австралия",code:"au"},{name:"Австрия",code:"at"},{name:"Азербайджан",code:"az"},{name:"Багамы",code:"bs"},{name:"Бахрейн",code:"bh"},{name:"Бангладеш",code:"bd"},{name:"Барбадос",code:"bb"},{name:"Беларусь",code:"by"},{name:"Бельгия",code:"be"},{name:"Белиз",code:"bz"},{name:"Бенин",code:"bj"},{name:"Бутан",code:"bt"},{name:"Боливия",code:"bo"},{name:"Босния",code:"ba"},{name:"Ботсвана",code:"bw"},{name:"Бразилия",code:"br"},{name:"Бруней",code:"bn"},{name:"Болгария",code:"bg"},{name:"Буркина-Фасо",code:"bf"},{name:"Бурунди",code:"bi"},{name:"Камбоджа",code:"kh"},{name:"Камерун",code:"cm"},{name:"Канада",code:"ca"},{name:"Кабо-Верде",code:"cv"},{name:"ЦАР",code:"cf"},{name:"Чад",code:"td"},{name:"Чили",code:"cl"},{name:"Китай",code:"cn"},{name:"Колумбия",code:"co"},{name:"Коморы",code:"km"},{name:"Конго",code:"cg"},{name:"Коста-Рика",code:"cr"},{name:"Хорватия",code:"hr"},{name:"Куба",code:"cu"},{name:"Кипр",code:"cy"},{name:"Чехия",code:"cz"},{name:"Дания",code:"dk"},{name:"Джибути",code:"dj"},{name:"Доминика",code:"dm"},{name:"Доминикана",code:"do"},{name:"Эквадор",code:"ec"},{name:"Египет",code:"eg"},{name:"Сальвадор",code:"sv"},{name:"Эстония",code:"ee"},{name:"Эфиопия",code:"et"},{name:"Фиджи",code:"fj"},{name:"Финляндия",code:"fi"},{name:"Франция",code:"fr"},{name:"Габон",code:"ga"},{name:"Гамбия",code:"gm"},{name:"Грузия",code:"ge"},{name:"Германия",code:"de"},{name:"Гана",code:"gh"},{name:"Греция",code:"gr"},{name:"Гренада",code:"gd"},{name:"Гватемала",code:"gt"},{name:"Гвинея",code:"gn"},{name:"Гайана",code:"gy"},{name:"Гаити",code:"ht"},{name:"Гондурас",code:"hn"},{name:"Венгрия",code:"hu"},{name:"Исландия",code:"is"},{name:"Индия",code:"in"},{name:"Индонезия",code:"id"},{name:"Иран",code:"ir"},{name:"Ирак",code:"iq"},{name:"Ирландия",code:"ie"},{name:"Израиль",code:"il"},{name:"Италия",code:"it"},{name:"Ямайка",code:"jm"},{name:"Япония",code:"jp"},{name:"Иордания",code:"jo"},{name:"Казахстан",code:"kz"},{name:"Кения",code:"ke"},{name:"Кирибати",code:"ki"},{name:"Кувейт",code:"kw"},{name:"Кыргызстан",code:"kg"},{name:"Лаос",code:"la"},{name:"Латвия",code:"lv"},{name:"Ливан",code:"lb"},{name:"Лесото",code:"ls"},{name:"Либерия",code:"lr"},{name:"Ливия",code:"ly"},{name:"Литва",code:"lt"},{name:"Люксембург",code:"lu"},{name:"Мадагаскар",code:"mg"},{name:"Малави",code:"mw"},{name:"Малайзия",code:"my"},{name:"Мальдивы",code:"mv"},{name:"Мали",code:"ml"},{name:"Мальта",code:"mt"},{name:"Мавритания",code:"mr"},{name:"Маврикий",code:"mu"},{name:"Мексика",code:"mx"},{name:"Молдова",code:"md"},{name:"Монако",code:"mc"},{name:"Монголия",code:"mn"},{name:"Черногория",code:"me"},{name:"Марокко",code:"ma"},{name:"Мозамбик",code:"mz"},{name:"Мьянма",code:"mm"},{name:"Намибия",code:"na"},{name:"Непал",code:"np"},{name:"Нидерланды",code:"nl"},{name:"Новая Зеландия",code:"nz"},{name:"Никарагуа",code:"ni"},{name:"Нигер",code:"ne"},{name:"Нигерия",code:"ng"},{name:"Северная Корея",code:"kp"},{name:"Норвегия",code:"no"},{name:"Оман",code:"om"},{name:"Пакистан",code:"pk"},{name:"Палау",code:"pw"},{name:"Панама",code:"pa"},{name:"Папуа-Новая Гвинея",code:"pg"},{name:"Парагвай",code:"py"},{name:"Перу",code:"pe"},{name:"Филиппины",code:"ph"},{name:"Польша",code:"pl"},{name:"Португалия",code:"pt"},{name:"Катар",code:"qa"},{name:"Румыния",code:"ro"},{name:"Россия",code:"ru"},{name:"Руанда",code:"rw"},{name:"Самоа",code:"ws"},{name:"Сан-Марино",code:"sm"},{name:"Саудовская Аравия",code:"sa"},{name:"Сенегал",code:"sn"},{name:"Сербия",code:"rs"},{name:"Сейшелы",code:"sc"},{name:"Сьерра-Леоне",code:"sl"},{name:"Сингапур",code:"sg"},{name:"Словакия",code:"sk"},{name:"Словения",code:"si"},{name:"Сомали",code:"so"},{name:"ЮАР",code:"za"},{name:"Южная Корея",code:"kr"},{name:"Испания",code:"es"},{name:"Шри-Ланка",code:"lk"},{name:"Судан",code:"sd"},{name:"Суринам",code:"sr"},{name:"Швеция",code:"se"},{name:"Швейцария",code:"ch"},{name:"Сирия",code:"sy"},{name:"Таджикистан",code:"tj"},{name:"Танзания",code:"tz"},{name:"Таиланд",code:"th"},{name:"Того",code:"tg"},{name:"Тонга",code:"to"},{name:"Тринидад",code:"tt"},{name:"Тунис",code:"tn"},{name:"Турция",code:"tr"},{name:"Туркменистан",code:"tm"},{name:"Уганда",code:"ug"},{name:"Украина",code:"ua"},{name:"ОАЭ",code:"ae"},{name:"Великобритания",code:"gb"},{name:"США",code:"us"},{name:"Уругвай",code:"uy"},{name:"Узбекистан",code:"uz"},{name:"Вануату",code:"vu"},{name:"Венесуэла",code:"ve"},{name:"Вьетнам",code:"vn"},{name:"Йемен",code:"ye"},{name:"Замбия",code:"zm"},{name:"Зимбабве",code:"zw"}
     ];
-    let geoScore = 0;
+
+    let geoScoreVal = 0;
 
     function initGeo() {
         menu.style.display = 'none';
         document.getElementById('geoContainer').style.display = 'flex';
-        geoScore = 0;
+        geoScoreVal = 0;
         nextGeo();
     }
 
     function nextGeo() {
-        document.getElementById('geoScore').innerText = "Score: " + geoScore;
+        document.getElementById('geoScore').innerText = "Счет: " + geoScoreVal;
         const correct = countries[Math.floor(Math.random() * countries.length)];
         const flagBox = document.getElementById('geoFlag');
-        flagBox.innerHTML = `<img src="https://flagcdn.com/w320/${correct.code}.png" class="geo-flag-img">`;
         
+        flagBox.innerHTML = `<div style="color:#5f6368">Загрузка...</div>`;
+        
+        const img = new Image();
+        img.src = `https://flagcdn.com/w320/${correct.code}.png`;
+        img.className = "geo-flag-img";
+        img.onload = () => { flagBox.innerHTML = ''; flagBox.appendChild(img); };
+
         let opts = [correct];
         while(opts.length < 4) {
             let r = countries[Math.floor(Math.random()*countries.length)];
@@ -329,14 +329,25 @@
             b.className = 'game-btn';
             b.innerText = o.name;
             b.onclick = () => {
-                if(o === correct) { geoScore++; nextGeo(); }
-                else { alert("Game Over! It was " + correct.name); geoScore = 0; nextGeo(); }
+                if(o === correct) { 
+                    geoScoreVal++; 
+                    b.style.background = '#81c995'; 
+                    setTimeout(nextGeo, 200); 
+                } else { 
+                    b.style.background = '#f44336';
+                    // Баг исправлен: задержка перед алертом для отрисовки цвета
+                    setTimeout(() => {
+                        alert("ИГРА ОКОНЧЕНА!\n\nЭто была страна: " + correct.name + "\nВаш итоговый счет: " + geoScoreVal);
+                        geoScoreVal = 0; 
+                        nextGeo();
+                    }, 100);
+                }
             };
             optBox.appendChild(b);
         });
     }
 
-    // SNAKE
+    // --- ЗМЕЙКА ---
     function initSnake() {
         menu.style.display = 'none';
         document.getElementById('snakeContainer').style.display = 'flex';
@@ -354,7 +365,11 @@
         snakeInt = setInterval(() => {
             let h = {...s[0]};
             if(d==='U') h.y-=10; if(d==='D') h.y+=10; if(d==='L') h.x-=10; if(d==='R') h.x+=10;
-            if(h.x<0||h.x>=400||h.y<0||h.y>=300||s.some(p=>p.x===h.x&&p.y===h.y)) { clearInterval(snakeInt); alert("Score: "+sc); backToMenu(); }
+            if(h.x<0||h.x>=400||h.y<0||h.y>=300||s.some(p=>p.x===h.x&&p.y===h.y)) { 
+                clearInterval(snakeInt); 
+                alert("Змейка погибла! Счет: " + sc); 
+                backToMenu(); 
+            }
             s.unshift(h);
             if(h.x===f.x && h.y===f.y) { sc++; f={x:Math.floor(Math.random()*39)*10, y:Math.floor(Math.random()*29)*10}; }
             else s.pop();
@@ -365,7 +380,7 @@
         }, 100);
     }
 
-    // MINES
+    // --- САПЕР ---
     function initMinesweeper() {
         menu.style.display = 'none';
         document.getElementById('minesContainer').style.display = 'flex';
@@ -378,7 +393,7 @@
             const d = document.createElement('div');
             d.className = 'mine-cell';
             d.onclick = () => {
-                if(c.mine) { d.classList.add('boom'); alert("BOOM!"); backToMenu(); }
+                if(c.mine) { d.classList.add('boom'); alert("БА-БАХ! Вы подорвались."); backToMenu(); }
                 else { 
                     d.classList.add('revealed'); 
                     let near = 0;
@@ -392,7 +407,7 @@
         });
     }
 
-    // GRAVITY ENGINE (RE-INIT FOR NEW ELEMENTS)
+    // --- ГРАВИТАЦИЯ ---
     let gravityActive = false;
     let physicsObjects = [];
     function startGravity() {
@@ -419,4 +434,3 @@
 </script>
 </body>
 </html>
- 
