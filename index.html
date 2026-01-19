@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Beer Translate & Games</title>
     <style>
         body {
@@ -18,7 +18,7 @@
             overflow: hidden; 
             user-select: none;
             -webkit-user-select: none;
-            touch-action: none;
+            touch-action: none; /* Важно для игр и свайпов */
         }
 
         .title-container {
@@ -26,7 +26,8 @@
             display: flex;
             align-items: baseline;
             gap: 10px;
-            cursor: grab; /* Показываем, что можно хватать */
+            cursor: grab;
+            z-index: 20;
         }
 
         h1 { font-weight: 400; font-size: 32px; color: #bdc1c6; margin: 0; pointer-events: none; }
@@ -53,17 +54,17 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             position: relative;
             z-index: 10;
-            /* Важно для перетаскивания */
             touch-action: none;
         }
 
         .header-tabs {
             display: flex;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 15px;
             border-bottom: 1px solid #3c4043;
             height: 55px;
-            cursor: grab; /* Хватать за шапку */
+            cursor: grab;
+            flex-shrink: 0;
         }
         .header-tabs:active { cursor: grabbing; }
 
@@ -72,15 +73,16 @@
             border-bottom: 2px solid #8ab4f8; height: 100%; 
             display: flex; align-items: center; padding: 0 10px; 
             cursor: pointer;
+            white-space: nowrap;
         }
         
         .tab.inactive { border-bottom: 2px solid transparent; color: #9aa0a6; }
-        .swap-icon { margin: 0 20px; color: #9aa0a6; cursor: pointer; font-size: 24px; }
+        .swap-icon { margin: 0 15px; color: #9aa0a6; cursor: pointer; font-size: 24px; }
 
         .right-tabs {
             margin-left: auto;
             display: flex;
-            gap: 10px;
+            gap: 5px;
         }
 
         .action-tab {
@@ -89,26 +91,38 @@
             text-transform: uppercase;
             font-weight: bold;
             cursor: pointer;
-            padding: 8px 12px;
+            padding: 8px 10px;
             border-radius: 4px;
             transition: background 0.2s;
+            white-space: nowrap;
         }
         
         .action-tab:hover { color: #fff; background: rgba(255,255,255,0.05); }
         .game-tab { color: #8ab4f8; }
 
-        .main-panels { display: flex; flex-wrap: wrap; }
-        .panel { flex: 1; min-width: 300px; min-height: 250px; padding: 25px; position: relative; display: flex; flex-direction: column; background: #1e1f21; box-sizing: border-box;}
+        .main-panels { display: flex; flex-wrap: wrap; height: 100%; }
+        /* Адаптивность панелей */
+        .panel { 
+            flex: 1; 
+            min-width: 300px; 
+            min-height: 250px; 
+            padding: 20px; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            background: #1e1f21; 
+            box-sizing: border-box;
+        }
         .input-panel { border-right: 1px solid #3c4043; }
 
         textarea {
             width: 100%; height: 100%; background: transparent; border: none;
-            color: #fff; font-size: 22px; resize: none; outline: none; font-family: inherit;
+            color: #fff; font-size: 20px; resize: none; outline: none; font-family: inherit;
         }
 
-        #output-field { font-size: 22px; color: #bdc1c6; word-break: break-all; white-space: pre-wrap; flex-grow: 1; margin-bottom: 30px; min-height: 1.2em; }
+        #output-field { font-size: 20px; color: #bdc1c6; word-break: break-all; white-space: pre-wrap; flex-grow: 1; margin-bottom: 40px; min-height: 1.2em; overflow-y: auto; }
 
-        .clear-btn { position: absolute; top: 20px; right: 20px; color: #9aa0a6; cursor: pointer; font-size: 22px; }
+        .clear-btn { position: absolute; top: 15px; right: 15px; color: #9aa0a6; cursor: pointer; font-size: 22px; padding: 5px; z-index: 5; }
         
         .panel-footer { 
             position: absolute; 
@@ -151,32 +165,65 @@
             border: 1px solid #3c4043;
             border-radius: 12px;
             width: 500px;
-            max-width: 95%;
+            max-width: 95%; /* Адаптивность ширины */
+            max-height: 90vh;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         .game-header { padding: 15px; border-bottom: 1px solid #3c4043; display: flex; justify-content: space-between; align-items: center; }
-        .game-menu { padding: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .game-btn { background: #303134; color: #e8eaed; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
-        .game-btn:hover { background: #8ab4f8; color: #000; }
-        .close-game { cursor: pointer; color: #9aa0a6; font-size: 24px; }
+        .game-menu { padding: 20px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+        
+        @media (min-width: 500px) {
+            .game-menu { grid-template-columns: 1fr 1fr 1fr; }
+        }
+
+        .game-btn { background: #303134; color: #e8eaed; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; font-size: 16px; }
+        .game-btn:hover, .game-btn:active { background: #8ab4f8; color: #000; }
+        .close-game { cursor: pointer; color: #9aa0a6; font-size: 24px; padding: 5px; }
         
         .game-content { padding: 20px; display: none; flex-direction: column; align-items: center; min-height: 350px; }
         
-        #snake-canvas { background: #000; border: 2px solid #3c4043; max-width: 100%; }
+        #snake-canvas { background: #000; border: 2px solid #3c4043; max-width: 100%; touch-action: none; }
         
-        .mines-grid { display: grid; gap: 2px; background: #3c4043; border: 2px solid #3c4043; margin-top: 10px; }
-        .mine-cell { width: 30px; height: 30px; background: #bdc1c6; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; color: #000; user-select: none; }
+        .mines-grid { display: grid; gap: 2px; background: #3c4043; border: 2px solid #3c4043; margin-top: 10px; touch-action: manipulation; }
+        .mine-cell { 
+            width: 30px; height: 30px; 
+            background: #bdc1c6; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; cursor: pointer; color: #000; 
+            user-select: none; 
+            -webkit-touch-callout: none; /* Отключить лупу iOS */
+        }
         .mine-cell.revealed { background: #303134; color: #fff; cursor: default; }
         .mine-cell.boom { background: #f44336; }
         .mine-cell.flagged { color: #f44336; }
 
         .geo-flag-container { margin: 20px 0; min-height: 120px; display: flex; align-items: center; justify-content: center; }
-        .geo-flag-img { height: 120px; border-radius: 8px; border: 1px solid #3c4043; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .geo-flag-img { height: 120px; max-width: 100%; border-radius: 8px; border: 1px solid #3c4043; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .geo-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
 
-        .back-btn { margin-bottom: 15px; align-self: flex-start; background: none; border: none; color: #9aa0a6; cursor: pointer; font-size: 14px; }
+        .back-btn { margin-bottom: 15px; align-self: flex-start; background: none; border: none; color: #9aa0a6; cursor: pointer; font-size: 16px; padding: 10px 0; }
+
+        /* МОБИЛЬНЫЕ СТИЛИ */
+        @media (max-width: 768px) {
+            h1 { font-size: 24px; }
+            .translator-container { width: 98%; max-height: 85vh; overflow-y: auto; }
+            .header-tabs { height: 50px; padding: 0 10px; }
+            .swap-icon { margin: 0 10px; }
+            
+            /* Панели друг под другом */
+            .main-panels { flex-direction: column; }
+            .input-panel { border-right: none; border-bottom: 1px solid #3c4043; min-height: 150px; }
+            .panel { min-height: 150px; padding: 15px; }
+            
+            #output-field { font-size: 18px; margin-bottom: 50px; }
+            textarea { font-size: 18px; }
+
+            .old-version-btn { padding: 8px 12px; }
+            .copy-btn svg { width: 28px; height: 28px; }
+        }
     </style>
 </head>
 <body>
@@ -229,9 +276,11 @@
             <div class="game-content" id="snakeContainer">
                 <button class="back-btn" onclick="backToMenu()">← Назад</button>
                 <canvas id="snake-canvas" width="400" height="300"></canvas>
+                <div style="margin-top:10px; color:#5f6368; font-size:12px;">Свайпайте для управления</div>
             </div>
             <div class="game-content" id="minesContainer">
                 <button class="back-btn" onclick="backToMenu()">← Назад</button>
+                <div style="color:#5f6368; font-size:12px; margin-bottom: 5px;">ПКМ или Долгое нажатие - Флаг</div>
                 <div class="mines-grid" id="minesGrid"></div>
             </div>
             <div class="game-content" id="geoContainer">
@@ -294,6 +343,7 @@
     function closeGameModal() { modal.style.display = 'none'; clearInterval(snakeInt); }
     function backToMenu() {
         menu.style.display = 'grid';
+        if(window.innerWidth > 500) menu.style.display = 'grid'; // Grid fix
         ['snakeContainer', 'minesContainer', 'geoContainer'].forEach(id => document.getElementById(id).style.display = 'none');
         clearInterval(snakeInt);
     }
@@ -355,7 +405,7 @@
         });
     }
 
-    // --- ЗМЕЙКА ---
+    // --- ЗМЕЙКА (Добавлен свайп) ---
     function initSnake() {
         menu.style.display = 'none';
         document.getElementById('snakeContainer').style.display = 'flex';
@@ -368,6 +418,22 @@
             if(e.key==='ArrowDown' && d!=='U') d='D';
             if(e.key==='ArrowLeft' && d!=='R') d='L';
             if(e.key==='ArrowRight' && d!=='L') d='R';
+        };
+
+        // Свайпы для мобилки
+        let tX, tY;
+        canvas.ontouchstart = e => { tX = e.touches[0].clientX; tY = e.touches[0].clientY; };
+        canvas.ontouchmove = e => {
+            if(!tX || !tY) return;
+            let dX = e.touches[0].clientX - tX;
+            let dY = e.touches[0].clientY - tY;
+            if(Math.abs(dX) > Math.abs(dY)) {
+                if(dX > 0 && d!=='L') d='R'; else if(dX < 0 && d!=='R') d='L';
+            } else {
+                if(dY > 0 && d!=='U') d='D'; else if(dY < 0 && d!=='D') d='U';
+            }
+            tX = null; tY = null;
+            e.preventDefault();
         };
 
         snakeInt = setInterval(() => {
@@ -388,7 +454,7 @@
         }, 100);
     }
 
-    // --- САПЕР (ПОЛНОЦЕННЫЙ) ---
+    // --- САПЕР (Long Press для флага) ---
     let minesState = [];
     const MS_COLS = 10;
     const MS_ROWS = 10;
@@ -400,7 +466,6 @@
         grid.style.gridTemplateColumns = `repeat(${MS_COLS}, 30px)`;
         grid.innerHTML = '';
         
-        // Создаем данные
         minesState = Array(MS_COLS * MS_ROWS).fill(0).map((_,i) => ({
             i, 
             mine: Math.random() < 0.15, 
@@ -412,26 +477,59 @@
         minesState.forEach(c => {
             const d = document.createElement('div');
             d.className = 'mine-cell';
-            c.el = d; // Сохраняем ссылку на DOM
+            c.el = d; 
             
-            // ЛКМ - Открыть
+            // ЛОГИКА ДОЛГОГО НАЖАТИЯ (ДЛЯ ТЕЛЕФОНОВ)
+            let pressTimer;
+            let isLongPress = false;
+
+            // Обработка касания
+            d.addEventListener('touchstart', (e) => {
+                isLongPress = false;
+                pressTimer = setTimeout(() => {
+                    isLongPress = true;
+                    toggleFlag(c); // Ставим флаг
+                    if(navigator.vibrate) navigator.vibrate(50); // Вибрация
+                }, 500); // 500мс = долгий тап
+            }, {passive: false});
+
+            d.addEventListener('touchend', (e) => {
+                clearTimeout(pressTimer);
+                if (isLongPress) {
+                    e.preventDefault(); // Если был долгий тап, предотвращаем клик
+                }
+            });
+
+            d.addEventListener('touchmove', () => {
+                clearTimeout(pressTimer); // Если палец сдвинулся, отменяем флаг
+            });
+
+            // ЛКМ - Открыть (если это не был Long Press)
             d.onclick = () => {
+                if (isLongPress) {
+                    isLongPress = false; 
+                    return;
+                }
                 if (c.flag || c.rev) return;
                 openCell(c);
             };
 
-            // ПКМ - Флаг
+            // ПКМ - Флаг (для ПК)
             d.oncontextmenu = (e) => {
                 e.preventDefault();
-                if (c.rev) return;
-                c.flag = !c.flag;
-                d.innerText = c.flag ? '🚩' : '';
-                d.classList.toggle('flagged', c.flag);
+                toggleFlag(c);
                 return false;
             };
 
             grid.appendChild(d);
         });
+    }
+
+    function toggleFlag(c) {
+        if (c.rev) return;
+        c.flag = !c.flag;
+        c.el.innerText = c.flag ? '🚩' : '';
+        c.el.classList.toggle('flagged', c.flag);
     }
 
     function openCell(c) {
@@ -442,7 +540,6 @@
         if(c.mine) {
             c.el.classList.add('boom');
             c.el.innerText = '💣';
-            // Показать все мины
             minesState.forEach(m => {
                 if(m.mine) { m.el.classList.add('boom'); m.el.innerText = '💣'; }
             });
@@ -453,7 +550,6 @@
             return;
         }
 
-        // Считаем соседей
         let near = 0;
         const neighbors = getNeighbors(c.i);
         
@@ -466,8 +562,6 @@
             const colors = ['#8ab4f8', '#81c995', '#fdd663', '#f28b82', '#e67c73'];
             c.el.style.color = colors[near-1] || '#f28b82';
         } else {
-            // АВТО-ОТКРЫТИЕ (Flood Fill)
-            // Если рядом нет мин, открываем соседей
             c.el.innerText = '';
             neighbors.forEach(nIdx => {
                 const neighbor = minesState[nIdx];
@@ -497,7 +591,7 @@
     }
 
 
-    // --- ГРАВИТАЦИЯ (С ПЕРЕТАСКИВАНИЕМ) ---
+    // --- ГРАВИТАЦИЯ (С ПОДДЕРЖКОЙ ТАЧА) ---
     let gravityActive = false;
     let physicsObjects = [];
     let mouse = { x: 0, y: 0, down: false, draggedObj: null, lastX: 0, lastY: 0 };
@@ -511,11 +605,9 @@
         els.forEach(el => {
             if(!el) return;
             const r = el.getBoundingClientRect();
-            // Сохраняем точные начальные координаты
             const startX = r.left;
             const startY = r.top;
             
-            // Объект физики
             const obj = { 
                 el, 
                 x: startX, 
@@ -525,12 +617,10 @@
                 vx: (Math.random() - 0.5) * 10, 
                 vy: 0, 
                 rot: 0,
-                // Замедленное вращение, чтобы не было пропеллера
                 rotSpeed: (Math.random() - 0.5) * 2 
             };
             physicsObjects.push(obj);
             
-            // Фиксируем элементы
             el.style.position = 'fixed'; 
             el.style.width = r.width+'px'; 
             el.style.margin = '0'; 
@@ -539,75 +629,76 @@
             el.style.left = '0';
             el.style.transform = `translate(${startX}px, ${startY}px)`;
 
-            // Обработчик захвата
-            el.onmousedown = (e) => {
-                mouse.down = true;
-                mouse.draggedObj = obj;
-                // Смещение клика относительно угла объекта
-                mouse.offsetX = e.clientX - obj.x;
-                mouse.offsetY = e.clientY - obj.y;
-                obj.vx = 0;
-                obj.vy = 0;
-                obj.rotSpeed = 0; // Остановить вращение при захвате
+            // Захват мышью
+            el.onmousedown = (e) => startDrag(e, obj, e.clientX, e.clientY);
+            
+            // Захват пальцем
+            el.ontouchstart = (e) => {
+                e.preventDefault(); // Чтобы не скроллить экран
+                startDrag(e, obj, e.touches[0].clientX, e.touches[0].clientY);
             };
         });
 
-        // Глобальные слушатели мыши
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-            
-            if (mouse.down && mouse.draggedObj) {
-                // Если тащим - обновляем позицию напрямую
-                const o = mouse.draggedObj;
-                o.x = e.clientX - mouse.offsetX;
-                o.y = e.clientY - mouse.offsetY;
-                
-                // Вычисляем скорость для "броска"
-                o.vx = e.clientX - mouse.lastX;
-                o.vy = e.clientY - mouse.lastY;
-            }
-            
-            mouse.lastX = e.clientX;
-            mouse.lastY = e.clientY;
-        });
+        // Слушатели движения (Мышь + Тач)
+        window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
+        window.addEventListener('touchmove', (e) => moveDrag(e.touches[0].clientX, e.touches[0].clientY));
 
-        window.addEventListener('mouseup', () => {
-            mouse.down = false;
-            mouse.draggedObj = null;
-        });
+        // Отпускание (Мышь + Тач)
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
         
         requestAnimationFrame(updatePhys);
     }
 
+    function startDrag(e, obj, cX, cY) {
+        mouse.down = true;
+        mouse.draggedObj = obj;
+        mouse.offsetX = cX - obj.x;
+        mouse.offsetY = cY - obj.y;
+        obj.vx = 0; obj.vy = 0; obj.rotSpeed = 0;
+        mouse.lastX = cX; mouse.lastY = cY;
+    }
+
+    function moveDrag(cX, cY) {
+        mouse.x = cX; mouse.y = cY;
+        if (mouse.down && mouse.draggedObj) {
+            const o = mouse.draggedObj;
+            o.x = cX - mouse.offsetX;
+            o.y = cY - mouse.offsetY;
+            o.vx = cX - mouse.lastX;
+            o.vy = cY - mouse.lastY;
+        }
+        mouse.lastX = cX; mouse.lastY = cY;
+    }
+
+    function endDrag() {
+        mouse.down = false;
+        mouse.draggedObj = null;
+    }
+
     function updatePhys() {
         physicsObjects.forEach(o => {
-            // Если объект тащат мышкой - физику не применяем, только позицию
             if (mouse.down && mouse.draggedObj === o) {
                 o.el.style.transform = `translate(${o.x}px, ${o.y}px) rotate(${o.rot}deg)`;
                 return;
             }
 
-            // Физика
-            o.vy += 0.8; // Гравитация
-            o.vx *= 0.99; // Сопротивление воздуха
-            o.rotSpeed *= 0.98; // Затухание вращения (чтобы не было пропеллера)
+            o.vy += 0.8;
+            o.vx *= 0.99;
+            o.rotSpeed *= 0.98;
             
             o.x += o.vx;
             o.y += o.vy;
             o.rot += o.rotSpeed;
 
-            // Пол
             if(o.y + o.h > window.innerHeight) { 
                 o.y = window.innerHeight - o.h; 
                 o.vy *= -0.6; 
                 o.vx *= 0.8; 
-                // При ударе немного крутим, но слабо
                 if(Math.abs(o.vy) > 2) o.rotSpeed += (Math.random()-0.5) * 2;
                 if (Math.abs(o.vy) < 1) o.vy = 0;
             }
 
-            // Стены
             if(o.x < 0) {
                 o.x = 0;
                 o.vx *= -0.8;
@@ -627,4 +718,3 @@
 </script>
 </body>
 </html>
-
