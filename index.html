@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+        // Проверяем, с телефона ли зашел пользователь
+        var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // Если это телефон, сразу перекидываем на mobile.html
+            // window.location.replace не дает нажать кнопку "Назад", чтобы не попасть в бесконечный цикл
+            window.location.replace("mobile.html");
+        }
+    </script>
+    <meta charset="UTF-8">
+    <title>Версия для ПК</title>
+    </head>
+<body>
+    <h1>Это версия для Компьютера</h1>
+    <p>Если ты видишь это с телефона — скрипт не сработал.</p>
+</body>
+</html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Beer Translate & Games</title>
