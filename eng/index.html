@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+        // Check if the user is on mobile
+        var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // If mobile, redirect to mobile.html
+            // window.location.replace prevents the "Back" button loop
+            window.location.replace("mobile.html");
+        }
+    </script>
+    <meta charset="UTF-8">
+    <title>PC Version</title>
+    </head>
+<body>
+    <h1>This is the Computer Version</h1>
+    <p>If you see this from a phone — the script didn't work.</p>
+</body>
+</html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Beer Translate & Games</title>
+    <style>
+        body {
+            background-color: #121316;
+            color: #e8eaed;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; 
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none; /* Important for games and swipes */
+        }
+
+        .title-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            cursor: grab;
+            z-index: 20;
+        }
+
+        h1 { font-weight: 400; font-size: 32px; color: #bdc1c6; margin: 0; pointer-events: none; }
+        
+        .secret-link { 
+            color: inherit; 
+            text-decoration: none; 
+            cursor: pointer; 
+            pointer-events: auto;
+            transition: color 0.2s;
+        }
+        .secret-link:hover { color: #8ab4f8; }
+
+        .author-tag { font-size: 14px; color: #5f6368; font-weight: 500; opacity: 0.7; pointer-events: none; }
+
+        .translator-container {
+            background-color: #1e1f21;
+            border: 1px solid #3c4043;
+            border-radius: 12px;
+            width: 95%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 10;
+            touch-action: none;
+        }
+
+        .header-tabs {
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border-bottom: 1px solid #3c4043;
+            height: 55px;
+            cursor: grab;
+            flex-shrink: 0;
+        }
+        .header-tabs:active { cursor: grabbing; }
+
+        .tab { 
+            color: #8ab4f8; font-size: 14px; font-weight: 500; 
+            border-bottom: 2px solid #8ab4f8; height: 100%; 
+            display: flex; align-items: center; padding: 0 10px; 
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .tab.inactive { border-bottom: 2px solid transparent; color: #9aa0a6; }
+        .swap-icon { margin: 0 15px; color: #9aa0a6; cursor: pointer; font-size: 24px; }
+
+        .right-tabs {
+            margin-left: auto;
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-tab {
+            color: #9aa0a6;
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 8px 10px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        
+        .action-tab:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .game-tab { color: #8ab4f8; }
+
+        .main-panels { display: flex; flex-wrap: wrap; height: 100%; }
+        /* Panel responsiveness */
+        .panel { 
+            flex: 1; 
+            min-width: 300px; 
+            min-height: 250px; 
+            padding: 20px; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            background: #1e1f21; 
+            box-sizing: border-box;
+        }
+        .input-panel { border-right: 1px solid #3c4043; }
+
+        textarea {
+            width: 100%; height: 100%; background: transparent; border: none;
+            color: #fff; font-size: 20px; resize: none; outline: none; font-family: inherit;
+        }
+
+        #output-field { font-size: 20px; color: #bdc1c6; word-break: break-all; white-space: pre-wrap; flex-grow: 1; margin-bottom: 40px; min-height: 1.2em; overflow-y: auto; }
+
+        .clear-btn { position: absolute; top: 15px; right: 15px; color: #9aa0a6; cursor: pointer; font-size: 22px; padding: 5px; z-index: 5; }
+        
+        .panel-footer { 
+            position: absolute; 
+            bottom: 12px; 
+            right: 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+
+        .old-version-btn {
+            color: #8ab4f8;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border: 1px solid #3c4043;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .old-version-btn:hover {
+            background: rgba(138, 180, 248, 0.08);
+            border-color: #8ab4f8;
+        }
+
+        .copy-btn { background: transparent; border: none; color: #9aa0a6; cursor: pointer; padding: 8px; border-radius: 50%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .copy-btn svg { width: 24px; height: 24px; fill: currentColor; }
+
+        /* GAME WINDOW */
+        .modal-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 5000;
+            justify-content: center; align-items: center;
+        }
+        .game-window {
+            background: #1e1f21;
+            border: 1px solid #3c4043;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 95%; /* Responsive width */
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+        .game-header { padding: 15px; border-bottom: 1px solid #3c4043; display: flex; justify-content: space-between; align-items: center; }
+        .game-menu { padding: 20px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+        
+        @media (min-width: 500px) {
+            .game-menu { grid-template-columns: 1fr 1fr 1fr; }
+        }
+
+        .game-btn { background: #303134; color: #e8eaed; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; font-size: 16px; }
+        .game-btn:hover, .game-btn:active { background: #8ab4f8; color: #000; }
+        .close-game { cursor: pointer; color: #9aa0a6; font-size: 24px; padding: 5px; }
+        
+        .game-content { padding: 20px; display: none; flex-direction: column; align-items: center; min-height: 350px; }
+        
+        #snake-canvas { background: #000; border: 2px solid #3c4043; max-width: 100%; touch-action: none; }
+        
+        .mines-grid { display: grid; gap: 2px; background: #3c4043; border: 2px solid #3c4043; margin-top: 10px; touch-action: manipulation; }
+        .mine-cell { 
+            width: 30px; height: 30px; 
+            background: #bdc1c6; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; cursor: pointer; color: #000; 
+            user-select: none; 
+            -webkit-touch-callout: none; /* Disable iOS loop */
+        }
+        .mine-cell.revealed { background: #303134; color: #fff; cursor: default; }
+        .mine-cell.boom { background: #f44336; }
+        .mine-cell.flagged { color: #f44336; }
+
+        .geo-flag-container { margin: 20px 0; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+        .geo-flag-img { height: 120px; max-width: 100%; border-radius: 8px; border: 1px solid #3c4043; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .geo-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+
+        .back-btn { margin-bottom: 15px; align-self: flex-start; background: none; border: none; color: #9aa0a6; cursor: pointer; font-size: 16px; padding: 10px 0; }
+
+        /* MOBILE STYLES */
+        @media (max-width: 768px) {
+            h1 { font-size: 24px; }
+            .translator-container { width: 98%; max-height: 85vh; overflow-y: auto; }
+            .header-tabs { height: 50px; padding: 0 10px; }
+            .swap-icon { margin: 0 10px; }
+            
+            /* Panels stacked */
+            .main-panels { flex-direction: column; }
+            .input-panel { border-right: none; border-bottom: 1px solid #3c4043; min-height: 150px; }
+            .panel { min-height: 150px; padding: 15px; }
+            
+            #output-field { font-size: 18px; margin-bottom: 50px; }
+            textarea { font-size: 18px; }
+
+            .old-version-btn { padding: 8px 12px; }
+            .copy-btn svg { width: 28px; height: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title-container" id="title-block">
+        <h1>
+            <a href="https://www.roblox.com/games/111530421351096/You-VS-Homer" class="secret-link">B</a>ee<a href="https://beerlanguage.ru/rat/" class="secret-link">r</a> Translate
+        </h1>
+        <span class="author-tag">by spiderkaras</span>
+    </div>
+
+    <div class="translator-container" id="main-block">
+        <div class="header-tabs">
+            <div class="tab" id="left-label">Text</div>
+            <div class="swap-icon" onclick="toggleMode()">⇄</div>
+            <div class="tab inactive" id="right-label">Beer Language</div>
+            <div class="right-tabs">
+                <div class="action-tab game-tab" onclick="openGameModal()">Games</div>
+                <div class="action-tab" onclick="startGravity()">Gravity</div>
+            </div>
+        </div>
+        <div class="main-panels">
+            <div class="panel input-panel">
+                <div class="clear-btn" onclick="clearAll()">✕</div>
+                <textarea id="input-text" placeholder="Enter text..." oninput="doTranslate()"></textarea>
+            </div>
+            <div class="panel">
+                <div id="output-field"></div>
+                <div class="panel-footer">
+                    <a href="https://beerlanguage.ru/old/" class="old-version-btn">Old Version</a>
+                    <button class="copy-btn" id="copy-btn" onclick="copyResult()">
+                        <svg id="copy-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="gameModal">
+        <div class="game-window">
+            <div class="game-header">
+                <span id="gameTitle" style="font-weight:bold; color:#bdc1c6">Arcade Menu</span>
+                <div class="close-game" onclick="closeGameModal()">✕</div>
+            </div>
+            <div class="game-menu" id="gameMenu">
+                <button class="game-btn" onclick="initMinesweeper()">💣 Minesweeper</button>
+                <button class="game-btn" onclick="initSnake()">🐍 Snake</button>
+                <button class="game-btn" onclick="initGeo()">🌍 Flags</button>
+            </div>
+            <div class="game-content" id="snakeContainer">
+                <button class="back-btn" onclick="backToMenu()">← Back</button>
+                <canvas id="snake-canvas" width="400" height="300"></canvas>
+                <div style="margin-top:10px; color:#5f6368; font-size:12px;">Swipe to control</div>
+            </div>
+            <div class="game-content" id="minesContainer">
+                <button class="back-btn" onclick="backToMenu()">← Back</button>
+                <div style="color:#5f6368; font-size:12px; margin-bottom: 5px;">RMB or Long Press - Flag</div>
+                <div class="mines-grid" id="minesGrid"></div>
+            </div>
+            <div class="game-content" id="geoContainer">
+                <button class="back-btn" onclick="backToMenu()">← Back</button>
+                <div id="geoScore" style="color:#8ab4f8; margin-bottom:10px; font-weight: bold;">Score: 0</div>
+                <div class="geo-flag-container" id="geoFlag"></div>
+                <div class="geo-options" id="geoOptions"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- TRANSLATOR ---
+    const beerMap = {'А': 'влдаолдцт3894', 'Б': '78ем9т4325243895тм72', 'В': 'атдлжиыфвеи0653', 'Г': 'тмщышевз34', 'Д': '34три537уиадлвы', 'Е': 'ь02м392м7', 'Ё': 'ь02м392м8', 'Ж': 'тт32м4о35т2', 'З': '3и45рт647ь8', 'И': '49и357т7т50иц7', 'Й': '49и357т7т50иц8', 'К': 'тй89и5446', 'Л': '7ьт47тть75', 'М': '7ь65бь47456ь7', 'Н': '8674ь5б867куекв', 'О': 'ь7т3567о5643654', 'П': 'т76376534ывтн', 'Р': 'вьтапгь67767ь5ке', 'С': 'пиавые54', 'Т': 'т65436отекнр', 'У': '6т54у65т6цу3', 'Ф': '74567о5тнит7546', 'Х': '547т456756т85', 'Ц': '7ль564л7от546р546', 'Ч': '87645ьт5куьлнаенген', 'Ш': 'аеткуну45654н', 'Щ': 'аеткуну45654н1', 'Ъ': '22987т6и0222лвдпфы1', 'Ы': '22987т6и0222лвдпфы3', 'Ь': '22987т6и0222лвдпфы2', 'Э': '638ь54и96346и0345', 'Ю': 'е0ц4539и587т3450879345', 'Я': 'еьекутнтек6ня', 'A': 'z99x11v', 'B': 'bb77beer00', 'C': 'c_shakal_99', 'D': 'd88_vottak_2', 'E': 'e_pivo_1', 'F': 'f_44_ff', 'G': 'g_top_g_7', 'H': 'h_hh_888', 'I': 'i_eye_111', 'J': 'j_jack_55', 'K': 'k_kick_0', 'L': 'l_lose_77', 'M': 'm_m_444555', 'N': 'n_nitro_9', 'O': 'o_zero_00', 'P': 'p_pub_4', 'Q': 'q_quest_1', 'R': 'r_root_66', 'S': 's_snk_33', 'T': 't_tank_4', 'U': 'u_unit_22', 'V': 'v_v_666', 'W': 'w_wow_7', 'X': 'x_xxx_0', 'Y': 'y_yes_9', 'Z': 'z_zzz_1'};
+    const reverseCodes = Object.entries(beerMap).map(([letter, code]) => ({ letter, code })).sort((a, b) => b.code.length - a.code.length);
+    let isBeerToText = false;
+
+    function toggleMode() { 
+        isBeerToText = !isBeerToText; 
+        document.getElementById('left-label').innerText = isBeerToText ? 'Beer Language' : 'Text'; 
+        document.getElementById('right-label').innerText = isBeerToText ? 'Text' : 'Beer Language'; 
+        clearAll(); 
+    }
+
+    function doTranslate() { 
+        const input = document.getElementById('input-text').value; 
+        const output = document.getElementById('output-field'); 
+        if (!input) { output.innerText = ''; return; } 
+        if (!isBeerToText) {
+            let result = ''; for (let char of input.toUpperCase()) { result += beerMap[char] || char; } output.innerText = result;
+        } else {
+            let result = ''; let i = 0; while (i < input.length) {
+                let found = false; for (let item of reverseCodes) {
+                    if (input.substr(i, item.code.length) === item.code) { result += item.letter; i += item.code.length; found = true; break; }
+                }
+                if (!found) { result += input[i]; i++; }
+            }
+            output.innerText = result.toLowerCase();
+        }
+    }
+
+    function clearAll() { document.getElementById('input-text').value = ''; document.getElementById('output-field').innerText = ''; }
+    function copyResult() {
+        const text = document.getElementById('output-field').innerText;
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+            const svg = document.getElementById('copy-icon');
+            const old = svg.innerHTML;
+            svg.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
+            setTimeout(() => svg.innerHTML = old, 2000);
+        });
+    }
+
+    // --- GAME SYSTEM ---
+    const modal = document.getElementById('gameModal');
+    const menu = document.getElementById('gameMenu');
+    let snakeInt;
+
+    function openGameModal() { modal.style.display = 'flex'; backToMenu(); }
+    function closeGameModal() { modal.style.display = 'none'; clearInterval(snakeInt); }
+    function backToMenu() {
+        menu.style.display = 'grid';
+        if(window.innerWidth > 500) menu.style.display = 'grid'; // Grid fix
+        ['snakeContainer', 'minesContainer', 'geoContainer'].forEach(id => document.getElementById(id).style.display = 'none');
+        clearInterval(snakeInt);
+    }
+
+    // --- GEOGUESSR ---
+    const countries = [
+        {name:"Afghanistan",code:"af"},{name:"Albania",code:"al"},{name:"Algeria",code:"dz"},{name:"Andorra",code:"ad"},{name:"Angola",code:"ao"},{name:"Argentina",code:"ar"},{name:"Armenia",code:"am"},{name:"Australia",code:"au"},{name:"Austria",code:"at"},{name:"Azerbaijan",code:"az"},{name:"Bahamas",code:"bs"},{name:"Bahrain",code:"bh"},{name:"Bangladesh",code:"bd"},{name:"Barbados",code:"bb"},{name:"Belarus",code:"by"},{name:"Belgium",code:"be"},{name:"Belize",code:"bz"},{name:"Benin",code:"bj"},{name:"Bhutan",code:"bt"},{name:"Bolivia",code:"bo"},{name:"Bosnia",code:"ba"},{name:"Botswana",code:"bw"},{name:"Brazil",code:"br"},{name:"Brunei",code:"bn"},{name:"Bulgaria",code:"bg"},{name:"Burkina Faso",code:"bf"},{name:"Burundi",code:"bi"},{name:"Cambodia",code:"kh"},{name:"Cameroon",code:"cm"},{name:"Canada",code:"ca"},{name:"Cabo Verde",code:"cv"},{name:"CAR",code:"cf"},{name:"Chad",code:"td"},{name:"Chile",code:"cl"},{name:"China",code:"cn"},{name:"Colombia",code:"co"},{name:"Comoros",code:"km"},{name:"Congo",code:"cg"},{name:"Costa Rica",code:"cr"},{name:"Croatia",code:"hr"},{name:"Cuba",code:"cu"},{name:"Cyprus",code:"cy"},{name:"Czechia",code:"cz"},{name:"Denmark",code:"dk"},{name:"Djibouti",code:"dj"},{name:"Dominica",code:"dm"},{name:"Dominican Rep.",code:"do"},{name:"Ecuador",code:"ec"},{name:"Egypt",code:"eg"},{name:"El Salvador",code:"sv"},{name:"Estonia",code:"ee"},{name:"Ethiopia",code:"et"},{name:"Fiji",code:"fj"},{name:"Finland",code:"fi"},{name:"France",code:"fr"},{name:"Gabon",code:"ga"},{name:"Gambia",code:"gm"},{name:"Georgia",code:"ge"},{name:"Germany",code:"de"},{name:"Ghana",code:"gh"},{name:"Greece",code:"gr"},{name:"Grenada",code:"gd"},{name:"Guatemala",code:"gt"},{name:"Guinea",code:"gn"},{name:"Guyana",code:"gy"},{name:"Haiti",code:"ht"},{name:"Honduras",code:"hn"},{name:"Hungary",code:"hu"},{name:"Iceland",code:"is"},{name:"India",code:"in"},{name:"Indonesia",code:"id"},{name:"Iran",code:"ir"},{name:"Iraq",code:"iq"},{name:"Ireland",code:"ie"},{name:"Israel",code:"il"},{name:"Italy",code:"it"},{name:"Jamaica",code:"jm"},{name:"Japan",code:"jp"},{name:"Jordan",code:"jo"},{name:"Kazakhstan",code:"kz"},{name:"Kenya",code:"ke"},{name:"Kiribati",code:"ki"},{name:"Kuwait",code:"kw"},{name:"Kyrgyzstan",code:"kg"},{name:"Laos",code:"la"},{name:"Latvia",code:"lv"},{name:"Lebanon",code:"lb"},{name:"Lesotho",code:"ls"},{name:"Liberia",code:"lr"},{name:"Libya",code:"ly"},{name:"Lithuania",code:"lt"},{name:"Luxembourg",code:"lu"},{name:"Madagascar",code:"mg"},{name:"Malawi",code:"mw"},{name:"Malaysia",code:"my"},{name:"Maldives",code:"mv"},{name:"Mali",code:"ml"},{name:"Malta",code:"mt"},{name:"Mauritania",code:"mr"},{name:"Mauritius",code:"mu"},{name:"Mexico",code:"mx"},{name:"Moldova",code:"md"},{name:"Monaco",code:"mc"},{name:"Mongolia",code:"mn"},{name:"Montenegro",code:"me"},{name:"Morocco",code:"ma"},{name:"Mozambique",code:"mz"},{name:"Myanmar",code:"mm"},{name:"Namibia",code:"na"},{name:"Nepal",code:"np"},{name:"Netherlands",code:"nl"},{name:"New Zealand",code:"nz"},{name:"Nicaragua",code:"ni"},{name:"Niger",code:"ne"},{name:"Nigeria",code:"ng"},{name:"North Korea",code:"kp"},{name:"Norway",code:"no"},{name:"Oman",code:"om"},{name:"Pakistan",code:"pk"},{name:"Palau",code:"pw"},{name:"Panama",code:"pa"},{name:"Papua New Guinea",code:"pg"},{name:"Paraguay",code:"py"},{name:"Peru",code:"pe"},{name:"Philippines",code:"ph"},{name:"Poland",code:"pl"},{name:"Portugal",code:"pt"},{name:"Qatar",code:"qa"},{name:"Romania",code:"ro"},{name:"Russia",code:"ru"},{name:"Rwanda",code:"rw"},{name:"Samoa",code:"ws"},{name:"San Marino",code:"sm"},{name:"Saudi Arabia",code:"sa"},{name:"Senegal",code:"sn"},{name:"Serbia",code:"rs"},{name:"Seychelles",code:"sc"},{name:"Sierra Leone",code:"sl"},{name:"Singapore",code:"sg"},{name:"Slovakia",code:"sk"},{name:"Slovenia",code:"si"},{name:"Somalia",code:"so"},{name:"South Africa",code:"za"},{name:"South Korea",code:"kr"},{name:"Spain",code:"es"},{name:"Sri Lanka",code:"lk"},{name:"Sudan",code:"sd"},{name:"Suriname",code:"sr"},{name:"Sweden",code:"se"},{name:"Switzerland",code:"ch"},{name:"Syria",code:"sy"},{name:"Tajikistan",code:"tj"},{name:"Tanzania",code:"tz"},{name:"Thailand",code:"th"},{name:"Togo",code:"tg"},{name:"Tonga",code:"to"},{name:"Trinidad",code:"tt"},{name:"Tunisia",code:"tn"},{name:"Turkey",code:"tr"},{name:"Turkmenistan",code:"tm"},{name:"Uganda",code:"ug"},{name:"Ukraine",code:"ua"},{name:"UAE",code:"ae"},{name:"UK",code:"gb"},{name:"USA",code:"us"},{name:"Uruguay",code:"uy"},{name:"Uzbekistan",code:"uz"},{name:"Vanuatu",code:"vu"},{name:"Venezuela",code:"ve"},{name:"Vietnam",code:"vn"},{name:"Yemen",code:"ye"},{name:"Zambia",code:"zm"},{name:"Zimbabwe",code:"zw"}
+    ];
+
+    let geoScoreVal = 0;
+
+    function initGeo() {
+        menu.style.display = 'none';
+        document.getElementById('geoContainer').style.display = 'flex';
+        geoScoreVal = 0;
+        nextGeo();
+    }
+
+    function nextGeo() {
+        document.getElementById('geoScore').innerText = "Score: " + geoScoreVal;
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        const flagBox = document.getElementById('geoFlag');
+        
+        flagBox.innerHTML = `<div style="color:#5f6368">Loading...</div>`;
+        
+        const img = new Image();
+        img.src = `https://flagcdn.com/w320/${correct.code}.png`;
+        img.className = "geo-flag-img";
+        img.onload = () => { flagBox.innerHTML = ''; flagBox.appendChild(img); };
+
+        let opts = [correct];
+        while(opts.length < 4) {
+            let r = countries[Math.floor(Math.random()*countries.length)];
+            if(!opts.includes(r)) opts.push(r);
+        }
+        opts.sort(() => Math.random() - 0.5);
+
+        const optBox = document.getElementById('geoOptions');
+        optBox.innerHTML = '';
+        opts.forEach(o => {
+            const b = document.createElement('button');
+            b.className = 'game-btn';
+            b.innerText = o.name;
+            b.onclick = () => {
+                if(o === correct) { 
+                    geoScoreVal++; 
+                    b.style.background = '#81c995'; 
+                    setTimeout(nextGeo, 200); 
+                } else { 
+                    b.style.background = '#f44336';
+                    setTimeout(() => {
+                        alert("GAME OVER!\n\nIt was: " + correct.name + "\nYour final score: " + geoScoreVal);
+                        geoScoreVal = 0; 
+                        nextGeo();
+                    }, 100);
+                }
+            };
+            optBox.appendChild(b);
+        });
+    }
+
+    // --- SNAKE (Swipe added) ---
+    function initSnake() {
+        menu.style.display = 'none';
+        document.getElementById('snakeContainer').style.display = 'flex';
+        const canvas = document.getElementById('snake-canvas');
+        const ctx = canvas.getContext('2d');
+        let s = [{x:200, y:150}], f = {x:100, y:100}, d = 'R', sc = 0;
+        
+        document.onkeydown = e => {
+            if(e.key==='ArrowUp' && d!=='D') d='U';
+            if(e.key==='ArrowDown' && d!=='U') d='D';
+            if(e.key==='ArrowLeft' && d!=='R') d='L';
+            if(e.key==='ArrowRight' && d!=='L') d='R';
+        };
+
+        // Mobile swipes
+        let tX, tY;
+        canvas.ontouchstart = e => { tX = e.touches[0].clientX; tY = e.touches[0].clientY; };
+        canvas.ontouchmove = e => {
+            if(!tX || !tY) return;
+            let dX = e.touches[0].clientX - tX;
+            let dY = e.touches[0].clientY - tY;
+            if(Math.abs(dX) > Math.abs(dY)) {
+                if(dX > 0 && d!=='L') d='R'; else if(dX < 0 && d!=='R') d='L';
+            } else {
+                if(dY > 0 && d!=='U') d='D'; else if(dY < 0 && d!=='D') d='U';
+            }
+            tX = null; tY = null;
+            e.preventDefault();
+        };
+
+        snakeInt = setInterval(() => {
+            let h = {...s[0]};
+            if(d==='U') h.y-=10; if(d==='D') h.y+=10; if(d==='L') h.x-=10; if(d==='R') h.x+=10;
+            if(h.x<0||h.x>=400||h.y<0||h.y>=300||s.some(p=>p.x===h.x&&p.y===h.y)) { 
+                clearInterval(snakeInt); 
+                alert("The snake died! Score: " + sc); 
+                backToMenu(); 
+            }
+            s.unshift(h);
+            if(h.x===f.x && h.y===f.y) { sc++; f={x:Math.floor(Math.random()*39)*10, y:Math.floor(Math.random()*29)*10}; }
+            else s.pop();
+
+            ctx.fillStyle = '#000'; ctx.fillRect(0,0,400,300);
+            ctx.fillStyle = '#f00'; ctx.fillRect(f.x,f.y,9,9);
+            ctx.fillStyle = '#8ab4f8'; s.forEach(p=>ctx.fillRect(p.x,p.y,9,9));
+        }, 100);
+    }
+
+    // --- MINESWEEPER (Long Press for flag) ---
+    let minesState = [];
+    const MS_COLS = 10;
+    const MS_ROWS = 10;
+
+    function initMinesweeper() {
+        menu.style.display = 'none';
+        document.getElementById('minesContainer').style.display = 'flex';
+        const grid = document.getElementById('minesGrid');
+        grid.style.gridTemplateColumns = `repeat(${MS_COLS}, 30px)`;
+        grid.innerHTML = '';
+        
+        minesState = Array(MS_COLS * MS_ROWS).fill(0).map((_,i) => ({
+            i, 
+            mine: Math.random() < 0.15, 
+            rev: false, 
+            flag: false,
+            el: null
+        }));
+        
+        minesState.forEach(c => {
+            const d = document.createElement('div');
+            d.className = 'mine-cell';
+            c.el = d; 
+            
+            // LONG PRESS LOGIC (FOR PHONES)
+            let pressTimer;
+            let isLongPress = false;
+
+            // Touch events
+            d.addEventListener('touchstart', (e) => {
+                isLongPress = false;
+                pressTimer = setTimeout(() => {
+                    isLongPress = true;
+                    toggleFlag(c); // Set flag
+                    if(navigator.vibrate) navigator.vibrate(50); // Vibration
+                }, 500); // 500ms = long tap
+            }, {passive: false});
+
+            d.addEventListener('touchend', (e) => {
+                clearTimeout(pressTimer);
+                if (isLongPress) {
+                    e.preventDefault(); // If long tap occurred, prevent click
+                }
+            });
+
+            d.addEventListener('touchmove', () => {
+                clearTimeout(pressTimer); // If finger moved, cancel flag
+            });
+
+            // LMB - Open (if not Long Press)
+            d.onclick = () => {
+                if (isLongPress) {
+                    isLongPress = false; 
+                    return;
+                }
+                if (c.flag || c.rev) return;
+                openCell(c);
+            };
+
+            // RMB - Flag (for PC)
+            d.oncontextmenu = (e) => {
+                e.preventDefault();
+                toggleFlag(c);
+                return false;
+            };
+
+            grid.appendChild(d);
+        });
+    }
+
+    function toggleFlag(c) {
+        if (c.rev) return;
+        c.flag = !c.flag;
+        c.el.innerText = c.flag ? '🚩' : '';
+        c.el.classList.toggle('flagged', c.flag);
+    }
+
+    function openCell(c) {
+        if (c.rev || c.flag) return;
+        c.rev = true;
+        c.el.classList.add('revealed');
+
+        if(c.mine) {
+            c.el.classList.add('boom');
+            c.el.innerText = '💣';
+            minesState.forEach(m => {
+                if(m.mine) { m.el.classList.add('boom'); m.el.innerText = '💣'; }
+            });
+            setTimeout(() => {
+                alert("BOOM! You blew up."); 
+                backToMenu(); 
+            }, 100);
+            return;
+        }
+
+        let near = 0;
+        const neighbors = getNeighbors(c.i);
+        
+        neighbors.forEach(nIdx => {
+            if (minesState[nIdx].mine) near++;
+        });
+
+        if (near > 0) {
+            c.el.innerText = near;
+            const colors = ['#8ab4f8', '#81c995', '#fdd663', '#f28b82', '#e67c73'];
+            c.el.style.color = colors[near-1] || '#f28b82';
+        } else {
+            c.el.innerText = '';
+            neighbors.forEach(nIdx => {
+                const neighbor = minesState[nIdx];
+                if (!neighbor.rev && !neighbor.flag) {
+                    openCell(neighbor);
+                }
+            });
+        }
+    }
+
+    function getNeighbors(idx) {
+        const row = Math.floor(idx / MS_COLS);
+        const col = idx % MS_COLS;
+        const res = [];
+
+        for (let x = -1; x <= 1; x++) {
+            for (let y = -1; y <= 1; y++) {
+                if (x === 0 && y === 0) continue;
+                const nRow = row + y;
+                const nCol = col + x;
+                if (nRow >= 0 && nRow < MS_ROWS && nCol >= 0 && nCol < MS_COLS) {
+                    res.push(nRow * MS_COLS + nCol);
+                }
+            }
+        }
+        return res;
+    }
+
+
+    // --- GRAVITY (WITH TOUCH SUPPORT) ---
+    let gravityActive = false;
+    let physicsObjects = [];
+    let mouse = { x: 0, y: 0, down: false, draggedObj: null, lastX: 0, lastY: 0 };
+    
+    function startGravity() {
+        if (gravityActive) return;
+        gravityActive = true;
+        
+        const els = [document.querySelector('.title-container'), document.querySelector('.translator-container')];
+        
+        els.forEach(el => {
+            if(!el) return;
+            const r = el.getBoundingClientRect();
+            const startX = r.left;
+            const startY = r.top;
+            
+            const obj = { 
+                el, 
+                x: startX, 
+                y: startY, 
+                w: r.width, 
+                h: r.height, 
+                vx: (Math.random() - 0.5) * 10, 
+                vy: 0, 
+                rot: 0,
+                rotSpeed: (Math.random() - 0.5) * 2 
+            };
+            physicsObjects.push(obj);
+            
+            el.style.position = 'fixed'; 
+            el.style.width = r.width+'px'; 
+            el.style.margin = '0'; 
+            el.style.zIndex = '9999';
+            el.style.top = '0'; 
+            el.style.left = '0';
+            el.style.transform = `translate(${startX}px, ${startY}px)`;
+
+            // Mouse grab
+            el.onmousedown = (e) => startDrag(e, obj, e.clientX, e.clientY);
+            
+            // Touch grab
+            el.ontouchstart = (e) => {
+                e.preventDefault(); // Prevent screen scroll
+                startDrag(e, obj, e.touches[0].clientX, e.touches[0].clientY);
+            };
+        });
+
+        // Listeners (Mouse + Touch)
+        window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
+        window.addEventListener('touchmove', (e) => moveDrag(e.touches[0].clientX, e.touches[0].clientY));
+
+        // Release (Mouse + Touch)
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
+        
+        requestAnimationFrame(updatePhys);
+    }
+
+    function startDrag(e, obj, cX, cY) {
+        mouse.down = true;
+        mouse.draggedObj = obj;
+        mouse.offsetX = cX - obj.x;
+        mouse.offsetY = cY - obj.y;
+        obj.vx = 0; obj.vy = 0; obj.rotSpeed = 0;
+        mouse.lastX = cX; mouse.lastY = cY;
+    }
+
+    function moveDrag(cX, cY) {
+        if (!mouse.down || !mouse.draggedObj) return;
+        const obj = mouse.draggedObj;
+        
+        // Calculate speed based on movement
+        obj.vx = cX - mouse.lastX;
+        obj.vy = cY - mouse.lastY;
+        
+        mouse.lastX = cX;
+        mouse.lastY = cY;
+
+        obj.x = cX - mouse.offsetX;
+        obj.y = cY - mouse.offsetY;
+    }
+
+    function endDrag() {
+        mouse.down = false;
+        mouse.draggedObj = null;
+    }
+
+    function updatePhys() {
+        const gravity = 0.5;
+        const friction = 0.98;
+        const floor = window.innerHeight;
+        const walls = window.innerWidth;
+
+        physicsObjects.forEach(obj => {
+            if (mouse.down && mouse.draggedObj === obj) {
+                // Dragging logic above
+            } else {
+                obj.vy += gravity;
+                obj.vx *= friction;
+                obj.vy *= friction;
+                obj.x += obj.vx;
+                obj.y += obj.vy;
+                obj.rot += obj.rotSpeed;
+                
+                // Floor collision
+                if (obj.y + obj.h > floor) {
+                    obj.y = floor - obj.h;
+                    obj.vy *= -0.6; // Bounce
+                    obj.rotSpeed *= 0.9;
+                }
+                // Walls collision
+                if (obj.x < 0) { obj.x = 0; obj.vx *= -0.6; }
+                if (obj.x + obj.w > walls) { obj.x = walls - obj.w; obj.vx *= -0.6; }
+            }
+            
+            obj.el.style.transform = `translate(${obj.x}px, ${obj.y}px) rotate(${obj.rot}deg)`;
+        });
+
+        requestAnimationFrame(updatePhys);
+    }
+</script>
+
+</body>
+</html>
