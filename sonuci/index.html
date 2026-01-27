@@ -16,21 +16,22 @@
     button {
         width: 150px;
         height: 150px;
-        border-radius: 50%;
+        border-radius: 24px; /* гладкие углы */
         border: none;
         font-size: 18px;
         cursor: pointer;
         background: crimson;
         color: white;
+
+        /* вращение без телепорта */
+        --speed: 2s;
+        animation: spin var(--speed) linear infinite;
+        animation-play-state: paused;
     }
 
     @keyframes spin {
-        from {
-            transform: rotate(0deg);
-        }
-        to {
-            transform: rotate(360deg);
-        }
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
     }
 </style>
 </head>
@@ -39,7 +40,6 @@
 <button id="btn">sonuci bl</button>
 
 <audio id="music" loop>
-    <!-- ВСТАВЬ СЮДА СВОЙ ФАЙЛ -->
     <source src="music.mp3" type="audio/mpeg">
 </audio>
 
@@ -47,39 +47,49 @@
     const btn = document.getElementById('btn');
     const music = document.getElementById('music');
 
-    let speed = 2; // начальная скорость (секунды)
+    let speed = 2;
     let accelerating = false;
     let interval;
+    let audioUnlocked = false;
+
+    // 🔓 реальное действие пользователя (один раз)
+    btn.addEventListener('pointerdown', () => {
+        if (!audioUnlocked) {
+            music.play().then(() => {
+                music.pause();
+                music.currentTime = 0;
+                audioUnlocked = true;
+            }).catch(() => {});
+        }
+    });
 
     btn.addEventListener('mouseenter', () => {
-        if (accelerating) return;
+        if (accelerating || !audioUnlocked) return;
 
         accelerating = true;
+        btn.style.animationPlayState = 'running';
         music.play();
 
-        btn.style.animation = `spin ${speed}s linear infinite`;
-
         interval = setInterval(() => {
-            speed *= 0.9; // ускорение
-            btn.style.animation = `spin ${speed}s linear infinite`;
+            speed *= 0.9;
+            btn.style.setProperty('--speed', speed + 's');
         }, 500);
     });
 
     btn.addEventListener('mouseleave', () => {
-        // если хочешь, чтобы НИКОГДА не останавливалось — удали этот блок
         clearInterval(interval);
         accelerating = false;
         speed = 2;
-        btn.style.animation = 'none';
+
+        btn.style.animationPlayState = 'paused';
+        btn.style.setProperty('--speed', '2s');
+
         music.pause();
         music.currentTime = 0;
     });
 
-    // 🔥 НОВОЕ — переход по клику (ничего старого не трогали)
     btn.addEventListener('click', () => {
-        window.location.href = 'https://beatleader.com/u/76561199636942001/scores?sort=date';
-        // или так, если надо в новой вкладке:
-        // window.open('https://example.com', '_blank');
+        window.location.href = 'https://example.com';
     });
 </script>
 
