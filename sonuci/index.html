@@ -14,24 +14,14 @@
     }
 
     button {
-        width: 150px;
-        height: 150px;
-        border-radius: 24px; /* гладкие углы */
+        width: 7cm;          /* увеличенная ширина */
+        height: 2cm;
+        border-radius: 10px;
         border: none;
-        font-size: 18px;
+        font-size: 16px;
         cursor: pointer;
-        background: crimson;
+        background: #777;    /* серый цвет */
         color: white;
-
-        /* вращение без телепорта */
-        --speed: 2s;
-        animation: spin var(--speed) linear infinite;
-        animation-play-state: paused;
-    }
-
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to   { transform: rotate(360deg); }
     }
 </style>
 </head>
@@ -47,12 +37,13 @@
     const btn = document.getElementById('btn');
     const music = document.getElementById('music');
 
-    let speed = 2;
+    let angle = 0;
+    let speed = 0;
+    let targetSpeed = 0;
     let accelerating = false;
-    let interval;
     let audioUnlocked = false;
+    let lastTime = null;
 
-    // 🔓 реальное действие пользователя (один раз)
     btn.addEventListener('pointerdown', () => {
         if (!audioUnlocked) {
             music.play().then(() => {
@@ -63,26 +54,37 @@
         }
     });
 
+    function animate(time) {
+        if (!lastTime) lastTime = time;
+        const delta = (time - lastTime) / 1000;
+        lastTime = time;
+
+        speed += (targetSpeed - speed) * 0.08;
+        angle += speed * delta;
+
+        btn.style.transform = `rotate(${angle}deg)`;
+        requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+
     btn.addEventListener('mouseenter', () => {
         if (accelerating || !audioUnlocked) return;
-
         accelerating = true;
-        btn.style.animationPlayState = 'running';
+        targetSpeed = 360;
         music.play();
 
-        interval = setInterval(() => {
-            speed *= 0.9;
-            btn.style.setProperty('--speed', speed + 's');
-        }, 500);
+        const accel = setInterval(() => {
+            targetSpeed *= 1.15;
+        }, 400);
+
+        btn._accel = accel;
     });
 
     btn.addEventListener('mouseleave', () => {
-        clearInterval(interval);
         accelerating = false;
-        speed = 2;
-
-        btn.style.animationPlayState = 'paused';
-        btn.style.setProperty('--speed', '2s');
+        clearInterval(btn._accel);
+        targetSpeed = 0;
 
         music.pause();
         music.currentTime = 0;
