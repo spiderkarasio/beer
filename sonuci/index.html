@@ -14,14 +14,15 @@
     }
 
     button {
-        width: 7cm;          /* увеличенная ширина */
+        width: 7cm;
         height: 2cm;
         border-radius: 10px;
         border: none;
         font-size: 16px;
         cursor: pointer;
-        background: #777;    /* серый цвет */
+        background: #777;
         color: white;
+        transform-origin: center;
     }
 </style>
 </head>
@@ -38,13 +39,14 @@
     const music = document.getElementById('music');
 
     let angle = 0;
-    let speed = 0;
+    let speed = 0;       // текущая скорость
     let targetSpeed = 0;
-    let accelerating = false;
+    let lastTime = performance.now();
+    let accelInterval = null;
     let audioUnlocked = false;
-    let lastTime = null;
 
-    btn.addEventListener('pointerdown', () => {
+    // 🔓 разблокируем звук, но НЕ блокируем вращение
+    document.addEventListener('pointerdown', () => {
         if (!audioUnlocked) {
             music.play().then(() => {
                 music.pause();
@@ -52,14 +54,14 @@
                 audioUnlocked = true;
             }).catch(() => {});
         }
-    });
+    }, { once: true });
 
-    function animate(time) {
-        if (!lastTime) lastTime = time;
-        const delta = (time - lastTime) / 1000;
-        lastTime = time;
+    function animate(now) {
+        const delta = (now - lastTime) / 1000;
+        lastTime = now;
 
-        speed += (targetSpeed - speed) * 0.08;
+        // плавно тянем скорость к целевой
+        speed += (targetSpeed - speed) * 0.1;
         angle += speed * delta;
 
         btn.style.transform = `rotate(${angle}deg)`;
@@ -69,29 +71,26 @@
     requestAnimationFrame(animate);
 
     btn.addEventListener('mouseenter', () => {
-        if (accelerating || !audioUnlocked) return;
-        accelerating = true;
-        targetSpeed = 360;
-        music.play();
+        targetSpeed = 360; // старт вращения
+        if (audioUnlocked) music.play();
 
-        const accel = setInterval(() => {
+        accelInterval = setInterval(() => {
             targetSpeed *= 1.15;
         }, 400);
-
-        btn._accel = accel;
     });
 
     btn.addEventListener('mouseleave', () => {
-        accelerating = false;
-        clearInterval(btn._accel);
+        clearInterval(accelInterval);
         targetSpeed = 0;
 
-        music.pause();
-        music.currentTime = 0;
+        if (audioUnlocked) {
+            music.pause();
+            music.currentTime = 0;
+        }
     });
 
     btn.addEventListener('click', () => {
-        window.location.href = 'https://example.com';
+        window.location.href = 'https://beatleader.com/u/76561199636942001/scores?sort=date';
     });
 </script>
 
