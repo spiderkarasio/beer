@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>sonuci read this pls!!!</title>
+
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #111;
+    }
+
+    button {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        background: crimson;
+        color: white;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+</head>
+<body>
+
+<button id="btn">sonuci bl</button>
+
+<audio id="music" loop>
+    <!-- ВСТАВЬ СЮДА СВОЙ ФАЙЛ -->
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    const btn = document.getElementById('btn');
+    const music = document.getElementById('music');
+
+    let speed = 2; // начальная скорость (секунды)
+    let accelerating = false;
+    let interval;
+
+    btn.addEventListener('mouseenter', () => {
+        if (accelerating) return;
+
+        accelerating = true;
+        music.play();
+
+        btn.style.animation = `spin ${speed}s linear infinite`;
+
+        interval = setInterval(() => {
+            speed *= 0.9; // ускорение
+            btn.style.animation = `spin ${speed}s linear infinite`;
+        }, 500);
+    });
+
+    btn.addEventListener('mouseleave', () => {
+        // если хочешь, чтобы НИКОГДА не останавливалось — удали этот блок
+        clearInterval(interval);
+        accelerating = false;
+        speed = 2;
+        btn.style.animation = 'none';
+        music.pause();
+        music.currentTime = 0;
+    });
+
+    // 🔥 НОВОЕ — переход по клику (ничего старого не трогали)
+    btn.addEventListener('click', () => {
+        window.location.href = 'https://beatleader.com/u/76561199636942001/scores?sort=date';
+        // или так, если надо в новой вкладке:
+        // window.open('https://example.com', '_blank');
+    });
+</script>
+
+</body>
+</html>
