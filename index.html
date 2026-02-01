@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beer Translate & Games Ultimate</title>
-    <script type="text/javascript">
-        var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent);
-    </script>
+    <title>Beer Translate & Games Ultimate (Secure Edition)</title>
     <style>
-        /* --- ОСНОВНЫЕ СТИЛИ (ТВОИ ОРИГИНАЛЬНЫЕ) --- */
-        body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; touch-action: none; }
+        /* --- ОСНОВНЫЕ СТИЛИ --- */
+        body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
         .title-container { margin-bottom: 20px; display: flex; align-items: baseline; gap: 10px; cursor: grab; z-index: 20; }
         h1 { font-weight: 400; font-size: 32px; color: #bdc1c6; margin: 0; pointer-events: none; }
         .secret-link { color: inherit; text-decoration: none; cursor: pointer; pointer-events: auto; transition: color 0.2s; }
@@ -35,7 +32,7 @@
         .copy-btn { background: transparent; border: none; color: #9aa0a6; cursor: pointer; padding: 8px; border-radius: 4px; transition: all 0.2s; display: flex; align-items: center; gap: 5px; font-size: 12px; text-transform: uppercase; font-weight: bold; }
         .copy-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
 
-        /* --- ИГРОВОЕ ОКНО (ТВОЁ) --- */
+        /* --- ИГРОВОЕ ОКНО --- */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .game-window { background: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 800px; max-width: 95%; height: 600px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative; }
         .game-header { padding: 15px 20px; border-bottom: 1px solid #3c4043; display: flex; justify-content: space-between; align-items: center; background: #202124; }
@@ -53,23 +50,68 @@
         .game-content { display: none; flex-direction: column; height: 100%; position: relative; overflow: hidden; }
         .back-to-menu { position: absolute; top: 15px; left: 20px; color: #8ab4f8; cursor: pointer; z-index: 100; font-weight: 500; display: flex; align-items: center; gap: 5px; }
 
-        /* --- ЧАТ (ИСПРАВЛЕННЫЙ: GIF + ENTER) --- */
+        /* --- ЧАТ --- */
         #forumContainer { padding: 0; }
         .forum-posts { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: #121316; }
         .post-card { background: #1e1f21; border: 1px solid #3c4043; padding: 12px 16px; border-radius: 12px; max-width: 85%; align-self: flex-start; }
-        .post-author { font-weight: bold; color: #8ab4f8; font-size: 13px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
-        .post-author span { color: #5f6368; font-weight: normal; font-size: 11px; }
+        .post-card.own-post { align-self: flex-end; background: #1a2634; border-color: #3a5a7a; }
+        .post-author { font-weight: bold; color: #8ab4f8; font-size: 13px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .post-author .post-author-row { display: flex; align-items: center; gap: 8px; }
+        .post-author > span { color: #5f6368; font-weight: normal; font-size: 11px; }
+        .user-id-badge { background: #303134; color: #9aa0a6; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: monospace; margin-left: 6px; }
+        .post-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 8px; flex-shrink: 0; background: #303134; }
         .post-text { font-size: 14px; line-height: 1.5; color: #e8eaed; word-break: break-word; white-space: pre-wrap; }
         .post-img { max-width: 100%; border-radius: 8px; margin-top: 10px; display: block; max-height: 300px; object-fit: contain; border: 1px solid #3c4043; }
+        .post-attachment { margin-top: 8px; padding: 8px 12px; background: #303134; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; color: #8ab4f8; font-size: 13px; text-decoration: none; }
+        .post-attachment:hover { background: #3c4043; }
+        .post-voice { margin-top: 8px; padding: 8px 12px; background: #303134; border-radius: 8px; }
+        .post-voice audio { width: 100%; max-width: 280px; height: 36px; }
+        .gif-loading { color: #5f6368; font-size: 12px; font-style: italic; margin-top: 6px; }
         
         .forum-input-area { padding: 15px 20px; background: #202124; border-top: 1px solid #3c4043; display: flex; gap: 12px; align-items: flex-end; }
+        .slowmode-notice { background: #303134; color: #f29900; padding: 8px 12px; border-radius: 6px; font-size: 12px; text-align: center; margin-bottom: 8px; display: none; }
+        .account-info { background: #252629; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #9aa0a6; }
+        .send-btn:disabled { background: #3c4043; cursor: not-allowed; opacity: 0.6; }
         .forum-inputs-left { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        #forumName { background: #303134; border: 1px solid #3c4043; border-radius: 6px; color: #fff; padding: 8px 12px; font-size: 13px; width: 150px; outline: none; }
+        .forum-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .attach-btn, .voice-btn { background: #303134; border: 1px solid #3c4043; color: #9aa0a6; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s; }
+        .attach-btn:hover, .voice-btn:hover { color: #fff; background: #3c4043; }
+        .voice-btn.recording { background: #ea4335; color: #fff; }
+        .attachments-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; font-size: 12px; color: #9aa0a6; }
+        .attachments-preview span { background: #303134; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+        .attachments-preview .remove-attach { cursor: pointer; color: #ea4335; }
         #forumText { background: #303134; border: 1px solid #3c4043; border-radius: 6px; color: #fff; padding: 10px 12px; font-size: 14px; resize: none; outline: none; min-height: 40px; max-height: 120px; font-family: inherit; }
         .send-btn { background: #8ab4f8; color: #1e1f21; border: none; border-radius: 6px; width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
         .send-btn:hover { background: #aecbfa; transform: scale(1.05); }
 
-        /* --- КЛИКЕР (ТВОЙ ПОЛНЫЙ) --- */
+        /* Экран входа/регистрации */
+        .auth-screen { padding: 25px; max-width: 400px; margin: 0 auto; }
+        .auth-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid #3c4043; }
+        .auth-tab { padding: 12px 20px; color: #9aa0a6; cursor: pointer; font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .auth-tab.active { color: #8ab4f8; border-bottom-color: #8ab4f8; }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .auth-form input, .auth-form label { display: block; width: 100%; margin-bottom: 12px; }
+        .auth-form input { background: #303134; border: 1px solid #3c4043; border-radius: 8px; color: #fff; padding: 12px; outline: none; }
+        .auth-form label { color: #9aa0a6; font-size: 13px; margin-bottom: 4px; }
+        .avatar-upload-wrap { display: flex; align-items: center; gap: 15px; margin-bottom: 16px; }
+        .avatar-preview { width: 64px; height: 64px; border-radius: 50%; background: #303134; object-fit: cover; border: 2px solid #3c4043; }
+        .avatar-upload-wrap label { margin: 0; cursor: pointer; color: #8ab4f8; font-size: 14px; }
+        .auth-submit { background: #8ab4f8; color: #1e1f21; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .auth-submit:hover { background: #aecbfa; }
+        .current-user-bar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #252629; border-radius: 8px; margin-bottom: 8px; }
+        .current-user-bar .avatar-small { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #303134; }
+        .current-user-bar .nick { font-weight: bold; color: #e8eaed; }
+        .current-user-bar .uid-num { color: #8ab4f8; font-family: monospace; font-size: 14px; }
+        .logout-btn { margin-left: auto; color: #9aa0a6; font-size: 12px; cursor: pointer; }
+        .logout-btn:hover { color: #ea4335; }
+        .guest-row { margin-bottom: 16px; }
+        .guest-btn { background: #303134 !important; color: #9aa0a6 !important; }
+        .guest-btn:hover { background: #3c4043 !important; color: #e8eaed !important; }
+        .guest-limit-notice { background: #252629; color: #f29900; padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 8px; }
+        .guest-limit-notice a { color: #8ab4f8; }
+
+        /* --- КЛИКЕР --- */
         .clicker-layout { display: flex; height: 100%; }
         .clicker-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, #2c2d30 0%, #121316 100%); position: relative; padding: 20px; }
         .clicker-stats { position: absolute; top: 60px; text-align: center; pointer-events: none; }
@@ -201,13 +243,75 @@
 
             <div id="forumContainer" class="game-content">
                 <div class="back-to-menu" onclick="backToMenu()">← Назад к меню</div>
-                <div class="forum-posts" id="forumPosts"></div>
-                <div class="forum-input-area">
-                    <div class="forum-inputs-left">
-                        <input type="text" id="forumName" placeholder="Ваше имя" maxlength="15">
-                        <textarea id="forumText" placeholder="Сообщение... (GIF ссылки поддерживаются)" maxlength="500"></textarea>
+                
+                <div id="authScreen" class="auth-screen">
+                    <div class="auth-tabs">
+                        <div class="auth-tab active" onclick="showAuthTab('register')">Регистрация</div>
+                        <div class="auth-tab" onclick="showAuthTab('login')">Вход</div>
                     </div>
-                    <button class="send-btn" onclick="sendPost()">➤</button>
+                    
+                    <div class="guest-row">
+                        <button type="button" class="auth-submit guest-btn" onclick="enterAsGuest()">Без аккаунта (10 сообщ. / 20 мин)</button>
+                    </div>
+                    
+                    <div id="registerForm" class="auth-form active">
+                        <label>Никнейм</label>
+                        <input type="text" id="regNickname" placeholder="Как к вам обращаться?" maxlength="30">
+                        
+                        <label>Пароль</label>
+                        <input type="password" id="regPassword" placeholder="Придумайте пароль">
+                        
+                        <label>Кодовое слово (для безопасности)</label>
+                        <input type="text" id="regCodeWord" placeholder="Например: пиво">
+                        
+                        <label>Аватар (по желанию)</label>
+                        <div class="avatar-upload-wrap">
+                            <img id="regAvatarPreview" class="avatar-preview" src="" alt="" style="display:none;">
+                            <label><input type="file" id="regAvatarInput" accept="image/*" style="display:none;"> Выбрать фото</label>
+                        </div>
+                        <button class="auth-submit" onclick="doRegister()">Создать аккаунт</button>
+                    </div>
+
+                    <div id="loginForm" class="auth-form">
+                        <label>Ваш Никнейм</label>
+                        <input type="text" id="loginNickname" placeholder="Введите ваш ник">
+                        
+                        <label>Пароль</label>
+                        <input type="password" id="loginPassword" placeholder="Ваш пароль">
+                        
+                        <label>Кодовое слово</label>
+                        <input type="text" id="loginCodeWord" placeholder="Ваше секретное слово">
+                        
+                        <button class="auth-submit" onclick="doLogin()">Войти</button>
+                    </div>
+                </div>
+
+                <div id="chatArea" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
+                    <div class="forum-posts" id="forumPosts"></div>
+                    <div class="forum-input-area">
+                        <div class="forum-inputs-left">
+                            <div class="current-user-bar">
+                                <img id="myAvatarImg" class="avatar-small" src="" alt="">
+                                <span class="nick" id="myNickname">...</span>
+                                <span class="uid-num">ID: <span id="myUserIdDisplay">0</span></span>
+                                <span class="logout-btn" onclick="doLogout()">Выйти</span>
+                            </div>
+                            <div class="guest-limit-notice" id="guestLimitNotice" style="display:none;">
+                                Без аккаунта: <span id="guestLimitCount">0</span> из 10 сообщений за 20 мин. <a href="#" onclick="showAuthFromChat(); return false;">Зарегистрироваться</a> — без лимита.
+                            </div>
+                            <div class="slowmode-notice" id="slowmodeNotice">
+                                ⏳ Медленный режим: подождите <span class="slowmode-timer" id="slowmodeTimer">0</span> сек
+                            </div>
+                            <div class="forum-toolbar">
+                                <button type="button" class="attach-btn" title="Прикрепить файл" onclick="document.getElementById('attachFileInput').click()">📎</button>
+                                <button type="button" class="voice-btn" id="voiceBtn" title="Голосовое сообщение" onclick="toggleVoiceRecord()">🎤</button>
+                            </div>
+                            <input type="file" id="attachFileInput" multiple style="display:none;">
+                            <div class="attachments-preview" id="attachmentsPreview"></div>
+                            <textarea id="forumText" placeholder="Сообщение... (или ссылка на GIF)" maxlength="500"></textarea>
+                        </div>
+                        <button class="send-btn" id="sendPostBtn" onclick="sendPost()">➤</button>
+                    </div>
                 </div>
             </div>
 
@@ -281,9 +385,12 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
-    // --- ДАННЫЕ И ПЕРЕВОД (ТВОИ РОДНЫЕ) ---
+    // --- Мобильное устройство ---
+    var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent);
+
+    // --- ДАННЫЕ И ПЕРЕВОД ---
     const beerMap = {'А': 'влдаолдцт3894', 'Б': '78ем9т4325243895тм72', 'В': 'атдлжиыфвеи0653', 'Г': 'тмщышевз34', 'Д': '34три537уиадлвы', 'Е': 'ь02м392м7', 'Ё': 'ь02м392м8', 'Ж': 'тт32м4о35т2', 'З': '3и45рт647ь8', 'И': '49и357т7т50иц7', 'Й': '49и357т7т50иц8', 'К': 'тй89и5446', 'Л': '7ьт47тть75', 'М': '7ь65бь47456ь7', 'Н': '8674ь5б867куекв', 'О': 'ь7т3567о5643654', 'П': 'т76376534ывтн', 'Р': 'вьтапгь67767ь5ке', 'С': 'пиавые54', 'Т': 'т65436отекнр', 'У': '6т54у65т6цу3', 'Ф': '74567о5тнит7546', 'Х': '547т456756т85', 'Ц': '7ль564л7от546р546', 'Ч': '87645ьт5куьлнаенген', 'Ш': 'аеткуну45654н', 'Щ': 'аеткуну45654н1', 'Ъ': '22987т6и0222лвдпфы1', 'Ы': '22987т6и0222лвдпфы3', 'Ь': '22987т6и0222лвдпфы2', 'Э': '638ь54и96346и0345', 'Ю': 'е0ц4539и587т3450879345', 'Я': 'еьекутнтек6ня', 'A': 'z99x11v', 'B': 'bb77beer00', 'C': 'c_shakal_99', 'D': 'd88_vottak_2', 'E': 'e_pivo_1', 'F': 'f_44_ff', 'G': 'g_top_g_7', 'H': 'h_hh_888', 'I': 'i_eye_111', 'J': 'j_jack_55', 'K': 'k_kick_0', 'L': 'l_lose_77', 'M': 'm_m_444555', 'N': 'n_nitro_9', 'O': 'o_zero_00', 'P': 'p_pub_4', 'Q': 'q_quest_1', 'R': 'r_root_66', 'S': 's_snk_33', 'T': 't_tank_4', 'U': 'u_unit_22', 'V': 'v_v_666', 'W': 'w_wow_7', 'X': 'x_xxx_0', 'Y': 'y_yes_9', 'Z': 'z_zzz_1'};
     const reverseCodes = Object.entries(beerMap).map(([letter, code]) => ({ letter, code })).sort((a, b) => b.code.length - a.code.length);
     let isBeerToText = false;
@@ -337,21 +444,325 @@
     }
     function stopAllGames() { activeIntervals.forEach(clearInterval); activeIntervals = []; }
 
-    // --- ЧАТ (ОБНОВЛЕННЫЙ: GIF + ENTER) ---
+    // ============================================================
+    // ЧАТ — FIREBASE
+    // ============================================================
     const firebaseConfig = { apiKey: "AIzaSyCesMs7AFeefzwVLhJfKyA3_QROoRnnONo", authDomain: "beerlanguage-1337.firebaseapp.com", projectId: "beerlanguage-1337", storageBucket: "beerlanguage-1337.firebasestorage.app", messagingSenderId: "18636363390", appId: "1:18636363390:web:aa02dfd1ce7e53f6d0aa2f" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Текущий пользователь
+    let currentUser = null;
+    const USERS_KEY = 'beerChatUser';
+
+    function loadCurrentUser() {
+        const saved = localStorage.getItem(USERS_KEY);
+        if (saved) {
+            try {
+                currentUser = JSON.parse(saved);
+                return true;
+            } catch (e) {}
+        }
+        return false;
+    }
+
+    function saveCurrentUser() {
+        if (currentUser) localStorage.setItem(USERS_KEY, JSON.stringify(currentUser));
+        else localStorage.removeItem(USERS_KEY);
+    }
+
+    // Числовые ID
+    async function getNextUserId() {
+        const ref = db.doc('meta/counters');
+        return db.runTransaction(async (t) => {
+            const snap = await t.get(ref);
+            const next = (snap.exists && snap.data().nextUserId) ? snap.data().nextUserId : 1;
+            t.set(ref, { nextUserId: next + 1 });
+            return next;
+        });
+    }
+
+    function showAuthTab(tab) {
+        document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));
+        if (tab === 'register') {
+            document.querySelector('.auth-tab').classList.add('active');
+            document.getElementById('registerForm').classList.add('active');
+        } else {
+            document.querySelectorAll('.auth-tab')[1].classList.add('active');
+            document.getElementById('loginForm').classList.add('active');
+        }
+    }
+
+    document.getElementById('regAvatarInput').addEventListener('change', function() {
+        const f = this.files[0];
+        if (!f || !f.type.startsWith('image/')) return;
+        const img = document.getElementById('regAvatarPreview');
+        img.style.display = 'block';
+        img.src = URL.createObjectURL(f);
+    });
+
+    // -----------------------------------------------------
+    // ИЗМЕНЕННАЯ РЕГИСТРАЦИЯ
+    // -----------------------------------------------------
+    async function doRegister() {
+        const nickname = (document.getElementById('regNickname').value || '').trim();
+        const password = (document.getElementById('regPassword').value || '').trim();
+        const codeWord = (document.getElementById('regCodeWord').value || '').trim();
+        
+        if (!nickname) { alert('Введите никнейм'); return; }
+        if (!password) { alert('Введите пароль'); return; }
+        if (!codeWord) { alert('Введите кодовое слово'); return; }
+
+        // Проверяем, не занят ли ник
+        const checkSnap = await db.collection('users').where('nickname', '==', nickname).get();
+        if(!checkSnap.empty) {
+            alert('Этот никнейм уже занят! Выберите другой.');
+            return;
+        }
+
+        const avatarFile = document.getElementById('regAvatarInput').files[0];
+        const userId = await getNextUserId();
+        let avatarUrl = '';
+        if (avatarFile && avatarFile.type.startsWith('image/')) {
+            const ref = storage.ref('avatars/' + userId);
+            await ref.put(avatarFile);
+            avatarUrl = await ref.getDownloadURL();
+        }
+
+        // Сохраняем пароль и кодовое слово (ВНИМАНИЕ: хранить пароли в открытом виде небезопасно в реальных проектах)
+        const userDoc = { 
+            userId: userId, 
+            nickname: nickname, 
+            password: password, 
+            codeWord: codeWord, 
+            avatarUrl: avatarUrl, 
+            createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+        };
+        
+        await db.collection('users').doc(String(userId)).set(userDoc);
+        currentUser = { id: userId, nickname: nickname, avatarUrl: avatarUrl };
+        saveCurrentUser();
+        
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+        refreshChatUI();
+        
+        // Очистка полей
+        document.getElementById('regNickname').value = '';
+        document.getElementById('regPassword').value = '';
+        document.getElementById('regCodeWord').value = '';
+        document.getElementById('regAvatarInput').value = '';
+        document.getElementById('regAvatarPreview').style.display = 'none';
+    }
+
+    // -----------------------------------------------------
+    // ИЗМЕНЕННЫЙ ВХОД
+    // -----------------------------------------------------
+    async function doLogin() {
+        const nickname = (document.getElementById('loginNickname').value || '').trim();
+        const password = (document.getElementById('loginPassword').value || '').trim();
+        const codeWord = (document.getElementById('loginCodeWord').value || '').trim();
+
+        if (!nickname || !password || !codeWord) { 
+            alert('Введите Ник, Пароль и Кодовое слово'); 
+            return; 
+        }
+
+        // Ищем пользователя по нику
+        const snap = await db.collection('users').where('nickname', '==', nickname).get();
+        
+        if (snap.empty) { 
+            alert('Пользователь с таким ником не найден'); 
+            return; 
+        }
+
+        // Проверяем пароль и кодовое слово
+        const doc = snap.docs[0];
+        const data = doc.data();
+
+        if (data.password === password && data.codeWord === codeWord) {
+            currentUser = { id: data.userId, nickname: data.nickname, avatarUrl: data.avatarUrl || '' };
+            saveCurrentUser();
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('chatArea').style.display = 'flex';
+            refreshChatUI();
+        } else {
+            alert('Неверный пароль или кодовое слово!');
+        }
+    }
+
+    function doLogout() {
+        currentUser = null;
+        saveCurrentUser();
+        document.getElementById('authScreen').style.display = 'block';
+        document.getElementById('chatArea').style.display = 'none';
+        
+        // Очистка полей входа
+        document.getElementById('loginNickname').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginCodeWord').value = '';
+    }
+
+    // --- Лимит для гостей ---
+    const GUEST_LIMIT_COUNT = 10;
+    const GUEST_LIMIT_MS = 20 * 60 * 1000;
+    const GUEST_TIMES_KEY = 'beerGuestMessageTimes';
+
+    function getGuestMessageTimes() {
+        try {
+            const raw = localStorage.getItem(GUEST_TIMES_KEY);
+            const arr = raw ? JSON.parse(raw) : [];
+            const now = Date.now();
+            return arr.filter(t => now - t < GUEST_LIMIT_MS);
+        } catch (e) { return []; }
+    }
+
+    function canGuestSend() {
+        return getGuestMessageTimes().length < GUEST_LIMIT_COUNT;
+    }
+
+    function recordGuestMessage() {
+        const times = getGuestMessageTimes();
+        times.push(Date.now());
+        localStorage.setItem(GUEST_TIMES_KEY, JSON.stringify(times));
+    }
+
+    function enterAsGuest() {
+        currentUser = { guest: true, nickname: 'Гость', id: null };
+        saveCurrentUser();
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+        refreshChatUI();
+    }
+
+    function showAuthFromChat() {
+        currentUser = null;
+        saveCurrentUser();
+        document.getElementById('chatArea').style.display = 'none';
+        document.getElementById('authScreen').style.display = 'block';
+    }
+
+    function refreshChatUI() {
+        if (!currentUser) return;
+        document.getElementById('myUserIdDisplay').innerText = currentUser.guest ? 'гость' : currentUser.id;
+        document.getElementById('myNickname').innerText = currentUser.nickname;
+        const img = document.getElementById('myAvatarImg');
+        if (currentUser.avatarUrl) img.src = currentUser.avatarUrl; else img.src = '';
+        img.style.display = currentUser.avatarUrl ? 'block' : 'none';
+        const guestNotice = document.getElementById('guestLimitNotice');
+        if (currentUser.guest) {
+            guestNotice.style.display = 'block';
+            const used = getGuestMessageTimes().length;
+            document.getElementById('guestLimitCount').innerText = used;
+        } else {
+            guestNotice.style.display = 'none';
+        }
+        updateSlowmodeUI();
+    }
+
+    // --- МЕДЛЕННЫЙ РЕЖИМ ---
+    const SLOWMODE_SECONDS = 10;
+    let lastMessageTime = parseInt(localStorage.getItem('lastMessageTime') || '0');
+    let slowmodeInterval = null;
+
+    function updateSlowmodeUI() {
+        const notice = document.getElementById('slowmodeNotice');
+        const timer = document.getElementById('slowmodeTimer');
+        const btn = document.getElementById('sendPostBtn');
+        if (!notice || !btn) return;
+        const now = Date.now();
+        const elapsed = Math.floor((now - lastMessageTime) / 1000);
+        const remaining = Math.max(0, SLOWMODE_SECONDS - elapsed);
+        if (remaining > 0) {
+            notice.style.display = 'block';
+            timer.innerText = remaining;
+            btn.disabled = true;
+        } else {
+            notice.style.display = 'none';
+            btn.disabled = false;
+            if (slowmodeInterval) { clearInterval(slowmodeInterval); slowmodeInterval = null; }
+        }
+    }
+
+    function startSlowmodeTimer() {
+        lastMessageTime = Date.now();
+        localStorage.setItem('lastMessageTime', lastMessageTime.toString());
+        updateSlowmodeUI();
+        slowmodeInterval = setInterval(updateSlowmodeUI, 1000);
+    }
+
+    // --- ВЛОЖЕНИЯ И ГОЛОСОВЫЕ ---
+    let pendingAttachments = []; 
+    let mediaRecorder = null;
+    let voiceChunks = [];
+
+    document.getElementById('attachFileInput').addEventListener('change', function() {
+        const files = this.files;
+        for (let i = 0; i < files.length; i++) {
+            pendingAttachments.push({ file: files[i], type: 'file', name: files[i].name });
+        }
+        renderAttachmentsPreview();
+        this.value = '';
+    });
+
+    function renderAttachmentsPreview() {
+        const el = document.getElementById('attachmentsPreview');
+        el.innerHTML = '';
+        pendingAttachments.forEach((a, i) => {
+            const span = document.createElement('span');
+            span.innerHTML = (a.type === 'voice' ? '🎤 Голосовое' : '📎 ' + (a.name || a.file.name)) + ' <span class="remove-attach" onclick="removeAttachment(' + i + ')">✕</span>';
+            el.appendChild(span);
+        });
+    }
+
+    function removeAttachment(index) {
+        pendingAttachments.splice(parseInt(index, 10), 1);
+        renderAttachmentsPreview();
+    }
+
+    async function toggleVoiceRecord() {
+        const btn = document.getElementById('voiceBtn');
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            voiceChunks = [];
+            mediaRecorder.ondataavailable = (e) => { if (e.data.size) voiceChunks.push(e.data); };
+            mediaRecorder.onstop = () => {
+                stream.getTracks().forEach(t => t.stop());
+                const blob = new Blob(voiceChunks, { type: 'audio/webm' });
+                pendingAttachments.push({ file: blob, type: 'voice', name: 'voice.webm' });
+                renderAttachmentsPreview();
+                btn.classList.remove('recording');
+            };
+            mediaRecorder.start();
+            btn.classList.add('recording');
+        } catch (err) {
+            alert('Нет доступа к микрофону: ' + err.message);
+        }
+    }
 
     function openForum() {
         menu.style.display = 'none';
         document.getElementById('forumContainer').style.display = 'flex';
         document.getElementById('gameTitle').innerText = 'Живой Чат';
-    }
-
-    function findMediaLinks(text) {
-        // Регулярка для картинок и гифок (Imgur, Tenor, Giphy, Discord, Cappa.lol)
-        const regex = /(https?:\/\/[^\s]+(\.jpg|\.png|\.gif|\.webp|tenor\.com\/view|giphy\.com\/gifs|imgur\.com\/|media\.discordapp\.net|cdn\.discordapp\.com|cappa\.lol)[^\s]*)/gi;
-        return text.match(regex);
+        if (loadCurrentUser()) {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('chatArea').style.display = 'flex';
+            refreshChatUI();
+            if (Date.now() - lastMessageTime < SLOWMODE_SECONDS * 1000) slowmodeInterval = setInterval(updateSlowmodeUI, 1000);
+            if (currentUser && currentUser.guest) {
+                setInterval(function() { if (currentUser && currentUser.guest) refreshChatUI(); }, 60000);
+            }
+        } else {
+            document.getElementById('authScreen').style.display = 'block';
+            document.getElementById('chatArea').style.display = 'none';
+        }
     }
 
     function escapeHtml(text) {
@@ -360,59 +771,214 @@
         return div.innerHTML;
     }
 
-    async function sendPost() {
-        const name = document.getElementById('forumName').value || "Аноним";
-        const text = document.getElementById('forumText').value.trim();
-        if (!text) return;
-        await db.collection("posts").add({
-            name: name,
-            text: text,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        document.getElementById('forumText').value = "";
+    function extractUrls(text) {
+        const regex = /https?:\/\/[^\s]+/gi;
+        return text.match(regex) || [];
     }
 
-    // Обработка Enter в чате
-    document.getElementById('forumText').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendPost();
+    function classifyUrl(url) {
+        if (/\.(gif|jpg|jpeg|png|webp)(\?.*)?$/i.test(url)) return { type: 'direct_image', url: url };
+        if (/tenor\.com/i.test(url)) return { type: 'tenor', url: url };
+        if (/giphy\.com/i.test(url)) return { type: 'giphy', url: url };
+        if (/imgur\.com/i.test(url)) return { type: 'imgur', url: url };
+        if (/discordapp\.net|cdn\.discordapp\.com/i.test(url)) return { type: 'direct_image', url: url };
+        return { type: 'unknown', url: url };
+    }
+
+    async function resolveTenor(url) {
+        try {
+            const res = await fetch(url);
+            const html = await res.text();
+            const match = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i)
+                        || html.match(/<meta\s+content="([^"]+)"\s+property="og:image"/i);
+            if (match) return match[1];
+            const gifMatch = html.match(/(https?:\/\/media[^"'\s]*tenor\.com[^"'\s]*\.gif[^"'\s]*)/i);
+            if (gifMatch) return gifMatch[1];
+            return null;
+        } catch(e) { return null; }
+    }
+
+    async function resolveGiphy(url) {
+        try {
+            const res = await fetch(url);
+            const html = await res.text();
+            const match = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i)
+                        || html.match(/<meta\s+content="([^"]+)"\s+property="og:image"/i);
+            if (match) return match[1];
+            const gifMatch = html.match(/(https?:\/\/media[^"'\s]*giphy\.com[^"'\s]*\.gif[^"'\s]*)/i);
+            if (gifMatch) return gifMatch[1];
+            return null;
+        } catch(e) { return null; }
+    }
+
+    function resolveImgur(url) {
+        if (/imgur\.com\/a\//i.test(url)) return null;
+        const match = url.match(/imgur\.com\/([a-zA-Z0-9]+)/i);
+        if (match) return 'https://i.imgur.com/' + match[1] + '.gif';
+        return null;
+    }
+
+    async function resolveMediaUrl(classified) {
+        switch(classified.type) {
+            case 'direct_image': return classified.url;
+            case 'tenor': return await resolveTenor(classified.url);
+            case 'giphy': return await resolveGiphy(classified.url);
+            case 'imgur': return resolveImgur(classified.url);
+            default: return null;
         }
+    }
+
+    async function uploadFile(path, file) {
+        const ref = storage.ref(path);
+        await ref.put(file);
+        return await ref.getDownloadURL();
+    }
+
+    async function sendPost() {
+        if (!currentUser) return;
+        const now = Date.now();
+        const elapsed = Math.floor((now - lastMessageTime) / 1000);
+        if (elapsed < SLOWMODE_SECONDS) return;
+
+        if (currentUser.guest) {
+            if (!canGuestSend()) {
+                alert('Лимит без аккаунта: 10 сообщений за 20 минут. Зарегистрируйтесь, чтобы писать без ограничений.');
+                return;
+            }
+        }
+
+        const text = document.getElementById('forumText').value.trim();
+        if (!text && pendingAttachments.length === 0) return;
+
+        const postRef = db.collection("posts").doc();
+        const postId = postRef.id;
+        const attachments = [];
+
+        for (let i = 0; i < pendingAttachments.length; i++) {
+            const a = pendingAttachments[i];
+            const ext = a.type === 'voice' ? 'webm' : (a.name && a.name.includes('.') ? a.name.split('.').pop() : 'bin');
+            const path = 'posts/' + postId + '_' + i + '.' + ext;
+            const url = await uploadFile(path, a.file);
+            attachments.push({ type: a.type, url: url, name: a.name || a.file.name || ('file.' + ext) });
+        }
+        pendingAttachments = [];
+        renderAttachmentsPreview();
+
+        await postRef.set({
+            name: currentUser.nickname,
+            text: text || '',
+            userId: currentUser.guest ? null : currentUser.id,
+            userAvatarUrl: currentUser.avatarUrl || '',
+            attachments: attachments,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById('forumText').value = '';
+        startSlowmodeTimer();
+        if (currentUser.guest) {
+            recordGuestMessage();
+            refreshChatUI();
+        }
+    }
+
+    document.getElementById('forumText').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPost(); }
     });
 
-    db.collection("posts").orderBy("timestamp", "asc").limit(1000).onSnapshot((snapshot) => {
+    async function renderPost(doc, container) {
+        const p = doc.data();
+        const card = document.createElement("div");
+        card.className = "post-card";
+        const isOwnPost = currentUser && (p.userId === currentUser.id || (currentUser.guest && p.userId === null));
+        if (isOwnPost) card.classList.add('own-post');
+
+        let timeStr = "--:--";
+        if (p.timestamp) {
+            const date = p.timestamp.toDate();
+            timeStr = date.getHours().toString().padStart(2,'0') + ":" + date.getMinutes().toString().padStart(2,'0');
+        }
+
+        const urls = extractUrls(p.text || "");
+        let textWithoutUrls = (p.text || "").trim();
+        urls.forEach(u => { textWithoutUrls = textWithoutUrls.replace(u, '').trim(); });
+
+        const avatarHtml = p.userAvatarUrl
+            ? `<img class="post-avatar" src="${escapeHtml(p.userAvatarUrl)}" alt="">`
+            : '<div class="post-avatar" style="background:#303134;display:flex;align-items:center;justify-content:center;font-size:14px;color:#5f6368;">' + (p.userId || '?') + '</div>';
+        const userIdBadge = (p.userId !== undefined && p.userId !== null) ? `<span class="user-id-badge">${escapeHtml(String(p.userId))}</span>` : (p.userId === null ? '<span class="user-id-badge">гость</span>' : '');
+
+        card.innerHTML = `
+            <div class="post-author">
+                <div class="post-author-row">
+                    ${avatarHtml}
+                    <div>
+                        <span>${escapeHtml(p.name || 'Аноним')}</span>${userIdBadge}
+                    </div>
+                </div>
+                <span>${timeStr}</span>
+            </div>
+            <div class="post-text">${escapeHtml(textWithoutUrls)}</div>
+            <div class="media-placeholder" id="media-${doc.id}"></div>
+            <div class="attachments-placeholder" id="attach-${doc.id}"></div>
+        `;
+        container.appendChild(card);
+
+        const placeholder = card.querySelector('.media-placeholder');
+        const attachPlaceholder = card.querySelector('.attachments-placeholder');
+
+        if (urls.length > 0) {
+            placeholder.innerHTML = '<div class="gif-loading">Загрузка...</div>';
+            for (const rawUrl of urls) {
+                const classified = classifyUrl(rawUrl);
+                const resolved = await resolveMediaUrl(classified);
+                if (resolved) {
+                    const img = document.createElement('img');
+                    img.className = 'post-img';
+                    img.src = resolved;
+                    img.onerror = () => { img.style.display = 'none'; };
+                    placeholder.appendChild(img);
+                }
+            }
+            setTimeout(() => {
+                const loading = placeholder.querySelector('.gif-loading');
+                if (loading) loading.remove();
+            }, 3000);
+        }
+
+        if (p.attachments && p.attachments.length > 0) {
+            p.attachments.forEach(att => {
+                if (att.type === 'voice') {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'post-voice';
+                    const audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = att.url;
+                    wrap.appendChild(audio);
+                    attachPlaceholder.appendChild(wrap);
+                } else {
+                    const a = document.createElement('a');
+                    a.className = 'post-attachment';
+                    a.href = att.url;
+                    a.target = '_blank';
+                    a.rel = 'noopener';
+                    a.innerHTML = '📎 ' + escapeHtml(att.name || 'Файл');
+                    attachPlaceholder.appendChild(a);
+                }
+            });
+        }
+    }
+
+    db.collection("posts").orderBy("timestamp", "asc").limit(50).onSnapshot(async (snapshot) => {
         const cont = document.getElementById('forumPosts');
         cont.innerHTML = "";
-        snapshot.forEach((doc) => {
-            const p = doc.data();
-            const card = document.createElement("div");
-            card.className = "post-card";
-            
-            let timeStr = "--:--";
-            if (p.timestamp) {
-                const date = p.timestamp.toDate();
-                timeStr = date.getHours().toString().padStart(2,'0') + ":" + date.getMinutes().toString().padStart(2,'0');
-            }
-
-            let mediaHtml = "";
-            const links = findMediaLinks(p.text || "");
-            if (links) {
-                links.forEach(link => {
-                    mediaHtml += `<img src="${link}" class="post-img" onerror="this.style.display='none'">`;
-                });
-            }
-
-            card.innerHTML = `
-                <div class="post-author">${escapeHtml(p.name || 'Аноним')} <span>${timeStr}</span></div>
-                <div class="post-text">${escapeHtml(p.text)}</div>
-                ${mediaHtml}
-            `;
-            cont.appendChild(card);
-        });
+        const docs = [];
+        snapshot.forEach(doc => docs.push(doc));
+        for (const doc of docs) {
+            await renderPost(doc, cont);
+        }
         cont.scrollTop = cont.scrollHeight;
     });
 
-    // --- BEER CLICKER (ТВОЙ ПОЛНЫЙ КОД) ---
+    // --- BEER CLICKER ---
     let cookies = 0;
     let buildings = [
         { id: 0, name: 'Курсор', baseCost: 15, count: 0, cps: 0.1, icon: '👆' },
@@ -501,7 +1067,6 @@
     document.getElementById('bigCookie').onclick = (e) => {
         cookies++;
         updateClickerUI();
-        // Эффект всплывающей цифры +1
         const plus = document.createElement('div');
         plus.innerText = '+1';
         plus.style.position = 'absolute';
