@@ -4,146 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Beer Translate & Games Ultimate</title>
-    <script type="text/javascript">
-        var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent);
-    </script>
     <style>
         /* --- ОСНОВНЫЕ СТИЛИ --- */
         body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; touch-action: none; }
         .title-container { margin-bottom: 20px; display: flex; align-items: baseline; gap: 10px; cursor: grab; z-index: 20; }
         h1 { font-weight: 400; font-size: 32px; color: #bdc1c6; margin: 0; pointer-events: none; }
-        .secret-link { color: inherit; text-decoration: none; cursor: pointer; pointer-events: auto; transition: color 0.2s; }
-        .secret-link:hover { color: #8ab4f8; }
         .author-tag { font-size: 14px; color: #5f6368; font-weight: 500; opacity: 0.7; pointer-events: none; }
-        .s-link { color: inherit; text-decoration: none; pointer-events: auto; transition: color 0.3s, text-shadow 0.3s; }
-        .s-link:hover { color: #2979ff; text-shadow: 0 0 10px rgba(41, 121, 255, 0.6); }
 
-        .translator-container { background-color: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 95%; max-width: 1100px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; z-index: 10; touch-action: none; }
-        .header-tabs { display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #3c4043; height: 55px; cursor: grab; flex-shrink: 0; }
-        .tab { color: #8ab4f8; font-size: 14px; font-weight: 500; border-bottom: 2px solid #8ab4f8; height: 100%; display: flex; align-items: center; padding: 0 10px; cursor: pointer; white-space: nowrap; }
+        .translator-container { background-color: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 95%; max-width: 1100px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; z-index: 10; }
+        .header-tabs { display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #3c4043; height: 55px; flex-shrink: 0; }
+        .tab { color: #8ab4f8; font-size: 14px; font-weight: 500; border-bottom: 2px solid #8ab4f8; height: 100%; display: flex; align-items: center; padding: 0 10px; cursor: pointer; }
         .tab.inactive { border-bottom: 2px solid transparent; color: #9aa0a6; }
         .swap-icon { margin: 0 15px; color: #9aa0a6; cursor: pointer; font-size: 24px; }
         .right-tabs { margin-left: auto; display: flex; gap: 5px; }
-        .action-tab { color: #9aa0a6; font-size: 13px; text-transform: uppercase; font-weight: bold; cursor: pointer; padding: 8px 10px; border-radius: 4px; transition: background 0.2s; white-space: nowrap; }
-        .action-tab:hover { color: #fff; background: rgba(255,255,255,0.05); }
-        .game-tab { color: #8ab4f8; }
+        .action-tab { color: #8ab4f8; font-size: 13px; text-transform: uppercase; font-weight: bold; cursor: pointer; padding: 8px 10px; border-radius: 4px; }
 
         .main-panels { display: flex; flex-wrap: wrap; height: 100%; }
         .panel { flex: 1; min-width: 300px; min-height: 250px; padding: 20px; position: relative; display: flex; flex-direction: column; background: #1e1f21; box-sizing: border-box; }
         .input-panel { border-right: 1px solid #3c4043; }
         textarea { width: 100%; height: 100%; background: transparent; border: none; color: #fff; font-size: 20px; resize: none; outline: none; font-family: inherit; }
-        #output-field { font-size: 20px; color: #bdc1c6; word-break: break-all; white-space: pre-wrap; flex-grow: 1; margin-bottom: 40px; min-height: 1.2em; overflow-y: auto; }
-        .clear-btn { position: absolute; top: 15px; right: 15px; color: #9aa0a6; cursor: pointer; font-size: 22px; padding: 5px; z-index: 5; }
-        .panel-footer { position: absolute; bottom: 12px; right: 12px; display: flex; align-items: center; gap: 12px; }
-        .old-version-btn { color: #8ab4f8; text-decoration: none; font-size: 13px; font-weight: 500; padding: 6px 14px; border: 1px solid #3c4043; border-radius: 20px; transition: all 0.2s; }
-        .old-version-btn:hover { background: rgba(138, 180, 248, 0.08); border-color: #8ab4f8; }
-        .copy-btn { background: transparent; border: none; color: #9aa0a6; cursor: pointer; padding: 8px; border-radius: 50%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-        .copy-btn svg { width: 24px; height: 24px; fill: currentColor; }
+        #output-field { font-size: 20px; color: #bdc1c6; word-break: break-all; white-space: pre-wrap; flex-grow: 1; }
 
         /* ИГРОВОЕ ОКНО */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; justify-content: center; align-items: center; }
-        .game-window { background: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 800px; max-width: 95%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .game-window { background: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 800px; max-width: 95%; height: 600px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
         .game-header { padding: 15px; border-bottom: 1px solid #3c4043; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .game-menu { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; }
-        @media (min-width: 600px) { .game-menu { grid-template-columns: 1fr 1fr 1fr; } }
+        .game-menu { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .game-btn { background: #303134; color: #e8eaed; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .game-btn:hover { background: #8ab4f8; color: #000; }
+        .close-game { cursor: pointer; color: #9aa0a6; font-size: 24px; }
+        .game-content { padding: 20px; display: none; flex-direction: column; align-items: center; height: 100%; overflow: hidden; }
+        .back-btn { margin-bottom: 15px; align-self: flex-start; background: none; border: none; color: #9aa0a6; cursor: pointer; font-size: 16px; }
 
-        .game-btn { background: #303134; color: #e8eaed; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .game-btn:hover, .game-btn:active { background: #8ab4f8; color: #000; }
-        .close-game { cursor: pointer; color: #9aa0a6; font-size: 24px; padding: 5px; }
-        .game-content { padding: 20px; display: none; flex-direction: column; align-items: center; overflow-y: auto; height: 100%; }
-        .back-btn { margin-bottom: 15px; align-self: flex-start; background: none; border: none; color: #9aa0a6; cursor: pointer; font-size: 16px; padding: 10px 0; }
-
-        /* КАЗИНО */
-        .casino-panel { text-align: center; width: 100%; max-width: 400px; background: #202124; padding: 30px; border-radius: 12px; border: 1px solid #3c4043; }
-        .balance-display { font-size: 36px; color: #81c995; font-weight: bold; margin-bottom: 20px; font-family: monospace; }
-        .bet-input { background: #303134; border: 1px solid #5f6368; color: #fff; padding: 15px; font-size: 20px; border-radius: 8px; width: 100%; box-sizing: border-box; text-align: center; margin-bottom: 10px; }
-        .casino-btn { width: 100%; padding: 15px; background: #e37400; color: #fff; font-size: 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .casino-btn:hover { background: #f29900; }
-        .casino-msg { margin-top: 15px; min-height: 24px; font-weight: bold; }
-
-        /* КЛИКЕР */
-        #clickerContainer { flex-direction: row; align-items: stretch; padding: 0; overflow: hidden; }
-        .clicker-left { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #3c4043; background: radial-gradient(circle at center, #303134 0%, #1e1f21 70%); position: relative; padding: 20px; }
-        .clicker-right { flex: 1; min-width: 300px; background: #202124; overflow-y: auto; border-left: 1px solid #3c4043; display: flex; flex-direction: column; }
-        .big-cookie { width: 200px; height: 200px; background: url('https://img.icons8.com/color/480/beer-glass.png') no-repeat center/contain; cursor: pointer; transition: transform 0.1s; z-index: 5; }
-        .big-cookie:active { transform: scale(0.95); }
-        .score-box { text-align: center; margin-bottom: 30px; z-index: 5; }
-        .cookies-count { font-size: 32px; font-weight: bold; color: #fff; }
-        .cps-display { font-size: 14px; color: #9aa0a6; }
-        .store-header { padding: 15px; text-align: center; font-weight: bold; background: #303134; border-bottom: 1px solid #3c4043; }
-        .building-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #3c4043; cursor: pointer; transition: 0.2s; user-select: none; }
-        .building-item:hover { background: rgba(255,255,255,0.05); }
-        .building-item.locked { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
-        .b-icon { font-size: 24px; width: 40px; text-align: center; }
-        .b-info { flex: 1; }
-        .b-name { font-weight: bold; font-size: 14px; }
-        .b-cost { font-size: 12px; color: #81c995; }
-        .b-count { font-size: 24px; color: #5f6368; font-weight: bold; padding-left: 10px; }
-        .click-text { position: absolute; color: #fff; font-weight: bold; font-size: 20px; pointer-events: none; animation: floatUp 1s forwards; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
-
-        /* ФОРУМ */
-        #forumContainer { padding: 0; display: none; flex-direction: column; height: 100%; }
+        /* ЧАТ (ФОРУМ) СТИЛИ */
+        #forumContainer { display: none; flex-direction: column; height: 100%; }
+        .forum-posts { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; max-height: 400px; scroll-behavior: smooth; }
+        .post-card { background: #303134; padding: 10px; border-radius: 8px; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); width: fit-content; max-width: 90%; }
+        .post-author { color: #8ab4f8; font-weight: bold; font-size: 12px; margin-bottom: 4px; }
+        .post-text { color: #e8eaed; word-wrap: break-word; }
+        .post-img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
         .forum-input-area { padding: 15px; background: #202124; border-top: 1px solid #3c4043; display: flex; gap: 10px; flex-shrink: 0; }
-        .forum-input-area input { background: #303134; border: 1px solid #5f6368; color: #fff; padding: 10px; border-radius: 4px; width: 100px; outline:none; }
-        .forum-input-area textarea { flex: 1; height: 40px; padding: 10px; border: 1px solid #5f6368; border-radius: 4px; background: #303134; color:#fff; font-size: 14px; resize:none; outline:none; font-family:inherit; }
+        .forum-input-area input { background: #303134; border: 1px solid #5f6368; color: #fff; padding: 10px; border-radius: 4px; width: 100px; outline: none; }
+        .forum-input-area textarea { flex: 1; height: 40px; padding: 10px; border: 1px solid #5f6368; border-radius: 4px; background: #303134; color: #fff; font-size: 14px; resize: none; outline: none; font-family: inherit; }
         .forum-btn { background: #8ab4f8; border: none; padding: 0 20px; border-radius: 4px; font-weight: bold; cursor: pointer; color: #000; }
-        .forum-posts { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
-        .post-card { background: #303134; padding: 10px; border-radius: 8px; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .post-author { color: #8ab4f8; font-weight: bold; margin-bottom: 4px; font-size: 12px; display: flex; justify-content: space-between; }
-        .post-text { color: #e8eaed; white-space: pre-wrap; word-wrap: break-word; }
-
-        /* АДАПТИВНОСТЬ */
-        @media (max-width: 768px) {
-            h1 { font-size: 24px; }
-            .translator-container { width: 98%; max-height: 85vh; }
-            .main-panels { flex-direction: column; }
-            .input-panel { border-right: none; border-bottom: 1px solid #3c4043; min-height: 150px; }
-            #clickerContainer { flex-direction: column; overflow-y: auto; }
-            .clicker-left { min-height: 250px; border-right: none; border-bottom: 1px solid #3c4043; }
-        }
-        
-        /* СТИЛИ ДЛЯ ИГР */
-        #snake-canvas { background: #000; border: 2px solid #3c4043; max-width: 100%; touch-action: none; }
-        .mines-grid { display: grid; gap: 2px; background: #3c4043; border: 2px solid #3c4043; margin-top: 10px; touch-action: manipulation; }
-        .mine-cell { width: 30px; height: 30px; background: #bdc1c6; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; color: #000; user-select: none; -webkit-touch-callout: none; }
-        .mine-cell.revealed { background: #303134; color: #fff; cursor: default; }
-        .mine-cell.boom { background: #f44336; }
-        .mine-cell.flagged { color: #f44336; }
-        .geo-flag-container { margin: 20px 0; min-height: 120px; display: flex; align-items: center; justify-content: center; }
-        .geo-flag-img { height: 120px; max-width: 100%; border-radius: 8px; border: 1px solid #3c4043; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .geo-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="title-container" id="title-block">
+    <div class="title-container">
         <h1>Beer Translate & Games</h1>
         <span class="author-tag">Ultimate Edition</span>
     </div>
 
-    <div class="translator-container" id="main-block">
+    <div class="translator-container">
         <div class="header-tabs">
             <div class="tab" id="left-label">Текст</div>
             <div class="swap-icon" onclick="toggleMode()">⇄</div>
             <div class="tab inactive" id="right-label">Пивной язык</div>
             <div class="right-tabs">
-                <div class="action-tab game-tab" onclick="openGameModal()">Меню / Игры</div>
-                <div class="action-tab" onclick="startGravity()">Гравитация</div>
+                <div class="action-tab" onclick="openGameModal()">Меню / Игры</div>
             </div>
         </div>
         <div class="main-panels">
             <div class="panel input-panel">
-                <div class="clear-btn" onclick="clearAll()">✕</div>
                 <textarea id="input-text" placeholder="Введите текст..." oninput="doTranslate()"></textarea>
             </div>
             <div class="panel">
                 <div id="output-field"></div>
-                <div class="panel-footer">
-                    <button class="copy-btn" id="copy-btn" onclick="copyResult()">
-                        <svg id="copy-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -157,276 +84,102 @@
             
             <div class="game-menu" id="gameMenu">
                 <button class="game-btn" onclick="initForum()">💬 ЖИВОЙ ЧАТ</button>
-                <button class="game-btn" onclick="initMinesweeper()">💣 Сапер</button>
-                <button class="game-btn" onclick="initSnake()">🐍 Змейка</button>
-                <button class="game-btn" onclick="initGeo()">🌍 Флаги</button>
-                <button class="game-btn" style="border: 1px solid #e37400; color: #f29900;" onclick="initCasino()">🎲 Казино</button>
-                <button class="game-btn" style="border: 1px solid #8ab4f8; color: #8ab4f8;" onclick="initClicker()">🍺 Beer Clicker</button>
-            </div>
-
-            <div class="game-content" id="snakeContainer">
-                <button class="back-btn" onclick="backToMenu()">← Назад</button>
-                <canvas id="snake-canvas" width="400" height="300"></canvas>
-            </div>
-            <div class="game-content" id="minesContainer">
-                <button class="back-btn" onclick="backToMenu()">← Назад</button>
-                <div style="color:#5f6368; font-size:12px; margin-bottom: 5px;">ПКМ или Долгое нажатие - Флаг</div>
-                <div class="mines-grid" id="minesGrid"></div>
-            </div>
-            <div class="game-content" id="geoContainer">
-                <button class="back-btn" onclick="backToMenu()">← Назад</button>
-                <div id="geoScore" style="color:#8ab4f8; margin-bottom:10px; font-weight: bold;">Счет: 0</div>
-                <div class="geo-flag-container" id="geoFlag"></div>
-                <div class="geo-options" id="geoOptions"></div>
-            </div>
-            
-            <div class="game-content" id="casinoContainer">
-                <button class="back-btn" onclick="backToMenu()">← Назад</button>
-                <div class="casino-panel">
-                    <div style="color: #9aa0a6; margin-bottom: 5px;">Ваш баланс</div>
-                    <div class="balance-display" id="casinoBalance">$10</div>
-                    <input type="number" id="casinoBet" class="bet-input" placeholder="Ставка" min="1">
-                    <button class="casino-btn" onclick="playCasino()">СДЕЛАТЬ СТАВКУ</button>
-                    <div class="casino-msg" id="casinoMsg">Шанс 30% выиграть 2x</div>
-                </div>
-            </div>
-            
-            <div id="clickerContainer" class="game-content" style="display: none; height: 100%; width: 100%; box-sizing: border-box;">
-                <div class="clicker-left">
-                    <button class="back-btn" style="position: absolute; top: 10px; left: 10px;" onclick="backToMenu(); saveClicker();">← Выход</button>
-                    <div class="score-box">
-                        <div class="cookies-count" id="beerCount">0 Пива</div>
-                        <div class="cps-display" id="beerCps">в секунду: 0</div>
-                    </div>
-                    <div class="big-cookie" id="bigCookie"></div>
-                </div>
-                <div class="clicker-right">
-                    <div class="store-header">Магазин</div>
-                    <div id="storeList"></div>
-                </div>
+                <button class="game-btn" onclick="alert('Скоро...')">🎮 Другие игры</button>
             </div>
 
             <div id="forumContainer">
                 <div style="padding: 10px 15px; border-bottom: 1px solid #3c4043; display: flex; align-items: center; justify-content: space-between;">
-                    <button class="back-btn" style="margin: 0; padding: 0;" onclick="backToMenu()">← Назад</button>
-                    <span style="font-weight: bold; color: #bdc1c6;">Живой чат</span>
+                    <button class="back-btn" onclick="backToMenu()">← Назад</button>
+                    <span style="font-size:12px; color:#5f6368">9 сообщений в фокусе, остальное скролл</span>
                 </div>
                 <div class="forum-posts" id="forumPosts"></div>
                 <div class="forum-input-area">
-                    <input id="forumName" placeholder="Имя" maxlength="15">
-                    <textarea id="forumText" placeholder="Сообщение..." maxlength="200"></textarea>
+                    <input id="forumName" placeholder="Имя" maxlength="15" value="Аноним">
+                    <textarea id="forumText" placeholder="Сообщение или ссылка на GIF (Enter - отправить)" maxlength="500"></textarea>
                     <button class="forum-btn" onclick="sendPost()">➤</button>
                 </div>
             </div>
-
         </div>
     </div>
 
-<script>
-    // --- ПЕРЕВОДЧИК ---
-    const beerMap = {'А': 'влдаолдцт3894', 'Б': '78ем9т4325243895тм72', 'В': 'атдлжиыфвеи0653', 'Г': 'тмщышевз34', 'Д': '34три537уиадлвы', 'Е': 'ь02м392м7', 'Ё': 'ь02м392м8', 'Ж': 'тт32м4о35т2', 'З': '3и45рт647ь8', 'И': '49и357т7т50иц7', 'Й': '49и357т7т50иц8', 'К': 'тй89и5446', 'Л': '7ьт47тть75', 'М': '7ь65бь47456ь7', 'Н': '8674ь5б867куекв', 'О': 'ь7т3567о5643654', 'П': 'т76376534ывтн', 'Р': 'вьтапгь67767ь5ке', 'С': 'пиавые54', 'Т': 'т65436отекнр', 'У': '6т54у65т6цу3', 'Ф': '74567о5тнит7546', 'Х': '547т456756т85', 'Ц': '7ль564л7от546р546', 'Ч': '87645ьт5куьлнаенген', 'Ш': 'аеткуну45654н', 'Щ': 'аеткуну45654н1', 'Ъ': '22987т6и0222лвдпфы1', 'Ы': '22987т6и0222лвдпфы3', 'Ь': '22987т6и0222лвдпфы2', 'Э': '638ь54и96346и0345', 'Ю': 'е0ц4539и587т3450879345', 'Я': 'еьекутнтек6ня', 'A': 'z99x11v', 'B': 'bb77beer00', 'C': 'c_shakal_99', 'D': 'd88_vottak_2', 'E': 'e_pivo_1', 'F': 'f_44_ff', 'G': 'g_top_g_7', 'H': 'h_hh_888', 'I': 'i_eye_111', 'J': 'j_jack_55', 'K': 'k_kick_0', 'L': 'l_lose_77', 'M': 'm_m_444555', 'N': 'n_nitro_9', 'O': 'o_zero_00', 'P': 'p_pub_4', 'Q': 'q_quest_1', 'R': 'r_root_66', 'S': 's_snk_33', 'T': 't_tank_4', 'U': 'u_unit_22', 'V': 'v_v_666', 'W': 'w_wow_7', 'X': 'x_xxx_0', 'Y': 'y_yes_9', 'Z': 'z_zzz_1'};
-    const reverseCodes = Object.entries(beerMap).map(([letter, code]) => ({ letter, code })).sort((a, b) => b.code.length - a.code.length);
-    let isBeerToText = false;
-    function toggleMode() { isBeerToText = !isBeerToText; document.getElementById('left-label').innerText = isBeerToText ? 'Пивной язык' : 'Текст'; document.getElementById('right-label').innerText = isBeerToText ? 'Текст' : 'Пивной язык'; clearAll(); }
-    function doTranslate() { 
-        const input = document.getElementById('input-text').value; const output = document.getElementById('output-field'); 
-        if (!input) { output.innerText = ''; return; } 
-        if (!isBeerToText) { let result = ''; for (let char of input.toUpperCase()) { result += beerMap[char] || char; } output.innerText = result; } 
-        else { let result = ''; let i = 0; while (i < input.length) { let found = false; for (let item of reverseCodes) { if (input.substr(i, item.code.length) === item.code) { result += item.letter; i += item.code.length; found = true; break; } } if (!found) { result += input[i]; i++; } } output.innerText = result.toLowerCase(); }
-    }
-    function clearAll() { document.getElementById('input-text').value = ''; document.getElementById('output-field').innerText = ''; }
-    function copyResult() { const text = document.getElementById('output-field').innerText; if (!text) return; navigator.clipboard.writeText(text).then(() => { const svg = document.getElementById('copy-icon'); const old = svg.innerHTML; svg.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>'; setTimeout(() => svg.innerHTML = old, 2000); }); }
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-    // --- GAME SYSTEM ---
-    const modal = document.getElementById('gameModal'); const menu = document.getElementById('gameMenu'); let activeIntervals = [];
-    function openGameModal() { modal.style.display = 'flex'; backToMenu(); }
-    function closeGameModal() { modal.style.display = 'none'; stopAllGames(); }
-    function backToMenu() { stopAllGames(); menu.style.display = 'grid'; if(window.innerWidth > 600) menu.style.display = 'grid'; ['snakeContainer', 'minesContainer', 'geoContainer', 'casinoContainer', 'clickerContainer', 'forumContainer'].forEach(id => { document.getElementById(id).style.display = 'none'; }); document.getElementById('gameTitle').innerText = 'Меню Аркад'; }
-    function stopAllGames() { activeIntervals.forEach(i => clearInterval(i)); activeIntervals = []; if(typeof saveClicker === 'function') saveClicker(); }
-
-    // --- CASINO ---
-    let casinoBalance = 10;
-    function initCasino() { menu.style.display = 'none'; document.getElementById('casinoContainer').style.display = 'flex'; document.getElementById('gameTitle').innerText = 'Казино'; updateCasinoUI(); document.getElementById('casinoMsg').innerText = "Шанс 30% выиграть 2x"; document.getElementById('casinoMsg').style.color = "#bdc1c6"; }
-    function updateCasinoUI() { document.getElementById('casinoBalance').innerText = '$' + casinoBalance; }
-    function playCasino() {
-        const input = document.getElementById('casinoBet'); const msg = document.getElementById('casinoMsg'); let bet = Number(input.value);
-        if (!Number.isInteger(bet) || bet <= 0) { msg.innerText = "Только целые числа > 0!"; msg.style.color = "#f44336"; return; }
-        if (bet > casinoBalance) { msg.innerText = "Недостаточно средств!"; msg.style.color = "#f44336"; return; }
-        const win = Math.random() < 0.3;
-        if (win) { const profit = bet * 2; casinoBalance += profit; msg.innerText = `ВЫИГРЫШ! +$${profit}`; msg.style.color = "#81c995"; } 
-        else { casinoBalance -= bet; msg.innerText = `ПРОИГРЫШ -${bet}`; msg.style.color = "#e67c73"; }
-        updateCasinoUI();
-        if (casinoBalance <= 0) { setTimeout(() => { alert("Вы проиграли все деньги!\nВас выкидывает из казино."); casinoBalance = 10; input.value = ''; backToMenu(); }, 500); }
-    }
-
-    // --- CLICKER ---
-    let clickerData = { cookies: 0, total: 0, buildings: [ { id: 0, name: 'Курсор', baseCost: 15, count: 0, cps: 0.1, icon: '👆' }, { id: 1, name: 'Бабушка', baseCost: 100, count: 0, cps: 1, icon: '👵' }, { id: 2, name: 'Поле хмеля', baseCost: 1100, count: 0, cps: 8, icon: '🌾' }, { id: 3, name: 'Шахта солода', baseCost: 12000, count: 0, cps: 47, icon: '⛏️' }, { id: 4, name: 'Пивной завод', baseCost: 130000, count: 0, cps: 260, icon: '🏭' }, { id: 5, name: 'Банк', baseCost: 1400000, count: 0, cps: 1400, icon: '🏦' }, { id: 6, name: 'Храм', baseCost: 20000000, count: 0, cps: 7800, icon: '🏛️' }, { id: 7, name: 'Машина времени', baseCost: 330000000, count: 0, cps: 44000, icon: '⏳' } ] };
-    function initClicker() {
-        menu.style.display = 'none'; document.getElementById('clickerContainer').style.display = 'flex'; document.getElementById('gameTitle').innerText = 'Beer Clicker';
-        const saved = localStorage.getItem('beerClickerSave');
-        if(saved) { const parsed = JSON.parse(saved); clickerData.cookies = parsed.cookies; clickerData.total = parsed.total || 0; parsed.buildings.forEach((b, i) => { if(clickerData.buildings[i]) clickerData.buildings[i].count = b.count; }); }
-        renderStore(); updateClickerUI();
-        const interval = setInterval(() => { const cps = getCpS(); if(cps > 0) { clickerData.cookies += cps / 10; clickerData.total += cps / 10; updateClickerUI(); } }, 100);
-        activeIntervals.push(interval);
-        const saveInt = setInterval(saveClicker, 5000); activeIntervals.push(saveInt);
-    }
-    function getCpS() { return clickerData.buildings.reduce((sum, b) => sum + (b.count * b.cps), 0); }
-    function getCost(b) { return Math.floor(b.baseCost * Math.pow(1.15, b.count)); }
-    function formatNum(n) { if(n >= 1000000) return (n/1000000).toFixed(2) + 'M'; if(n >= 1000) return (n/1000).toFixed(1) + 'k'; return Math.floor(n); }
-    function updateClickerUI() {
-        document.getElementById('beerCount').innerText = formatNum(clickerData.cookies) + ' Пива'; document.getElementById('beerCps').innerText = 'в секунду: ' + getCpS().toFixed(1);
-        clickerData.buildings.forEach(b => { const el = document.getElementById('build-btn-' + b.id); const cost = getCost(b); if(el) { if(clickerData.cookies >= cost) { el.classList.remove('locked'); el.style.opacity = '1'; } else { el.classList.add('locked'); } el.querySelector('.b-cost').innerText = formatNum(cost); } });
-    }
-    function renderStore() {
-        const list = document.getElementById('storeList'); list.innerHTML = '';
-        clickerData.buildings.forEach(b => { const div = document.createElement('div'); div.className = 'building-item locked'; div.id = 'build-btn-' + b.id; div.innerHTML = `<div class="b-icon">${b.icon}</div><div class="b-info"><div class="b-name">${b.name}</div><div class="b-cost">${getCost(b)}</div></div><div class="b-count" id="count-${b.id}">${b.count}</div>`; div.onclick = () => buyBuilding(b); list.appendChild(div); });
-    }
-    function buyBuilding(b) { const cost = getCost(b); if(clickerData.cookies >= cost) { clickerData.cookies -= cost; b.count++; document.getElementById('count-' + b.id).innerText = b.count; updateClickerUI(); } }
-    function saveClicker() { localStorage.setItem('beerClickerSave', JSON.stringify(clickerData)); }
-    document.getElementById('bigCookie').addEventListener('mousedown', (e) => {
-        clickerData.cookies++; clickerData.total++; updateClickerUI();
-        const floatEl = document.createElement('div'); floatEl.className = 'click-text'; floatEl.innerText = '+1';
-        const rect = e.target.getBoundingClientRect(); floatEl.style.left = (e.clientX - rect.left) + 'px'; floatEl.style.top = (e.clientY - rect.top) + 'px';
-        e.target.parentNode.appendChild(floatEl); setTimeout(() => floatEl.remove(), 1000);
-    });
-
-    // --- OTHER GAMES (SNAKE, MINES, GEO, GRAVITY) ---
-    const countries = [{name:"Афганистан",code:"af"},{name:"Албания",code:"al"},{name:"Бразилия",code:"br"},{name:"Канада",code:"ca"},{name:"Китай",code:"cn"},{name:"Германия",code:"de"},{name:"Испания",code:"es"},{name:"Франция",code:"fr"},{name:"Великобритания",code:"gb"},{name:"Япония",code:"jp"},{name:"США",code:"us"},{name:"Россия",code:"ru"}];
-    let geoScoreVal = 0;
-    function initGeo() { menu.style.display = 'none'; document.getElementById('geoContainer').style.display = 'flex'; geoScoreVal = 0; nextGeo(); }
-    function nextGeo() {
-        document.getElementById('geoScore').innerText = "Счет: " + geoScoreVal; const correct = countries[Math.floor(Math.random() * countries.length)]; const flagBox = document.getElementById('geoFlag'); flagBox.innerHTML = `<div style="color:#5f6368">Загрузка...</div>`;
-        const img = new Image(); img.src = `https://flagcdn.com/w320/${correct.code}.png`; img.className = "geo-flag-img"; img.onload = () => { flagBox.innerHTML = ''; flagBox.appendChild(img); };
-        let opts = [correct]; while(opts.length < 4) { let r = countries[Math.floor(Math.random()*countries.length)]; if(!opts.includes(r)) opts.push(r); } opts.sort(() => Math.random() - 0.5);
-        const optBox = document.getElementById('geoOptions'); optBox.innerHTML = '';
-        opts.forEach(o => { const b = document.createElement('button'); b.className = 'game-btn'; b.innerText = o.name; b.onclick = () => { if(o === correct) { geoScoreVal++; b.style.background = '#81c995'; setTimeout(nextGeo, 200); } else { b.style.background = '#f44336'; setTimeout(() => { alert("Игра окончена. Это: " + correct.name); backToMenu(); }, 100); } }; optBox.appendChild(b); });
-    }
-    
-    function initSnake() {
-        menu.style.display = 'none'; document.getElementById('snakeContainer').style.display = 'flex'; const canvas = document.getElementById('snake-canvas'); const ctx = canvas.getContext('2d');
-        let s = [{x:200, y:150}], f = {x:100, y:100}, d = 'R', sc = 0;
-        document.onkeydown = e => { if(e.key==='ArrowUp' && d!=='D') d='U'; if(e.key==='ArrowDown' && d!=='U') d='D'; if(e.key==='ArrowLeft' && d!=='R') d='L'; if(e.key==='ArrowRight' && d!=='L') d='R'; };
-        let tX, tY; canvas.ontouchstart = e => { tX = e.touches[0].clientX; tY = e.touches[0].clientY; };
-        canvas.ontouchmove = e => { if(!tX || !tY) return; let dX = e.touches[0].clientX - tX; let dY = e.touches[0].clientY - tY; if(Math.abs(dX) > Math.abs(dY)) { if(dX > 0 && d!=='L') d='R'; else if(dX < 0 && d!=='R') d='L'; } else { if(dY > 0 && d!=='U') d='D'; else if(dY < 0 && d!=='D') d='U'; } tX = null; tY = null; e.preventDefault(); };
-        const int = setInterval(() => { let h = {...s[0]}; if(d==='U') h.y-=10; if(d==='D') h.y+=10; if(d==='L') h.x-=10; if(d==='R') h.x+=10; if(h.x<0||h.x>=400||h.y<0||h.y>=300||s.some(p=>p.x===h.x&&p.y===h.y)) { clearInterval(int); alert("Очки: " + sc); backToMenu(); } s.unshift(h); if(h.x===f.x && h.y===f.y) { sc++; f={x:Math.floor(Math.random()*39)*10, y:Math.floor(Math.random()*29)*10}; } else s.pop(); ctx.fillStyle = '#000'; ctx.fillRect(0,0,400,300); ctx.fillStyle = '#f00'; ctx.fillRect(f.x,f.y,9,9); ctx.fillStyle = '#8ab4f8'; s.forEach(p=>ctx.fillRect(p.x,p.y,9,9)); }, 100); activeIntervals.push(int);
-    }
-
-    let minesState = []; const MS_COLS = 10; const MS_ROWS = 10;
-    function initMinesweeper() {
-        menu.style.display = 'none'; document.getElementById('minesContainer').style.display = 'flex'; const grid = document.getElementById('minesGrid'); grid.style.gridTemplateColumns = `repeat(${MS_COLS}, 30px)`; grid.innerHTML = '';
-        minesState = Array(MS_COLS * MS_ROWS).fill(0).map((_,i) => ({ i, mine: Math.random() < 0.15, rev: false, flag: false, el: null }));
-        minesState.forEach(c => { const d = document.createElement('div'); d.className = 'mine-cell'; c.el = d; let pressTimer, isLongPress = false; d.addEventListener('touchstart', () => { isLongPress = false; pressTimer = setTimeout(() => { isLongPress = true; toggleFlag(c); if(navigator.vibrate) navigator.vibrate(50); }, 500); }, {passive: false}); d.addEventListener('touchend', (e) => { clearTimeout(pressTimer); if (isLongPress) e.preventDefault(); }); d.addEventListener('touchmove', () => clearTimeout(pressTimer)); d.onclick = () => { if (!isLongPress && !c.flag && !c.rev) openCell(c); }; d.oncontextmenu = (e) => { e.preventDefault(); toggleFlag(c); return false; }; grid.appendChild(d); });
-    }
-    function toggleFlag(c) { if (c.rev) return; c.flag = !c.flag; c.el.innerText = c.flag ? '🚩' : ''; c.el.classList.toggle('flagged', c.flag); }
-    function openCell(c) { if (c.rev || c.flag) return; c.rev = true; c.el.classList.add('revealed'); if(c.mine) { c.el.classList.add('boom'); c.el.innerText = '💣'; setTimeout(() => { alert("Бабах!"); backToMenu(); }, 100); return; } let near = 0; getNeighbors(c.i).forEach(n => { if (minesState[n].mine) near++; }); if (near > 0) { c.el.innerText = near; c.el.style.color = ['#8ab4f8', '#81c995', '#fdd663', '#f28b82'][near-1] || '#e67c73'; } else { getNeighbors(c.i).forEach(n => openCell(minesState[n])); } }
-    function getNeighbors(idx) { const row = Math.floor(idx / MS_COLS), col = idx % MS_COLS, res = []; for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) { if (x === 0 && y === 0) continue; const nRow = row + y, nCol = col + x; if (nRow >= 0 && nRow < MS_ROWS && nCol >= 0 && nCol < MS_COLS) res.push(nRow * MS_COLS + nCol); } return res; }
-
-    let gravityActive = false; let physicsObjects = []; let mouse = { x: 0, y: 0, down: false, draggedObj: null, lastX: 0, lastY: 0 };
-    function startGravity() { if (gravityActive) return; gravityActive = true; [document.querySelector('.title-container'), document.querySelector('.translator-container')].forEach(el => { if(!el) return; const r = el.getBoundingClientRect(); const obj = { el, x: r.left, y: r.top, w: r.width, h: r.height, vx: (Math.random()-0.5)*10, vy: 0, rot: 0, rotSpeed: (Math.random()-0.5)*2 }; physicsObjects.push(obj); el.style.position = 'fixed'; el.style.width = r.width+'px'; el.style.margin = '0'; el.style.zIndex = '9999'; el.style.top = '0'; el.style.left = '0'; el.style.transform = `translate(${r.left}px, ${r.top}px)`; el.onmousedown = (e) => startDrag(e, obj, e.clientX, e.clientY); el.ontouchstart = (e) => { e.preventDefault(); startDrag(e, obj, e.touches[0].clientX, e.touches[0].clientY); }; }); window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY)); window.addEventListener('touchmove', (e) => moveDrag(e.touches[0].clientX, e.touches[0].clientY)); window.addEventListener('mouseup', endDrag); window.addEventListener('touchend', endDrag); requestAnimationFrame(updatePhys); }
-    function startDrag(e, o, x, y) { mouse.down = true; mouse.draggedObj = o; mouse.offsetX = x - o.x; mouse.offsetY = y - o.y; o.vx = 0; o.vy = 0; mouse.lastX = x; mouse.lastY = y; }
-    function moveDrag(x, y) { if (!mouse.down || !mouse.draggedObj) return; const o = mouse.draggedObj; o.x = x - mouse.offsetX; o.y = y - mouse.offsetY; o.vx = x - mouse.lastX; o.vy = y - mouse.lastY; mouse.lastX = x; mouse.lastY = y; }
-    function endDrag() { mouse.down = false; mouse.draggedObj = null; }
-    function updatePhys() { if (!gravityActive) return; physicsObjects.forEach(o => { if (!mouse.down || mouse.draggedObj !== o) { o.vy += 0.5; o.x += o.vx; o.y += o.vy; o.rot += o.rotSpeed; if (o.y + o.h > window.innerHeight) { o.y = window.innerHeight - o.h; o.vy *= -0.6; o.vx *= 0.95; } if (o.x < 0) { o.x = 0; o.vx *= -0.6; } if (o.x + o.w > window.innerWidth) { o.x = window.innerWidth - o.w; o.vx *= -0.6; } } o.el.style.transform = `translate(${o.x}px, ${o.y}px) rotate(${o.rot}deg)`; }); requestAnimationFrame(updatePhys); }
-    function initForum() { menu.style.display = 'none'; document.getElementById('forumContainer').style.display = 'flex'; document.getElementById('gameTitle').innerText = 'Форум'; }
-</script>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<script>
-    /* ================================================================= */
-    /* ТВОЙ КОНФИГ FIREBASE (Вставлен автоматически из скриншота) */
-    /* ================================================================= */
-   const firebaseConfig = {
-  apiKey: "AIzaSyCesMs7AFeefzwVLhJfKyA3_QROoRnnONo",
-  authDomain: "beerlanguage-1337.firebaseapp.com",
-  databaseURL: "https://beerlanguage-1337-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "beerlanguage-1337",
-  storageBucket: "beerlanguage-1337.firebasestorage.app",
-  messagingSenderId: "18636363390",
-  appId: "1:18636363390:web:aa02dfd1ce7e53f6d0aa2f",
-  measurementId: "G-FWDWXXMHY8"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const banned = ["http", "https", ".com", ".ru", "xxx", "porn", "casino", "viagra"];
-
-    async function sendPost() {
-        const nameIn = document.getElementById('forumName');
-        const textIn = document.getElementById('forumText');
-        const name = nameIn.value.trim().slice(0, 15);
-        const text = textIn.value.trim().slice(0, 200);
-
-        if (!name || !text) return;
-        
-        // Фильтр слов
-        const lower = text.toLowerCase();
-        if (banned.some(w => lower.includes(w))) return alert("Сообщение содержит запрещенные слова.");
-
-        try {
-            await db.collection("posts").add({
-                name: name,
-                text: text,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            textIn.value = ""; // Очистка
-        } catch(error) {
-            console.error("Ошибка:", error);
-            alert("Не удалось отправить сообщение. Проверь консоль (F12).");
-        }
-    }
-
-    // Слушатель чата
-    db.collection("posts")
-      .orderBy("timestamp", "asc")
-      .limit(50)
-      .onSnapshot((snapshot) => {
-        const cont = document.getElementById('forumPosts');
-        cont.innerHTML = "";
-        
-        if(snapshot.empty) {
-            cont.innerHTML = '<div style="text-align:center; color:#5f6368; padding:20px;">Пока сообщений нет...</div>';
-            return;
+    <script>
+        /* ====== ПЕРЕВОДЧИК ====== */
+        const beerMap = {'А': 'влдаолдцт3894', 'Б': '78ем9т4325243895тм72', 'В': 'атдлжиыфвеи0653'}; // Упрощено для примера
+        let isBeerToText = false;
+        function toggleMode() { isBeerToText = !isBeerToText; document.getElementById('left-label').innerText = isBeerToText ? 'Пивной язык' : 'Текст'; }
+        function doTranslate() {
+            const val = document.getElementById('input-text').value.toUpperCase();
+            document.getElementById('output-field').innerText = val.split('').map(char => beerMap[char] || char).join('');
         }
 
-        snapshot.forEach((doc) => {
-          const p = doc.data();
-          if(!p.text) return;
-          
-          const card = document.createElement("div");
-          card.className = "post-card";
-          
-          let timeStr = "--:--";
-          if (p.timestamp) {
-              const date = p.timestamp.toDate();
-              const h = date.getHours().toString().padStart(2,'0');
-              const m = date.getMinutes().toString().padStart(2,'0');
-              timeStr = `${h}:${m}`;
-          }
+        /* ====== СИСТЕМА ОКОН ====== */
+        const modal = document.getElementById('gameModal');
+        const menu = document.getElementById('gameMenu');
+        const forum = document.getElementById('forumContainer');
 
-          card.innerHTML = `
-            <div class="post-author">${escapeHtml(p.name || 'Аноним')} <span>${timeStr}</span></div>
-            <div class="post-text">${escapeHtml(p.text)}</div>
-          `;
-          cont.appendChild(card);
+        function openGameModal() { modal.style.display = 'flex'; backToMenu(); }
+        function closeGameModal() { modal.style.display = 'none'; }
+        function backToMenu() { menu.style.display = 'grid'; forum.style.display = 'none'; document.getElementById('gameTitle').innerText = 'Меню'; }
+        function initForum() { menu.style.display = 'none'; forum.style.display = 'flex'; document.getElementById('gameTitle').innerText = 'Чат'; }
+
+        /* ====== FIREBASE ЛОГИКА ====== */
+        const firebaseConfig = {
+            apiKey: "AIzaSyCesMs7AFeefzwVLhJfKyA3_QROoRnnONo",
+            authDomain: "beerlanguage-1337.firebaseapp.com",
+            projectId: "beerlanguage-1337",
+            storageBucket: "beerlanguage-1337.firebasestorage.app",
+            messagingSenderId: "18636363390",
+            appId: "1:18636363390:web:aa02dfd1ce7e53f6d0aa2f"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Проверка ссылки на картинку
+        function isImg(url) { return /\.(jpg|jpeg|png|webp|gif)$/.test(url.toLowerCase()) || url.includes("giphy.com"); }
+
+        // Отправка
+        async function sendPost() {
+            const name = document.getElementById('forumName').value.trim();
+            const text = document.getElementById('forumText').value.trim();
+            if(!text) return;
+
+            try {
+                await db.collection("posts").add({ name, text, time: Date.now() });
+                document.getElementById('forumText').value = "";
+            } catch(e) { console.error(e); }
+        }
+
+        // Слушатель Enter
+        document.getElementById('forumText').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendPost();
+            }
         });
-        cont.scrollTop = cont.scrollHeight; // Автопрокрутка вниз
-      }, (error) => {
-          console.log(error);
-          document.getElementById('forumPosts').innerHTML = `<div style="color:#f44336;text-align:center">Ошибка подключения к базе данных.<br>Проверь правила доступа в Firebase Console.</div>`;
-      });
 
-    function escapeHtml(text) {
-      if (!text) return text;
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-</script>
+        // Получение сообщений
+        db.collection("posts").orderBy("time", "asc").onSnapshot(snap => {
+            const cont = document.getElementById('forumPosts');
+            cont.innerHTML = "";
+            snap.forEach(doc => {
+                const p = doc.data();
+                const card = document.createElement('div');
+                card.className = "post-card";
+                
+                let content = isImg(p.text) 
+                    ? `<img src="${p.text}" class="post-img">` 
+                    : `<div class="post-text">${escapeHtml(p.text)}</div>`;
+                
+                card.innerHTML = `<div class="post-author">${escapeHtml(p.name)}</div>${content}`;
+                cont.appendChild(card);
+            });
+            cont.scrollTop = cont.scrollHeight; // Всегда в конец
+        });
 
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+    </script>
 </body>
 </html>
