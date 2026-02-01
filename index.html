@@ -380,7 +380,7 @@
         }
     });
 
-    db.collection("posts").orderBy("timestamp", "asc").limit(50).onSnapshot((snapshot) => {
+    db.collection("posts").orderBy("timestamp", "asc").limit(1000).onSnapshot((snapshot) => {
         const cont = document.getElementById('forumPosts');
         cont.innerHTML = "";
         snapshot.forEach((doc) => {
