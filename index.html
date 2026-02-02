@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beer Translate & Games Ultimate (Secure Edition)</title>
+    <title>Beer Translate & Games Ultimate (Fixed Edition)</title>
     <style>
         /* --- ОСНОВНЫЕ СТИЛИ --- */
         body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
@@ -59,14 +59,13 @@
         .post-author .post-author-row { display: flex; align-items: center; gap: 8px; }
         .post-author > span { color: #5f6368; font-weight: normal; font-size: 11px; }
         .user-id-badge { background: #303134; color: #9aa0a6; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: monospace; margin-left: 6px; }
-        .post-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 8px; flex-shrink: 0; background: #303134; }
+        .post-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 8px; flex-shrink: 0; background: #303134; display: flex; align-items: center; justify-content: center;}
         .post-text { font-size: 14px; line-height: 1.5; color: #e8eaed; word-break: break-word; white-space: pre-wrap; }
-        .post-img { max-width: 100%; border-radius: 8px; margin-top: 10px; display: block; max-height: 300px; object-fit: contain; border: 1px solid #3c4043; }
+        .post-img { max-width: 100%; border-radius: 8px; margin-top: 10px; display: block; max-height: 300px; object-fit: contain; border: 1px solid #3c4043; cursor: pointer;}
         .post-attachment { margin-top: 8px; padding: 8px 12px; background: #303134; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; color: #8ab4f8; font-size: 13px; text-decoration: none; }
         .post-attachment:hover { background: #3c4043; }
-        .post-voice { margin-top: 8px; padding: 8px 12px; background: #303134; border-radius: 8px; }
-        .post-voice audio { width: 100%; max-width: 280px; height: 36px; }
-        .gif-loading { color: #5f6368; font-size: 12px; font-style: italic; margin-top: 6px; }
+        .post-voice { margin-top: 8px; padding: 8px 12px; background: #2a2b2e; border-radius: 20px; display: flex; align-items: center; gap: 10px;}
+        .post-voice audio { height: 32px; outline: none; }
         
         .forum-input-area { padding: 15px 20px; background: #202124; border-top: 1px solid #3c4043; display: flex; gap: 12px; align-items: flex-end; }
         .slowmode-notice { background: #303134; color: #f29900; padding: 8px 12px; border-radius: 6px; font-size: 12px; text-align: center; margin-bottom: 8px; display: none; }
@@ -76,10 +75,12 @@
         .forum-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .attach-btn, .voice-btn { background: #303134; border: 1px solid #3c4043; color: #9aa0a6; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s; }
         .attach-btn:hover, .voice-btn:hover { color: #fff; background: #3c4043; }
-        .voice-btn.recording { background: #ea4335; color: #fff; }
+        .voice-btn.recording { background: #ea4335 !important; color: #fff; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        
         .attachments-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; font-size: 12px; color: #9aa0a6; }
-        .attachments-preview span { background: #303134; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
-        .attachments-preview .remove-attach { cursor: pointer; color: #ea4335; }
+        .attachments-preview .preview-item { background: #303134; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px; }
+        .attachments-preview .remove-attach { cursor: pointer; color: #ea4335; font-weight: bold; margin-left: 5px;}
         #forumText { background: #303134; border: 1px solid #3c4043; border-radius: 6px; color: #fff; padding: 10px 12px; font-size: 14px; resize: none; outline: none; min-height: 40px; max-height: 120px; font-family: inherit; }
         .send-btn { background: #8ab4f8; color: #1e1f21; border: none; border-radius: 6px; width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
         .send-btn:hover { background: #aecbfa; transform: scale(1.05); }
@@ -306,7 +307,7 @@
                                 <button type="button" class="attach-btn" title="Прикрепить файл" onclick="document.getElementById('attachFileInput').click()">📎</button>
                                 <button type="button" class="voice-btn" id="voiceBtn" title="Голосовое сообщение" onclick="toggleVoiceRecord()">🎤</button>
                             </div>
-                            <input type="file" id="attachFileInput" multiple style="display:none;">
+                            <input type="file" id="attachFileInput" multiple style="display:none;" onchange="handleFileSelect(this)">
                             <div class="attachments-preview" id="attachmentsPreview"></div>
                             <textarea id="forumText" placeholder="Сообщение... (или ссылка на GIF)" maxlength="500"></textarea>
                         </div>
@@ -445,14 +446,25 @@
     // ЧАТ — CLOUDFLARE
     // ============================================================
     
-    // !!! ВНИМАНИЕ !!!
-    // Замени адрес ниже на адрес своего воркера. Он выглядит как https://
     const API_URL = 'https://beer-chat-worker.spiderkaras.workers.dev'; 
 
-    // Текущий пользователь
     let currentUser = null;
     const USERS_KEY = 'beerChatUser';
     let chatUpdateInterval = null;
+    let pendingAttachments = []; // Массив для файлов
+    let pendingVoice = null;     // Для голосового
+    let mediaRecorder = null;
+    let audioChunks = [];
+
+    // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
 
     function loadCurrentUser() {
         const saved = localStorage.getItem(USERS_KEY);
@@ -482,6 +494,7 @@
         }
     }
 
+    // Предпросмотр аватарки при регистрации
     document.getElementById('regAvatarInput').addEventListener('change', function() {
         const f = this.files[0];
         if (!f || !f.type.startsWith('image/')) return;
@@ -494,13 +507,28 @@
         const nickname = (document.getElementById('regNickname').value || '').trim();
         const password = (document.getElementById('regPassword').value || '').trim();
         const codeWord = (document.getElementById('regCodeWord').value || '').trim();
+        const avatarFile = document.getElementById('regAvatarInput').files[0];
         
         if (!nickname) { alert('Введите никнейм'); return; }
         if (!password) { alert('Введите пароль'); return; }
         if (!codeWord) { alert('Введите кодовое слово'); return; }
 
+        let avatarBase64 = '';
+        if (avatarFile) {
+            try {
+                // Ограничим размер аватарки, чтобы не забивать LocalStorage
+                if (avatarFile.size > 1024 * 1024) {
+                    alert('Аватарка слишком большая (макс 1Мб)!');
+                    return;
+                }
+                avatarBase64 = await fileToBase64(avatarFile);
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
         const userId = Date.now();
-        currentUser = { id: userId, nickname: nickname, avatarUrl: '', guest: false };
+        currentUser = { id: userId, nickname: nickname, avatarUrl: avatarBase64, guest: false };
         saveCurrentUser();
         
         document.getElementById('authScreen').style.display = 'none';
@@ -515,14 +543,10 @@
     }
 
     async function doLogin() {
+        // Логин пока фиктивный (просто сохраняет в localstorage), 
+        // для реального логина нужен сервер с БД пользователей.
         const nickname = (document.getElementById('loginNickname').value || '').trim();
-        const password = (document.getElementById('loginPassword').value || '').trim();
-        const codeWord = (document.getElementById('loginCodeWord').value || '').trim();
-
-        if (!nickname || !password || !codeWord) { 
-            alert('Введите Ник, Пароль и Кодовое слово'); 
-            return; 
-        }
+        if (!nickname) { alert('Введите ник'); return; }
 
         currentUser = { id: Date.now(), nickname: nickname, avatarUrl: '', guest: false };
         saveCurrentUser();
@@ -536,14 +560,10 @@
         saveCurrentUser();
         document.getElementById('authScreen').style.display = 'block';
         document.getElementById('chatArea').style.display = 'none';
-        
-        document.getElementById('loginNickname').value = '';
-        document.getElementById('loginPassword').value = '';
-        document.getElementById('loginCodeWord').value = '';
     }
 
     function enterAsGuest() {
-        currentUser = { guest: true, nickname: 'Гость', id: null };
+        currentUser = { guest: true, nickname: 'Гость', id: null, avatarUrl: '' };
         saveCurrentUser();
         document.getElementById('authScreen').style.display = 'none';
         document.getElementById('chatArea').style.display = 'flex';
@@ -561,8 +581,15 @@
         if (!currentUser) return;
         document.getElementById('myUserIdDisplay').innerText = currentUser.guest ? 'гость' : currentUser.id;
         document.getElementById('myNickname').innerText = currentUser.nickname;
+        
         const img = document.getElementById('myAvatarImg');
-        img.style.display = 'none';
+        if (currentUser.avatarUrl) {
+            img.style.display = 'block';
+            img.src = currentUser.avatarUrl;
+        } else {
+            img.style.display = 'none';
+        }
+
         const guestNotice = document.getElementById('guestLimitNotice');
         if (currentUser.guest) {
             guestNotice.style.display = 'block';
@@ -572,7 +599,104 @@
         }
     }
 
+    // --- РАБОТА С ФАЙЛАМИ И ГОЛОСОВЫМИ ---
+
+    // 1. Файлы (Скрепка)
+    async function handleFileSelect(input) {
+        if (!input.files || input.files.length === 0) return;
+        
+        for (let file of input.files) {
+            if (file.size > 2 * 1024 * 1024) {
+                alert(`Файл ${file.name} слишком большой! Макс 2Мб.`);
+                continue;
+            }
+            try {
+                const b64 = await fileToBase64(file);
+                pendingAttachments.push({
+                    name: file.name,
+                    type: file.type,
+                    data: b64
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        input.value = ''; // сброс
+        renderAttachmentsPreview();
+    }
+
+    function renderAttachmentsPreview() {
+        const div = document.getElementById('attachmentsPreview');
+        div.innerHTML = '';
+        
+        // Показываем файлы
+        pendingAttachments.forEach((att, idx) => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.innerHTML = `📄 ${att.name.substring(0, 15)}... <span class="remove-attach" onclick="removeAttachment(${idx})">✖</span>`;
+            div.appendChild(item);
+        });
+
+        // Показываем, если есть голосовое
+        if (pendingVoice) {
+            const vItem = document.createElement('div');
+            vItem.className = 'preview-item';
+            vItem.innerHTML = `🎤 Голосовое сообщение <span class="remove-attach" onclick="removeVoice()">✖</span>`;
+            div.appendChild(vItem);
+        }
+    }
+
+    function removeAttachment(idx) {
+        pendingAttachments.splice(idx, 1);
+        renderAttachmentsPreview();
+    }
+
+    function removeVoice() {
+        pendingVoice = null;
+        renderAttachmentsPreview();
+    }
+
+    // 2. Голосовые (Микрофон)
+    async function toggleVoiceRecord() {
+        const btn = document.getElementById('voiceBtn');
+        
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            // Остановка записи
+            mediaRecorder.stop();
+            btn.classList.remove('recording');
+        } else {
+            // Старт записи
+            if (!navigator.mediaDevices) { alert('Микрофон недоступен'); return; }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' }); // webm обычно меньше
+                    const b64 = await fileToBase64(audioBlob);
+                    pendingVoice = b64;
+                    renderAttachmentsPreview();
+                    
+                    // Остановить треки, чтобы убрать красную точку в браузере
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                btn.classList.add('recording');
+            } catch (err) {
+                console.error(err);
+                alert('Не удалось получить доступ к микрофону: ' + err.message);
+            }
+        }
+    }
+
     function escapeHtml(text) {
+        if (!text) return "";
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
@@ -582,28 +706,41 @@
     async function sendPost() {
         if (!currentUser) return;
         const text = document.getElementById('forumText').value.trim();
-        if (!text) return;
+        
+        // Разрешаем отправку, если есть текст ИЛИ вложения
+        if (!text && pendingAttachments.length === 0 && !pendingVoice) return;
 
         const btn = document.getElementById('sendPostBtn');
         btn.disabled = true;
+
+        // Формируем payload
+        const payload = { 
+            user: currentUser.nickname, 
+            text: text,
+            avatar: currentUser.avatarUrl || null, // Шлём аватарку каждый раз, так как БД простая
+            attachments: pendingAttachments,
+            voice: pendingVoice
+        };
 
         try {
             const response = await fetch(`${API_URL}/messages`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    user: currentUser.nickname, 
-                    text: text 
-                })
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) throw new Error('Ошибка отправки');
 
+            // Очистка полей
             document.getElementById('forumText').value = '';
+            pendingAttachments = [];
+            pendingVoice = null;
+            renderAttachmentsPreview();
+            
             await loadForumMessages();
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Не удалось отправить сообщение. Проверьте подключение к базе данных D1 и URL воркера.');
+            alert('Не удалось отправить. Возможно, сообщение слишком большое для этого сервера.');
         } finally {
             btn.disabled = false;
         }
@@ -644,24 +781,57 @@
                     }
                 }
 
-                const userIdBadge = '<span class="user-id-badge">online</span>';
+                // Аватарка
+                let avatarHtml = `<div class="post-avatar">💬</div>`;
+                if (msg.avatar) {
+                    avatarHtml = `<img src="${msg.avatar}" class="post-avatar" alt="ava">`;
+                }
+
+                // Вложения (картинки)
+                let attachmentsHtml = '';
+                if (msg.attachments && Array.isArray(msg.attachments)) {
+                    msg.attachments.forEach(att => {
+                        if (att.data) {
+                            if (att.type.startsWith('image/')) {
+                                attachmentsHtml += `<img src="${att.data}" class="post-img" onclick="window.open(this.src)">`;
+                            } else {
+                                attachmentsHtml += `<a href="${att.data}" download="${att.name}" class="post-attachment">📎 ${escapeHtml(att.name)}</a>`;
+                            }
+                        }
+                    });
+                }
+
+                // Голосовое
+                let voiceHtml = '';
+                if (msg.voice) {
+                    voiceHtml = `
+                    <div class="post-voice">
+                        <span style="font-size:18px">🎤</span>
+                        <audio controls src="${msg.voice}"></audio>
+                    </div>`;
+                }
 
                 card.innerHTML = `
                     <div class="post-author">
                         <div class="post-author-row">
-                            <div class="post-avatar" style="background:#303134;display:flex;align-items:center;justify-content:center;font-size:14px;color:#5f6368;">💬</div>
+                            ${avatarHtml}
                             <div>
-                                <span>${escapeHtml(msg.user || 'Аноним')}</span>${userIdBadge}
+                                <span>${escapeHtml(msg.user || 'Аноним')}</span>
                             </div>
                         </div>
                         <span>${timeStr}</span>
                     </div>
                     <div class="post-text">${escapeHtml(msg.text)}</div>
+                    ${attachmentsHtml}
+                    ${voiceHtml}
                 `;
                 cont.appendChild(card);
             });
 
-            cont.scrollTop = cont.scrollHeight;
+            // Автопрокрутка только если мы были внизу
+            // cont.scrollTop = cont.scrollHeight; 
+            // Упрощено: всегда крутим вниз для теста
+            // cont.scrollTop = cont.scrollHeight; 
         } catch (error) {
             console.error('Ошибка:', error);
         }
@@ -679,7 +849,7 @@
             loadForumMessages();
             
             if (chatUpdateInterval) clearInterval(chatUpdateInterval);
-            chatUpdateInterval = setInterval(loadForumMessages, 500);
+            chatUpdateInterval = setInterval(loadForumMessages, 2000); // 2 сек опрос
             activeIntervals.push(chatUpdateInterval);
         } else {
             document.getElementById('authScreen').style.display = 'block';
