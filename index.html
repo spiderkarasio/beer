@@ -383,11 +383,8 @@
         </div>
     </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
-    // --- Мобильное устройство ---
+    // --- МОБИЛЬНОЕ УСТРОЙСТВО ---
     var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent);
 
     // --- ДАННЫЕ И ПЕРЕВОД ---
@@ -445,16 +442,17 @@
     function stopAllGames() { activeIntervals.forEach(clearInterval); activeIntervals = []; }
 
     // ============================================================
-    // ЧАТ — FIREBASE
+    // ЧАТ — CLOUDFLARE
     // ============================================================
-    const firebaseConfig = { apiKey: "AIzaSyCesMs7AFeefzwVLhJfKyA3_QROoRnnONo", authDomain: "beerlanguage-1337.firebaseapp.com", projectId: "beerlanguage-1337", storageBucket: "beerlanguage-1337.firebasestorage.app", messagingSenderId: "18636363390", appId: "1:18636363390:web:aa02dfd1ce7e53f6d0aa2f" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+    
+    // !!! ВНИМАНИЕ !!!
+    // Замени адрес ниже на адрес своего воркера. Он выглядит как https://
+    const API_URL = 'https://beer-chat-worker.spiderkaras.workers.dev'; 
 
     // Текущий пользователь
     let currentUser = null;
     const USERS_KEY = 'beerChatUser';
+    let chatUpdateInterval = null;
 
     function loadCurrentUser() {
         const saved = localStorage.getItem(USERS_KEY);
@@ -470,17 +468,6 @@
     function saveCurrentUser() {
         if (currentUser) localStorage.setItem(USERS_KEY, JSON.stringify(currentUser));
         else localStorage.removeItem(USERS_KEY);
-    }
-
-    // Числовые ID
-    async function getNextUserId() {
-        const ref = db.doc('meta/counters');
-        return db.runTransaction(async (t) => {
-            const snap = await t.get(ref);
-            const next = (snap.exists && snap.data().nextUserId) ? snap.data().nextUserId : 1;
-            t.set(ref, { nextUserId: next + 1 });
-            return next;
-        });
     }
 
     function showAuthTab(tab) {
@@ -503,9 +490,6 @@
         img.src = URL.createObjectURL(f);
     });
 
-    // -----------------------------------------------------
-    // ИЗМЕНЕННАЯ РЕГИСТРАЦИЯ
-    // -----------------------------------------------------
     async function doRegister() {
         const nickname = (document.getElementById('regNickname').value || '').trim();
         const password = (document.getElementById('regPassword').value || '').trim();
@@ -515,41 +499,14 @@
         if (!password) { alert('Введите пароль'); return; }
         if (!codeWord) { alert('Введите кодовое слово'); return; }
 
-        // Проверяем, не занят ли ник
-        const checkSnap = await db.collection('users').where('nickname', '==', nickname).get();
-        if(!checkSnap.empty) {
-            alert('Этот никнейм уже занят! Выберите другой.');
-            return;
-        }
-
-        const avatarFile = document.getElementById('regAvatarInput').files[0];
-        const userId = await getNextUserId();
-        let avatarUrl = '';
-        if (avatarFile && avatarFile.type.startsWith('image/')) {
-            const ref = storage.ref('avatars/' + userId);
-            await ref.put(avatarFile);
-            avatarUrl = await ref.getDownloadURL();
-        }
-
-        // Сохраняем пароль и кодовое слово (ВНИМАНИЕ: хранить пароли в открытом виде небезопасно в реальных проектах)
-        const userDoc = { 
-            userId: userId, 
-            nickname: nickname, 
-            password: password, 
-            codeWord: codeWord, 
-            avatarUrl: avatarUrl, 
-            createdAt: firebase.firestore.FieldValue.serverTimestamp() 
-        };
-        
-        await db.collection('users').doc(String(userId)).set(userDoc);
-        currentUser = { id: userId, nickname: nickname, avatarUrl: avatarUrl };
+        const userId = Date.now();
+        currentUser = { id: userId, nickname: nickname, avatarUrl: '', guest: false };
         saveCurrentUser();
         
         document.getElementById('authScreen').style.display = 'none';
         document.getElementById('chatArea').style.display = 'flex';
         refreshChatUI();
         
-        // Очистка полей
         document.getElementById('regNickname').value = '';
         document.getElementById('regPassword').value = '';
         document.getElementById('regCodeWord').value = '';
@@ -557,9 +514,6 @@
         document.getElementById('regAvatarPreview').style.display = 'none';
     }
 
-    // -----------------------------------------------------
-    // ИЗМЕНЕННЫЙ ВХОД
-    // -----------------------------------------------------
     async function doLogin() {
         const nickname = (document.getElementById('loginNickname').value || '').trim();
         const password = (document.getElementById('loginPassword').value || '').trim();
@@ -570,27 +524,11 @@
             return; 
         }
 
-        // Ищем пользователя по нику
-        const snap = await db.collection('users').where('nickname', '==', nickname).get();
-        
-        if (snap.empty) { 
-            alert('Пользователь с таким ником не найден'); 
-            return; 
-        }
-
-        // Проверяем пароль и кодовое слово
-        const doc = snap.docs[0];
-        const data = doc.data();
-
-        if (data.password === password && data.codeWord === codeWord) {
-            currentUser = { id: data.userId, nickname: data.nickname, avatarUrl: data.avatarUrl || '' };
-            saveCurrentUser();
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('chatArea').style.display = 'flex';
-            refreshChatUI();
-        } else {
-            alert('Неверный пароль или кодовое слово!');
-        }
+        currentUser = { id: Date.now(), nickname: nickname, avatarUrl: '', guest: false };
+        saveCurrentUser();
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+        refreshChatUI();
     }
 
     function doLogout() {
@@ -599,34 +537,9 @@
         document.getElementById('authScreen').style.display = 'block';
         document.getElementById('chatArea').style.display = 'none';
         
-        // Очистка полей входа
         document.getElementById('loginNickname').value = '';
         document.getElementById('loginPassword').value = '';
         document.getElementById('loginCodeWord').value = '';
-    }
-
-    // --- Лимит для гостей ---
-    const GUEST_LIMIT_COUNT = 10;
-    const GUEST_LIMIT_MS = 20 * 60 * 1000;
-    const GUEST_TIMES_KEY = 'beerGuestMessageTimes';
-
-    function getGuestMessageTimes() {
-        try {
-            const raw = localStorage.getItem(GUEST_TIMES_KEY);
-            const arr = raw ? JSON.parse(raw) : [];
-            const now = Date.now();
-            return arr.filter(t => now - t < GUEST_LIMIT_MS);
-        } catch (e) { return []; }
-    }
-
-    function canGuestSend() {
-        return getGuestMessageTimes().length < GUEST_LIMIT_COUNT;
-    }
-
-    function recordGuestMessage() {
-        const times = getGuestMessageTimes();
-        times.push(Date.now());
-        localStorage.setItem(GUEST_TIMES_KEY, JSON.stringify(times));
     }
 
     function enterAsGuest() {
@@ -649,119 +562,13 @@
         document.getElementById('myUserIdDisplay').innerText = currentUser.guest ? 'гость' : currentUser.id;
         document.getElementById('myNickname').innerText = currentUser.nickname;
         const img = document.getElementById('myAvatarImg');
-        if (currentUser.avatarUrl) img.src = currentUser.avatarUrl; else img.src = '';
-        img.style.display = currentUser.avatarUrl ? 'block' : 'none';
+        img.style.display = 'none';
         const guestNotice = document.getElementById('guestLimitNotice');
         if (currentUser.guest) {
             guestNotice.style.display = 'block';
-            const used = getGuestMessageTimes().length;
-            document.getElementById('guestLimitCount').innerText = used;
+            document.getElementById('guestLimitCount').innerText = '0';
         } else {
             guestNotice.style.display = 'none';
-        }
-        updateSlowmodeUI();
-    }
-
-    // --- МЕДЛЕННЫЙ РЕЖИМ ---
-    const SLOWMODE_SECONDS = 10;
-    let lastMessageTime = parseInt(localStorage.getItem('lastMessageTime') || '0');
-    let slowmodeInterval = null;
-
-    function updateSlowmodeUI() {
-        const notice = document.getElementById('slowmodeNotice');
-        const timer = document.getElementById('slowmodeTimer');
-        const btn = document.getElementById('sendPostBtn');
-        if (!notice || !btn) return;
-        const now = Date.now();
-        const elapsed = Math.floor((now - lastMessageTime) / 1000);
-        const remaining = Math.max(0, SLOWMODE_SECONDS - elapsed);
-        if (remaining > 0) {
-            notice.style.display = 'block';
-            timer.innerText = remaining;
-            btn.disabled = true;
-        } else {
-            notice.style.display = 'none';
-            btn.disabled = false;
-            if (slowmodeInterval) { clearInterval(slowmodeInterval); slowmodeInterval = null; }
-        }
-    }
-
-    function startSlowmodeTimer() {
-        lastMessageTime = Date.now();
-        localStorage.setItem('lastMessageTime', lastMessageTime.toString());
-        updateSlowmodeUI();
-        slowmodeInterval = setInterval(updateSlowmodeUI, 1000);
-    }
-
-    // --- ВЛОЖЕНИЯ И ГОЛОСОВЫЕ ---
-    let pendingAttachments = []; 
-    let mediaRecorder = null;
-    let voiceChunks = [];
-
-    document.getElementById('attachFileInput').addEventListener('change', function() {
-        const files = this.files;
-        for (let i = 0; i < files.length; i++) {
-            pendingAttachments.push({ file: files[i], type: 'file', name: files[i].name });
-        }
-        renderAttachmentsPreview();
-        this.value = '';
-    });
-
-    function renderAttachmentsPreview() {
-        const el = document.getElementById('attachmentsPreview');
-        el.innerHTML = '';
-        pendingAttachments.forEach((a, i) => {
-            const span = document.createElement('span');
-            span.innerHTML = (a.type === 'voice' ? '🎤 Голосовое' : '📎 ' + (a.name || a.file.name)) + ' <span class="remove-attach" onclick="removeAttachment(' + i + ')">✕</span>';
-            el.appendChild(span);
-        });
-    }
-
-    function removeAttachment(index) {
-        pendingAttachments.splice(parseInt(index, 10), 1);
-        renderAttachmentsPreview();
-    }
-
-    async function toggleVoiceRecord() {
-        const btn = document.getElementById('voiceBtn');
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
-            mediaRecorder.stop();
-            return;
-        }
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            voiceChunks = [];
-            mediaRecorder.ondataavailable = (e) => { if (e.data.size) voiceChunks.push(e.data); };
-            mediaRecorder.onstop = () => {
-                stream.getTracks().forEach(t => t.stop());
-                const blob = new Blob(voiceChunks, { type: 'audio/webm' });
-                pendingAttachments.push({ file: blob, type: 'voice', name: 'voice.webm' });
-                renderAttachmentsPreview();
-                btn.classList.remove('recording');
-            };
-            mediaRecorder.start();
-            btn.classList.add('recording');
-        } catch (err) {
-            alert('Нет доступа к микрофону: ' + err.message);
-        }
-    }
-
-    function openForum() {
-        menu.style.display = 'none';
-        document.getElementById('forumContainer').style.display = 'flex';
-        document.getElementById('gameTitle').innerText = 'Живой Чат';
-        if (loadCurrentUser()) {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('chatArea').style.display = 'flex';
-            refreshChatUI();
-            if (Date.now() - lastMessageTime < SLOWMODE_SECONDS * 1000) slowmodeInterval = setInterval(updateSlowmodeUI, 1000);
-            if (currentUser && currentUser.guest) {
-                setInterval(function() { if (currentUser && currentUser.guest) refreshChatUI(); }, 60000);
-            }
-        } else {
-            document.getElementById('authScreen').style.display = 'block';
-            document.getElementById('chatArea').style.display = 'none';
         }
     }
 
@@ -771,112 +578,34 @@
         return div.innerHTML;
     }
 
-    function extractUrls(text) {
-        const regex = /https?:\/\/[^\s]+/gi;
-        return text.match(regex) || [];
-    }
-
-    function classifyUrl(url) {
-        if (/\.(gif|jpg|jpeg|png|webp)(\?.*)?$/i.test(url)) return { type: 'direct_image', url: url };
-        if (/tenor\.com/i.test(url)) return { type: 'tenor', url: url };
-        if (/giphy\.com/i.test(url)) return { type: 'giphy', url: url };
-        if (/imgur\.com/i.test(url)) return { type: 'imgur', url: url };
-        if (/discordapp\.net|cdn\.discordapp\.com/i.test(url)) return { type: 'direct_image', url: url };
-        return { type: 'unknown', url: url };
-    }
-
-    async function resolveTenor(url) {
-        try {
-            const res = await fetch(url);
-            const html = await res.text();
-            const match = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i)
-                        || html.match(/<meta\s+content="([^"]+)"\s+property="og:image"/i);
-            if (match) return match[1];
-            const gifMatch = html.match(/(https?:\/\/media[^"'\s]*tenor\.com[^"'\s]*\.gif[^"'\s]*)/i);
-            if (gifMatch) return gifMatch[1];
-            return null;
-        } catch(e) { return null; }
-    }
-
-    async function resolveGiphy(url) {
-        try {
-            const res = await fetch(url);
-            const html = await res.text();
-            const match = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i)
-                        || html.match(/<meta\s+content="([^"]+)"\s+property="og:image"/i);
-            if (match) return match[1];
-            const gifMatch = html.match(/(https?:\/\/media[^"'\s]*giphy\.com[^"'\s]*\.gif[^"'\s]*)/i);
-            if (gifMatch) return gifMatch[1];
-            return null;
-        } catch(e) { return null; }
-    }
-
-    function resolveImgur(url) {
-        if (/imgur\.com\/a\//i.test(url)) return null;
-        const match = url.match(/imgur\.com\/([a-zA-Z0-9]+)/i);
-        if (match) return 'https://i.imgur.com/' + match[1] + '.gif';
-        return null;
-    }
-
-    async function resolveMediaUrl(classified) {
-        switch(classified.type) {
-            case 'direct_image': return classified.url;
-            case 'tenor': return await resolveTenor(classified.url);
-            case 'giphy': return await resolveGiphy(classified.url);
-            case 'imgur': return resolveImgur(classified.url);
-            default: return null;
-        }
-    }
-
-    async function uploadFile(path, file) {
-        const ref = storage.ref(path);
-        await ref.put(file);
-        return await ref.getDownloadURL();
-    }
-
+    // --- ОТПРАВКА СООБЩЕНИЯ ---
     async function sendPost() {
         if (!currentUser) return;
-        const now = Date.now();
-        const elapsed = Math.floor((now - lastMessageTime) / 1000);
-        if (elapsed < SLOWMODE_SECONDS) return;
-
-        if (currentUser.guest) {
-            if (!canGuestSend()) {
-                alert('Лимит без аккаунта: 10 сообщений за 20 минут. Зарегистрируйтесь, чтобы писать без ограничений.');
-                return;
-            }
-        }
-
         const text = document.getElementById('forumText').value.trim();
-        if (!text && pendingAttachments.length === 0) return;
+        if (!text) return;
 
-        const postRef = db.collection("posts").doc();
-        const postId = postRef.id;
-        const attachments = [];
+        const btn = document.getElementById('sendPostBtn');
+        btn.disabled = true;
 
-        for (let i = 0; i < pendingAttachments.length; i++) {
-            const a = pendingAttachments[i];
-            const ext = a.type === 'voice' ? 'webm' : (a.name && a.name.includes('.') ? a.name.split('.').pop() : 'bin');
-            const path = 'posts/' + postId + '_' + i + '.' + ext;
-            const url = await uploadFile(path, a.file);
-            attachments.push({ type: a.type, url: url, name: a.name || a.file.name || ('file.' + ext) });
-        }
-        pendingAttachments = [];
-        renderAttachmentsPreview();
+        try {
+            const response = await fetch(`${API_URL}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    user: currentUser.nickname, 
+                    text: text 
+                })
+            });
 
-        await postRef.set({
-            name: currentUser.nickname,
-            text: text || '',
-            userId: currentUser.guest ? null : currentUser.id,
-            userAvatarUrl: currentUser.avatarUrl || '',
-            attachments: attachments,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        document.getElementById('forumText').value = '';
-        startSlowmodeTimer();
-        if (currentUser.guest) {
-            recordGuestMessage();
-            refreshChatUI();
+            if (!response.ok) throw new Error('Ошибка отправки');
+
+            document.getElementById('forumText').value = '';
+            await loadForumMessages();
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Не удалось отправить сообщение. Проверьте подключение к базе данных D1 и URL воркера.');
+        } finally {
+            btn.disabled = false;
         }
     }
 
@@ -884,99 +613,79 @@
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPost(); }
     });
 
-    async function renderPost(doc, container) {
-        const p = doc.data();
-        const card = document.createElement("div");
-        card.className = "post-card";
-        const isOwnPost = currentUser && (p.userId === currentUser.id || (currentUser.guest && p.userId === null));
-        if (isOwnPost) card.classList.add('own-post');
-
-        let timeStr = "--:--";
-        if (p.timestamp) {
-            const date = p.timestamp.toDate();
-            timeStr = date.getHours().toString().padStart(2,'0') + ":" + date.getMinutes().toString().padStart(2,'0');
-        }
-
-        const urls = extractUrls(p.text || "");
-        let textWithoutUrls = (p.text || "").trim();
-        urls.forEach(u => { textWithoutUrls = textWithoutUrls.replace(u, '').trim(); });
-
-        const avatarHtml = p.userAvatarUrl
-            ? `<img class="post-avatar" src="${escapeHtml(p.userAvatarUrl)}" alt="">`
-            : '<div class="post-avatar" style="background:#303134;display:flex;align-items:center;justify-content:center;font-size:14px;color:#5f6368;">' + (p.userId || '?') + '</div>';
-        const userIdBadge = (p.userId !== undefined && p.userId !== null) ? `<span class="user-id-badge">${escapeHtml(String(p.userId))}</span>` : (p.userId === null ? '<span class="user-id-badge">гость</span>' : '');
-
-        card.innerHTML = `
-            <div class="post-author">
-                <div class="post-author-row">
-                    ${avatarHtml}
-                    <div>
-                        <span>${escapeHtml(p.name || 'Аноним')}</span>${userIdBadge}
-                    </div>
-                </div>
-                <span>${timeStr}</span>
-            </div>
-            <div class="post-text">${escapeHtml(textWithoutUrls)}</div>
-            <div class="media-placeholder" id="media-${doc.id}"></div>
-            <div class="attachments-placeholder" id="attach-${doc.id}"></div>
-        `;
-        container.appendChild(card);
-
-        const placeholder = card.querySelector('.media-placeholder');
-        const attachPlaceholder = card.querySelector('.attachments-placeholder');
-
-        if (urls.length > 0) {
-            placeholder.innerHTML = '<div class="gif-loading">Загрузка...</div>';
-            for (const rawUrl of urls) {
-                const classified = classifyUrl(rawUrl);
-                const resolved = await resolveMediaUrl(classified);
-                if (resolved) {
-                    const img = document.createElement('img');
-                    img.className = 'post-img';
-                    img.src = resolved;
-                    img.onerror = () => { img.style.display = 'none'; };
-                    placeholder.appendChild(img);
-                }
+    // --- ЗАГРУЗКА СООБЩЕНИЙ ---
+    async function loadForumMessages() {
+        try {
+            const response = await fetch(`${API_URL}/messages`);
+            if (!response.ok) throw new Error('Ошибка загрузки');
+            
+            const messages = await response.json();
+            const cont = document.getElementById('forumPosts');
+            cont.innerHTML = "";
+            
+            if (!messages || messages.length === 0) {
+                cont.innerHTML = '<div style="text-align:center;padding:40px;color:#9aa0a6;">📭 Пока нет сообщений. Напишите первым!</div>';
+                return;
             }
-            setTimeout(() => {
-                const loading = placeholder.querySelector('.gif-loading');
-                if (loading) loading.remove();
-            }, 3000);
-        }
 
-        if (p.attachments && p.attachments.length > 0) {
-            p.attachments.forEach(att => {
-                if (att.type === 'voice') {
-                    const wrap = document.createElement('div');
-                    wrap.className = 'post-voice';
-                    const audio = document.createElement('audio');
-                    audio.controls = true;
-                    audio.src = att.url;
-                    wrap.appendChild(audio);
-                    attachPlaceholder.appendChild(wrap);
-                } else {
-                    const a = document.createElement('a');
-                    a.className = 'post-attachment';
-                    a.href = att.url;
-                    a.target = '_blank';
-                    a.rel = 'noopener';
-                    a.innerHTML = '📎 ' + escapeHtml(att.name || 'Файл');
-                    attachPlaceholder.appendChild(a);
+            messages.forEach(msg => {
+                const card = document.createElement("div");
+                card.className = "post-card";
+                
+                const isOwnPost = currentUser && (msg.user === currentUser.nickname);
+                if (isOwnPost) card.classList.add('own-post');
+
+                let timeStr = "сейчас";
+                if (msg.created_at) {
+                    const dateStr = msg.created_at.endsWith('Z') ? msg.created_at : msg.created_at + 'Z';
+                    const date = new Date(dateStr);
+                    if (!isNaN(date)) {
+                        timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
                 }
+
+                const userIdBadge = '<span class="user-id-badge">online</span>';
+
+                card.innerHTML = `
+                    <div class="post-author">
+                        <div class="post-author-row">
+                            <div class="post-avatar" style="background:#303134;display:flex;align-items:center;justify-content:center;font-size:14px;color:#5f6368;">💬</div>
+                            <div>
+                                <span>${escapeHtml(msg.user || 'Аноним')}</span>${userIdBadge}
+                            </div>
+                        </div>
+                        <span>${timeStr}</span>
+                    </div>
+                    <div class="post-text">${escapeHtml(msg.text)}</div>
+                `;
+                cont.appendChild(card);
             });
+
+            cont.scrollTop = cont.scrollHeight;
+        } catch (error) {
+            console.error('Ошибка:', error);
         }
     }
 
-    db.collection("posts").orderBy("timestamp", "asc").limit(50).onSnapshot(async (snapshot) => {
-        const cont = document.getElementById('forumPosts');
-        cont.innerHTML = "";
-        const docs = [];
-        snapshot.forEach(doc => docs.push(doc));
-        for (const doc of docs) {
-            await renderPost(doc, cont);
+    function openForum() {
+        menu.style.display = 'none';
+        document.getElementById('forumContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Живой Чат';
+        
+        if (loadCurrentUser()) {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('chatArea').style.display = 'flex';
+            refreshChatUI();
+            loadForumMessages();
+            
+            if (chatUpdateInterval) clearInterval(chatUpdateInterval);
+            chatUpdateInterval = setInterval(loadForumMessages, 500);
+            activeIntervals.push(chatUpdateInterval);
+        } else {
+            document.getElementById('authScreen').style.display = 'block';
+            document.getElementById('chatArea').style.display = 'none';
         }
-        cont.scrollTop = cont.scrollHeight;
-    });
+    }
 
     // --- BEER CLICKER ---
     let cookies = 0;
