@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beer Translate & Games Ultimate (Voice Edition)</title>
+    <title>Beer Translate & Games Ultimate (Optimized)</title>
     <style>
         /* --- ОСНОВНЫЕ СТИЛИ --- */
         body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
@@ -68,7 +68,6 @@
         /* Стили для аудио сообщения */
         .post-voice { margin-top: 8px; padding: 6px 10px; background: rgba(0,0,0,0.2); border-radius: 20px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1); }
         .post-voice audio { height: 36px; outline: none; min-width: 200px; }
-        /* Кастомизация аудио плеера для Webkit */
         .post-voice audio::-webkit-media-controls-panel { background-color: #f1f3f4; }
         
         .forum-input-area { padding: 15px 20px; background: #202124; border-top: 1px solid #3c4043; display: flex; gap: 12px; align-items: flex-end; }
@@ -80,7 +79,6 @@
         .attach-btn, .voice-btn { background: #303134; border: 1px solid #3c4043; color: #9aa0a6; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s; }
         .attach-btn:hover, .voice-btn:hover { color: #fff; background: #3c4043; }
         
-        /* Анимация записи */
         .voice-btn.recording { background: #ea4335 !important; color: #fff; box-shadow: 0 0 10px #ea4335; animation: pulse 1s infinite; border-color: #ea4335; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
         
@@ -457,12 +455,45 @@
     let currentUser = null;
     const USERS_KEY = 'beerChatUser';
     let chatUpdateInterval = null;
-    let pendingAttachments = []; // Массив для файлов
-    let pendingVoice = null;     // Для голосового
+    let pendingAttachments = []; 
+    let pendingVoice = null;     
     let mediaRecorder = null;
     let audioChunks = [];
 
-    // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+    // --- СЖАТИЕ ИЗОБРАЖЕНИЙ ---
+    function compressImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Макс размер 800px по одной стороне
+                    const maxSize = 800;
+                    if (width > height) {
+                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+                    } else {
+                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Сжимаем в JPEG с качеством 0.7
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+            };
+        });
+    }
+
+    // Вспомогательная для НЕ картинок
     function fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -500,13 +531,14 @@
         }
     }
 
-    // Предпросмотр аватарки при регистрации
-    document.getElementById('regAvatarInput').addEventListener('change', function() {
+    document.getElementById('regAvatarInput').addEventListener('change', async function() {
         const f = this.files[0];
         if (!f || !f.type.startsWith('image/')) return;
         const img = document.getElementById('regAvatarPreview');
         img.style.display = 'block';
-        img.src = URL.createObjectURL(f);
+        // Для превью сжимаем сразу, чтобы аватарка была легкой
+        const compressed = await compressImage(f);
+        img.src = compressed;
     });
 
     async function doRegister() {
@@ -522,11 +554,8 @@
         let avatarBase64 = '';
         if (avatarFile) {
             try {
-                if (avatarFile.size > 1024 * 1024) {
-                    alert('Аватарка слишком большая (макс 1Мб)!');
-                    return;
-                }
-                avatarBase64 = await fileToBase64(avatarFile);
+                // Сжимаем аватарку
+                avatarBase64 = await compressImage(avatarFile);
             } catch(e) {
                 console.error(e);
             }
@@ -602,29 +631,37 @@
         }
     }
 
-    // --- РАБОТА С ФАЙЛАМИ И ГОЛОСОВЫМИ ---
+    // --- РАБОТА С ФАЙЛАМИ И ГОЛОСОВЫМИ (ОПТИМИЗИРОВАНО) ---
 
     // 1. Файлы (Скрепка)
     async function handleFileSelect(input) {
         if (!input.files || input.files.length === 0) return;
         
         for (let file of input.files) {
-            if (file.size > 2 * 1024 * 1024) {
-                alert(`Файл ${file.name} слишком большой! Макс 2Мб.`);
-                continue;
-            }
             try {
-                const b64 = await fileToBase64(file);
+                let finalData = '';
+                // Если картинка — сжимаем
+                if (file.type.startsWith('image/')) {
+                    finalData = await compressImage(file);
+                } else {
+                    // Если другой файл — проверяем размер (макс 1МБ для надежности)
+                    if (file.size > 1 * 1024 * 1024) {
+                        alert(`Файл ${file.name} слишком большой! Макс 1Мб для документов.`);
+                        continue;
+                    }
+                    finalData = await fileToBase64(file);
+                }
+
                 pendingAttachments.push({
                     name: file.name,
                     type: file.type,
-                    data: b64
+                    data: finalData
                 });
             } catch (e) {
                 console.error(e);
             }
         }
-        input.value = ''; // сброс
+        input.value = ''; 
         renderAttachmentsPreview();
     }
 
@@ -632,7 +669,6 @@
         const div = document.getElementById('attachmentsPreview');
         div.innerHTML = '';
         
-        // Показываем файлы
         pendingAttachments.forEach((att, idx) => {
             const item = document.createElement('div');
             item.className = 'preview-item';
@@ -640,7 +676,6 @@
             div.appendChild(item);
         });
 
-        // Показываем, если есть голосовое
         if (pendingVoice) {
             const vItem = document.createElement('div');
             vItem.className = 'preview-item';
@@ -659,32 +694,32 @@
         renderAttachmentsPreview();
     }
 
-    // 2. Голосовые (Микрофон)
+    // 2. Голосовые (Микрофон - ОПТИМИЗАЦИЯ)
     async function toggleVoiceRecord() {
         const btn = document.getElementById('voiceBtn');
         
         if (mediaRecorder && mediaRecorder.state === 'recording') {
-            // Остановка записи
             mediaRecorder.stop();
             btn.classList.remove('recording');
         } else {
-            // Старт записи
             if (!navigator.mediaDevices) { alert('Микрофон недоступен'); return; }
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 
-                // Проверка поддерживаемого типа для Safari/iOS vs Chrome
-                let options = {};
+                // Устанавливаем низкий битрейт для экономии места (32kbps достаточно для голоса)
+                let options = {
+                    audioBitsPerSecond: 32000
+                };
+                
                 if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-                    options = { mimeType: 'audio/webm;codecs=opus' };
+                    options.mimeType = 'audio/webm;codecs=opus';
                 } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                    options = { mimeType: 'audio/mp4' };
+                    options.mimeType = 'audio/mp4';
                 }
 
                 try {
                     mediaRecorder = new MediaRecorder(stream, options);
                 } catch (e) {
-                    // Fallback если опции не прошли
                     mediaRecorder = new MediaRecorder(stream);
                 }
                 
@@ -695,10 +730,15 @@
                 };
 
                 mediaRecorder.onstop = async () => {
-                    // Определяем тип из первого чанка или дефолт
                     const type = (audioChunks[0] && audioChunks[0].type) || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: type });
                     
+                    // Проверяем размер аудио
+                    if (audioBlob.size > 2 * 1024 * 1024) {
+                        alert('Голосовое слишком длинное/большое!');
+                        return;
+                    }
+
                     try {
                         const b64 = await fileToBase64(audioBlob);
                         pendingVoice = b64;
@@ -707,7 +747,6 @@
                         alert("Ошибка обработки аудио: " + e.message);
                     }
                     
-                    // Остановить треки, чтобы убрать красную точку в браузере
                     stream.getTracks().forEach(track => track.stop());
                 };
 
@@ -715,7 +754,7 @@
                 btn.classList.add('recording');
             } catch (err) {
                 console.error(err);
-                alert('Не удалось получить доступ к микрофону: ' + err.message);
+                alert('Ошибка доступа к микрофону: ' + err.message);
             }
         }
     }
@@ -732,13 +771,11 @@
         if (!currentUser) return;
         const text = document.getElementById('forumText').value.trim();
         
-        // Разрешаем отправку, если есть текст ИЛИ вложения ИЛИ голос
         if (!text && pendingAttachments.length === 0 && !pendingVoice) return;
 
         const btn = document.getElementById('sendPostBtn');
         btn.disabled = true;
 
-        // Формируем payload
         const payload = { 
             user: currentUser.nickname, 
             text: text,
@@ -747,16 +784,24 @@
             voice: pendingVoice
         };
 
+        // Предварительная проверка размера payload (примерно)
+        const jsonStr = JSON.stringify(payload);
+        if (jsonStr.length > 2 * 1024 * 1024) { // Если больше ~2МБ текста
+             alert('Сообщение все еще слишком большое! Попробуйте отправить файлы по одному.');
+             btn.disabled = false;
+             return;
+        }
+
         try {
             const response = await fetch(`${API_URL}/messages`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: jsonStr
             });
 
             if (!response.ok) throw new Error('Ошибка отправки');
 
-            // Очистка полей
+            // Очистка
             document.getElementById('forumText').value = '';
             pendingAttachments = [];
             pendingVoice = null;
@@ -765,7 +810,7 @@
             await loadForumMessages();
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Не удалось отправить. Возможно, сообщение слишком большое.');
+            alert('Не удалось отправить. Возможно, сообщение слишком большое или проблемы с сетью.');
         } finally {
             btn.disabled = false;
         }
@@ -806,13 +851,11 @@
                     }
                 }
 
-                // Аватарка
                 let avatarHtml = `<div class="post-avatar">💬</div>`;
                 if (msg.avatar) {
                     avatarHtml = `<img src="${msg.avatar}" class="post-avatar" alt="ava">`;
                 }
 
-                // Вложения (картинки)
                 let attachmentsHtml = '';
                 if (msg.attachments && Array.isArray(msg.attachments)) {
                     msg.attachments.forEach(att => {
@@ -826,7 +869,6 @@
                     });
                 }
 
-                // Голосовое
                 let voiceHtml = '';
                 if (msg.voice) {
                     voiceHtml = `
@@ -853,7 +895,6 @@
                 cont.appendChild(card);
             });
             
-            // Автопрокрутка вниз не всегда удобна при чтении, но для чата пойдет
         } catch (error) {
             console.error('Ошибка:', error);
         }
@@ -871,7 +912,7 @@
             loadForumMessages();
             
             if (chatUpdateInterval) clearInterval(chatUpdateInterval);
-            chatUpdateInterval = setInterval(loadForumMessages, 2000); // 2 сек опрос
+            chatUpdateInterval = setInterval(loadForumMessages, 2000); 
             activeIntervals.push(chatUpdateInterval);
         } else {
             document.getElementById('authScreen').style.display = 'block';
