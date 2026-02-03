@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beer Translate & Games Ultimate (Fixed Edition)</title>
+    <title>Beer Translate & Games Ultimate (Voice Edition)</title>
     <style>
         /* --- ОСНОВНЫЕ СТИЛИ --- */
         body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
@@ -64,8 +64,12 @@
         .post-img { max-width: 100%; border-radius: 8px; margin-top: 10px; display: block; max-height: 300px; object-fit: contain; border: 1px solid #3c4043; cursor: pointer;}
         .post-attachment { margin-top: 8px; padding: 8px 12px; background: #303134; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; color: #8ab4f8; font-size: 13px; text-decoration: none; }
         .post-attachment:hover { background: #3c4043; }
-        .post-voice { margin-top: 8px; padding: 8px 12px; background: #2a2b2e; border-radius: 20px; display: flex; align-items: center; gap: 10px;}
-        .post-voice audio { height: 32px; outline: none; }
+        
+        /* Стили для аудио сообщения */
+        .post-voice { margin-top: 8px; padding: 6px 10px; background: rgba(0,0,0,0.2); border-radius: 20px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .post-voice audio { height: 36px; outline: none; min-width: 200px; }
+        /* Кастомизация аудио плеера для Webkit */
+        .post-voice audio::-webkit-media-controls-panel { background-color: #f1f3f4; }
         
         .forum-input-area { padding: 15px 20px; background: #202124; border-top: 1px solid #3c4043; display: flex; gap: 12px; align-items: flex-end; }
         .slowmode-notice { background: #303134; color: #f29900; padding: 8px 12px; border-radius: 6px; font-size: 12px; text-align: center; margin-bottom: 8px; display: none; }
@@ -75,11 +79,13 @@
         .forum-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .attach-btn, .voice-btn { background: #303134; border: 1px solid #3c4043; color: #9aa0a6; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s; }
         .attach-btn:hover, .voice-btn:hover { color: #fff; background: #3c4043; }
-        .voice-btn.recording { background: #ea4335 !important; color: #fff; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        
+        /* Анимация записи */
+        .voice-btn.recording { background: #ea4335 !important; color: #fff; box-shadow: 0 0 10px #ea4335; animation: pulse 1s infinite; border-color: #ea4335; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
         
         .attachments-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; font-size: 12px; color: #9aa0a6; }
-        .attachments-preview .preview-item { background: #303134; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px; }
+        .attachments-preview .preview-item { background: #303134; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px; border: 1px solid #3c4043; }
         .attachments-preview .remove-attach { cursor: pointer; color: #ea4335; font-weight: bold; margin-left: 5px;}
         #forumText { background: #303134; border: 1px solid #3c4043; border-radius: 6px; color: #fff; padding: 10px 12px; font-size: 14px; resize: none; outline: none; min-height: 40px; max-height: 120px; font-family: inherit; }
         .send-btn { background: #8ab4f8; color: #1e1f21; border: none; border-radius: 6px; width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
@@ -516,7 +522,6 @@
         let avatarBase64 = '';
         if (avatarFile) {
             try {
-                // Ограничим размер аватарки, чтобы не забивать LocalStorage
                 if (avatarFile.size > 1024 * 1024) {
                     alert('Аватарка слишком большая (макс 1Мб)!');
                     return;
@@ -543,8 +548,6 @@
     }
 
     async function doLogin() {
-        // Логин пока фиктивный (просто сохраняет в localstorage), 
-        // для реального логина нужен сервер с БД пользователей.
         const nickname = (document.getElementById('loginNickname').value || '').trim();
         if (!nickname) { alert('Введите ник'); return; }
 
@@ -641,7 +644,7 @@
         if (pendingVoice) {
             const vItem = document.createElement('div');
             vItem.className = 'preview-item';
-            vItem.innerHTML = `🎤 Голосовое сообщение <span class="remove-attach" onclick="removeVoice()">✖</span>`;
+            vItem.innerHTML = `🎤 Аудиозапись <span class="remove-attach" onclick="removeVoice()">✖</span>`;
             div.appendChild(vItem);
         }
     }
@@ -669,18 +672,40 @@
             if (!navigator.mediaDevices) { alert('Микрофон недоступен'); return; }
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
+                
+                // Проверка поддерживаемого типа для Safari/iOS vs Chrome
+                let options = {};
+                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                    options = { mimeType: 'audio/webm;codecs=opus' };
+                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    options = { mimeType: 'audio/mp4' };
+                }
+
+                try {
+                    mediaRecorder = new MediaRecorder(stream, options);
+                } catch (e) {
+                    // Fallback если опции не прошли
+                    mediaRecorder = new MediaRecorder(stream);
+                }
+                
                 audioChunks = [];
 
                 mediaRecorder.ondataavailable = event => {
-                    audioChunks.push(event.data);
+                    if (event.data.size > 0) audioChunks.push(event.data);
                 };
 
                 mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' }); // webm обычно меньше
-                    const b64 = await fileToBase64(audioBlob);
-                    pendingVoice = b64;
-                    renderAttachmentsPreview();
+                    // Определяем тип из первого чанка или дефолт
+                    const type = (audioChunks[0] && audioChunks[0].type) || 'audio/webm';
+                    const audioBlob = new Blob(audioChunks, { type: type });
+                    
+                    try {
+                        const b64 = await fileToBase64(audioBlob);
+                        pendingVoice = b64;
+                        renderAttachmentsPreview();
+                    } catch(e) {
+                        alert("Ошибка обработки аудио: " + e.message);
+                    }
                     
                     // Остановить треки, чтобы убрать красную точку в браузере
                     stream.getTracks().forEach(track => track.stop());
@@ -707,7 +732,7 @@
         if (!currentUser) return;
         const text = document.getElementById('forumText').value.trim();
         
-        // Разрешаем отправку, если есть текст ИЛИ вложения
+        // Разрешаем отправку, если есть текст ИЛИ вложения ИЛИ голос
         if (!text && pendingAttachments.length === 0 && !pendingVoice) return;
 
         const btn = document.getElementById('sendPostBtn');
@@ -717,7 +742,7 @@
         const payload = { 
             user: currentUser.nickname, 
             text: text,
-            avatar: currentUser.avatarUrl || null, // Шлём аватарку каждый раз, так как БД простая
+            avatar: currentUser.avatarUrl || null,
             attachments: pendingAttachments,
             voice: pendingVoice
         };
@@ -740,7 +765,7 @@
             await loadForumMessages();
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Не удалось отправить. Возможно, сообщение слишком большое для этого сервера.');
+            alert('Не удалось отправить. Возможно, сообщение слишком большое.');
         } finally {
             btn.disabled = false;
         }
@@ -827,11 +852,8 @@
                 `;
                 cont.appendChild(card);
             });
-
-            // Автопрокрутка только если мы были внизу
-            // cont.scrollTop = cont.scrollHeight; 
-            // Упрощено: всегда крутим вниз для теста
-            // cont.scrollTop = cont.scrollHeight; 
+            
+            // Автопрокрутка вниз не всегда удобна при чтении, но для чата пойдет
         } catch (error) {
             console.error('Ошибка:', error);
         }
@@ -1119,4 +1141,3 @@
 </script>
 </body>
 </html>
-   
