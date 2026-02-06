@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beer Translate & Games Ultimate (Fixed)</title>
+    <title>Beer Translate & Games Ultimate (Optimized)</title>
     <style>
         /* --- ОСНОВНЫЕ СТИЛИ --- */
         body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
@@ -65,7 +65,6 @@
         .post-attachment { margin-top: 8px; padding: 8px 12px; background: #303134; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; color: #8ab4f8; font-size: 13px; text-decoration: none; }
         .post-attachment:hover { background: #3c4043; }
         
-        /* Стили для аудио сообщения */
         .post-voice { margin-top: 8px; padding: 6px 10px; background: rgba(0,0,0,0.2); border-radius: 20px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1); }
         .post-voice audio { height: 36px; outline: none; min-width: 200px; }
         .post-voice audio::-webkit-media-controls-panel { background-color: #f1f3f4; }
@@ -176,7 +175,7 @@
             <a href="https://www.roblox.com/games/111530421351096/You-VS-Homer#!/game-instances" class="secret-link">B</a>ee<a href="https://beerlanguage.ru/rat" class="secret-link">r</a> 
             Tran<a href="https://beerlanguage.ru/Caesar" class="secret-link">s</a>late & Games
         </h1>
-        <span class="author-tag">Ultimate Edition</span>
+        <span class="author-tag">Ultimate Edition (Optimized)</span>
     </div>
 
     <div class="translator-container" id="main-block">
@@ -460,7 +459,7 @@
     let mediaRecorder = null;
     let audioChunks = [];
 
-    // --- СЖАТИЕ ИЗОБРАЖЕНИЙ ---
+    // --- СЖАТИЕ ИЗОБРАЖЕНИЙ (OPTIMIZED) ---
     function compressImage(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -473,8 +472,9 @@
                     let width = img.width;
                     let height = img.height;
                     
-                    // Макс размер 800px по одной стороне
-                    const maxSize = 800;
+                    // Уменьшаем размер еще сильнее для спасения сервера
+                    // Было 800, стало 300
+                    const maxSize = 300; 
                     if (width > height) {
                         if (width > maxSize) { height *= maxSize / width; width = maxSize; }
                     } else {
@@ -486,8 +486,8 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Сжимаем в JPEG с качеством 0.7
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    // Сжимаем в JPEG с качеством 0.5 (было 0.7)
+                    resolve(canvas.toDataURL('image/jpeg', 0.5));
                 };
             };
         });
@@ -734,7 +734,7 @@
                     const audioBlob = new Blob(audioChunks, { type: type });
                     
                     // Проверяем размер аудио
-                    if (audioBlob.size > 2 * 1024 * 1024) {
+                    if (audioBlob.size > 1 * 1024 * 1024) {
                         alert('Голосовое слишком длинное/большое!');
                         return;
                     }
@@ -766,7 +766,7 @@
         return div.innerHTML;
     }
 
-    // --- ОТПРАВКА СООБЩЕНИЯ (ИСПРАВЛЕНО) ---
+    // --- ОТПРАВКА СООБЩЕНИЯ (FIXED) ---
     async function sendPost() {
         if (!currentUser) return;
         const text = document.getElementById('forumText').value.trim();
@@ -776,11 +776,11 @@
         const btn = document.getElementById('sendPostBtn');
         btn.disabled = true;
 
-        // ИСПРАВЛЕНИЕ: Проверяем размер аватарки.
-        // Если аватарка слишком большая (>100кб), мы НЕ отправляем её с этим сообщением, 
-        // чтобы не превысить лимит данных. Сообщение важнее аватарки.
+        // ВАЖНО: Если аватарка есть, проверяем её размер.
+        // Если она больше 50кб, мы не отправляем её, чтобы не убить сервер.
         let safeAvatar = currentUser.avatarUrl;
-        if (safeAvatar && safeAvatar.length > 150000) {
+        if (safeAvatar && safeAvatar.length > 50000) {
+            console.warn("Аватарка слишком тяжелая, отправляется без неё");
             safeAvatar = null; 
         }
 
@@ -794,9 +794,10 @@
 
         const jsonStr = JSON.stringify(payload);
         
-        // ИСПРАВЛЕНИЕ: Увеличен лимит проверки до 6 МБ
-        if (jsonStr.length > 6 * 1024 * 1024) { 
-             alert('Сообщение слишком большое (больше 6МБ)! Попробуйте отправлять файлы по одному.');
+        // УМЕНЬШЕН ЛИМИТ: Сервер падает от больших запросов. 
+        // Ставим лимит 1 МБ вместо 6 МБ.
+        if (jsonStr.length > 1 * 1024 * 1024) { 
+             alert('Файл слишком большой для этого сервера! Максимум 1 МБ.');
              btn.disabled = false;
              return;
         }
@@ -808,7 +809,12 @@
                 body: jsonStr
             });
 
-            if (!response.ok) throw new Error('Ошибка отправки');
+            // Если сервер вернул 500
+            if (response.status === 500) {
+                throw new Error('Сервер переполнен или недоступен (Ошибка 500)');
+            }
+            
+            if (!response.ok) throw new Error('Ошибка отправки: ' + response.status);
 
             document.getElementById('forumText').value = '';
             pendingAttachments = [];
@@ -818,7 +824,7 @@
             await loadForumMessages();
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Не удалось отправить. Возможно, сервер перегружен или файл слишком велик.');
+            alert('Не удалось отправить: ' + error.message + '\nПопробуйте отправить только текст без картинок.');
         } finally {
             btn.disabled = false;
         }
