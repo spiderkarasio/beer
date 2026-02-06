@@ -3,69 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beer Translate & Games (Fixed Final)</title>
+    <title>Beer Translate & Games Ultimate (Fixed)</title>
     <style>
-        /* Базовые стили */
-        body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; }
-        .title-container { margin-bottom: 20px; display: flex; align-items: baseline; gap: 10px; z-index: 20; }
-        h1 { font-weight: 400; font-size: 32px; color: #bdc1c6; margin: 0; }
-        .translator-container { background-color: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 95%; max-width: 1100px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10; }
-        .header-tabs { display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #3c4043; height: 55px; }
+        /* --- ОСНОВНЫЕ СТИЛИ --- */
+        body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
+        .title-container { margin-bottom: 20px; display: flex; align-items: baseline; gap: 10px; cursor: grab; z-index: 20; }
+        h1 { font-weight: 400; font-size: 32px; color: #bdc1c6; margin: 0; pointer-events: none; }
+        .secret-link { color: inherit; text-decoration: none; cursor: pointer; pointer-events: auto; transition: color 0.2s; }
+        .secret-link:hover { color: #8ab4f8; }
+        .author-tag { font-size: 14px; color: #5f6368; font-weight: 500; opacity: 0.7; pointer-events: none; }
+
+        .translator-container { background-color: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 95%; max-width: 1100px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; z-index: 10; transition: transform 0.1s ease-out; }
+        .header-tabs { display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #3c4043; height: 55px; flex-shrink: 0; }
         .tab { color: #8ab4f8; font-size: 14px; font-weight: 500; border-bottom: 2px solid #8ab4f8; height: 100%; display: flex; align-items: center; padding: 0 10px; cursor: pointer; }
         .tab.inactive { border-bottom: 2px solid transparent; color: #9aa0a6; }
         .swap-icon { margin: 0 15px; color: #9aa0a6; cursor: pointer; font-size: 24px; }
         .right-tabs { margin-left: auto; display: flex; gap: 5px; }
         .action-tab { color: #9aa0a6; font-size: 13px; text-transform: uppercase; font-weight: bold; cursor: pointer; padding: 8px 10px; border-radius: 4px; }
-        
-        .main-panels { display: flex; flex-wrap: wrap; height: 400px; }
-        .panel { flex: 1; min-width: 300px; padding: 20px; position: relative; display: flex; flex-direction: column; }
-        textarea { width: 100%; height: 100%; background: transparent; border: none; color: #fff; font-size: 20px; resize: none; outline: none; }
+        .action-tab:hover { color: #fff; background: rgba(255,255,255,0.05); }
+
+        .main-panels { display: flex; flex-wrap: wrap; height: 100%; }
+        .panel { flex: 1; min-width: 300px; min-height: 250px; padding: 20px; position: relative; display: flex; flex-direction: column; background: #1e1f21; box-sizing: border-box; }
+        .input-panel { border-right: 1px solid #3c4043; }
+        textarea { width: 100%; height: 100%; background: transparent; border: none; color: #fff; font-size: 20px; resize: none; outline: none; font-family: inherit; }
         #output-field { font-size: 20px; color: #bdc1c6; word-break: break-all; white-space: pre-wrap; flex-grow: 1; overflow-y: auto; }
+        .clear-btn { position: absolute; top: 15px; right: 15px; color: #9aa0a6; cursor: pointer; font-size: 22px; z-index: 5; visibility: hidden; }
+        .panel:hover .clear-btn { visibility: visible; }
+        .copy-btn { background: transparent; border: none; color: #9aa0a6; cursor: pointer; padding: 8px; border-radius: 4px; transition: all 0.2s; display: flex; align-items: center; gap: 5px; font-size: 12px; text-transform: uppercase; font-weight: bold; }
+        .copy-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
 
-        /* Игровое окно */
+        /* --- ИГРОВОЕ ОКНО --- */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .game-window { background: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 800px; max-width: 95%; height: 600px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        .game-window { background: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 800px; max-width: 95%; height: 600px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative; }
         .game-header { padding: 15px 20px; border-bottom: 1px solid #3c4043; display: flex; justify-content: space-between; align-items: center; background: #202124; }
-        .close-game { color: #9aa0a6; cursor: pointer; font-size: 24px; }
+        .game-header h2 { margin: 0; font-size: 18px; color: #bdc1c6; font-weight: 500; }
+        .close-game { color: #9aa0a6; cursor: pointer; font-size: 24px; transition: color 0.2s; }
+        .close-game:hover { color: #fff; }
 
-        /* ЧАТ */
-        .game-content { display: none; flex-direction: column; height: 100%; }
-        .forum-posts { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #121316; }
-        .post-card { background: #1e1f21; border: 1px solid #3c4043; padding: 12px; border-radius: 12px; max-width: 85%; align-self: flex-start; }
+        .game-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 25px; overflow-y: auto; }
+        .game-card { background: #303134; border: 1px solid #3c4043; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .game-card:hover { background: #3c4043; transform: translateY(-5px); border-color: #8ab4f8; }
+        .game-card .icon { font-size: 40px; }
+        .game-card .name { font-weight: bold; color: #e8eaed; }
+        .game-card .desc { font-size: 12px; color: #9aa0a6; }
+
+        .game-content { display: none; flex-direction: column; height: 100%; position: relative; overflow: hidden; }
+        .back-to-menu { position: absolute; top: 15px; left: 20px; color: #8ab4f8; cursor: pointer; z-index: 100; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+
+        /* --- ЧАТ --- */
+        #forumContainer { padding: 0; }
+        .forum-posts { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: #121316; }
+        .post-card { background: #1e1f21; border: 1px solid #3c4043; padding: 12px 16px; border-radius: 12px; max-width: 85%; align-self: flex-start; }
         .post-card.own-post { align-self: flex-end; background: #1a2634; border-color: #3a5a7a; }
-        .post-author { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-weight: bold; color: #8ab4f8; font-size: 13px; }
-        .post-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; background: #3c4043; }
-        .forum-input-area { padding: 15px; background: #202124; border-top: 1px solid #3c4043; display: flex; gap: 10px; }
-        #forumText { flex: 1; background: #303134; border: 1px solid #3c4043; border-radius: 8px; color: #fff; padding: 10px; outline: none; resize: none; }
-        .send-btn { background: #8ab4f8; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .post-author { font-weight: bold; color: #8ab4f8; font-size: 13px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .post-author .post-author-row { display: flex; align-items: center; gap: 8px; }
+        .post-author > span { color: #5f6368; font-weight: normal; font-size: 11px; }
+        .user-id-badge { background: #303134; color: #9aa0a6; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: monospace; margin-left: 6px; }
+        .post-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 8px; flex-shrink: 0; background: #303134; display: flex; align-items: center; justify-content: center;}
+        .post-text { font-size: 14px; line-height: 1.5; color: #e8eaed; word-break: break-word; white-space: pre-wrap; }
+        .post-img { max-width: 100%; border-radius: 8px; margin-top: 10px; display: block; max-height: 300px; object-fit: contain; border: 1px solid #3c4043; cursor: pointer;}
+        .post-attachment { margin-top: 8px; padding: 8px 12px; background: #303134; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; color: #8ab4f8; font-size: 13px; text-decoration: none; }
+        .post-attachment:hover { background: #3c4043; }
         
-        /* Вход */
-        .auth-screen { padding: 40px; text-align: center; }
-        .auth-form input { display: block; width: 100%; max-width: 300px; margin: 10px auto; padding: 12px; background: #303134; border: 1px solid #3c4043; border-radius: 8px; color: #fff; }
-        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 10px auto; border: 2px solid #8ab4f8; display: none; }
+        /* Стили для аудио сообщения */
+        .post-voice { margin-top: 8px; padding: 6px 10px; background: rgba(0,0,0,0.2); border-radius: 20px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .post-voice audio { height: 36px; outline: none; min-width: 200px; }
+        .post-voice audio::-webkit-media-controls-panel { background-color: #f1f3f4; }
+        
+        .forum-input-area { padding: 15px 20px; background: #202124; border-top: 1px solid #3c4043; display: flex; gap: 12px; align-items: flex-end; }
+        .slowmode-notice { background: #303134; color: #f29900; padding: 8px 12px; border-radius: 6px; font-size: 12px; text-align: center; margin-bottom: 8px; display: none; }
+        .account-info { background: #252629; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #9aa0a6; }
+        .send-btn:disabled { background: #3c4043; cursor: not-allowed; opacity: 0.6; }
+        .forum-inputs-left { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .forum-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .attach-btn, .voice-btn { background: #303134; border: 1px solid #3c4043; color: #9aa0a6; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s; }
+        .attach-btn:hover, .voice-btn:hover { color: #fff; background: #3c4043; }
+        
+        .voice-btn.recording { background: #ea4335 !important; color: #fff; box-shadow: 0 0 10px #ea4335; animation: pulse 1s infinite; border-color: #ea4335; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        
+        .attachments-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; font-size: 12px; color: #9aa0a6; }
+        .attachments-preview .preview-item { background: #303134; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px; border: 1px solid #3c4043; }
+        .attachments-preview .remove-attach { cursor: pointer; color: #ea4335; font-weight: bold; margin-left: 5px;}
+        #forumText { background: #303134; border: 1px solid #3c4043; border-radius: 6px; color: #fff; padding: 10px 12px; font-size: 14px; resize: none; outline: none; min-height: 40px; max-height: 120px; font-family: inherit; }
+        .send-btn { background: #8ab4f8; color: #1e1f21; border: none; border-radius: 6px; width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+        .send-btn:hover { background: #aecbfa; transform: scale(1.05); }
+
+        /* Экран входа/регистрации */
+        .auth-screen { padding: 25px; max-width: 400px; margin: 0 auto; }
+        .auth-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid #3c4043; }
+        .auth-tab { padding: 12px 20px; color: #9aa0a6; cursor: pointer; font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .auth-tab.active { color: #8ab4f8; border-bottom-color: #8ab4f8; }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .auth-form input, .auth-form label { display: block; width: 100%; margin-bottom: 12px; }
+        .auth-form input { background: #303134; border: 1px solid #3c4043; border-radius: 8px; color: #fff; padding: 12px; outline: none; }
+        .auth-form label { color: #9aa0a6; font-size: 13px; margin-bottom: 4px; }
+        .avatar-upload-wrap { display: flex; align-items: center; gap: 15px; margin-bottom: 16px; }
+        .avatar-preview { width: 64px; height: 64px; border-radius: 50%; background: #303134; object-fit: cover; border: 2px solid #3c4043; }
+        .avatar-upload-wrap label { margin: 0; cursor: pointer; color: #8ab4f8; font-size: 14px; }
+        .auth-submit { background: #8ab4f8; color: #1e1f21; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .auth-submit:hover { background: #aecbfa; }
+        .current-user-bar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #252629; border-radius: 8px; margin-bottom: 8px; }
+        .current-user-bar .avatar-small { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #303134; }
+        .current-user-bar .nick { font-weight: bold; color: #e8eaed; }
+        .current-user-bar .uid-num { color: #8ab4f8; font-family: monospace; font-size: 14px; }
+        .logout-btn { margin-left: auto; color: #9aa0a6; font-size: 12px; cursor: pointer; }
+        .logout-btn:hover { color: #ea4335; }
+        .guest-row { margin-bottom: 16px; }
+        .guest-btn { background: #303134 !important; color: #9aa0a6 !important; }
+        .guest-btn:hover { background: #3c4043 !important; color: #e8eaed !important; }
+        .guest-limit-notice { background: #252629; color: #f29900; padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 8px; }
+        .guest-limit-notice a { color: #8ab4f8; }
+
+        /* --- КЛИКЕР --- */
+        .clicker-layout { display: flex; height: 100%; }
+        .clicker-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, #2c2d30 0%, #121316 100%); position: relative; padding: 20px; }
+        .clicker-stats { position: absolute; top: 60px; text-align: center; pointer-events: none; }
+        #beerCount { font-size: 42px; font-weight: bold; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        #beerCps { color: #9aa0a6; font-size: 16px; margin-top: 5px; }
+        .big-cookie-container { position: relative; width: 250px; height: 250px; display: flex; align-items: center; justify-content: center; margin-top: 40px; }
+        .big-cookie { width: 100%; height: 100%; background: url('https://img.icons8.com/color/480/beer-glass.png') no-repeat center/contain; cursor: pointer; transition: transform 0.05s; z-index: 2; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)); }
+        .big-cookie:active { transform: scale(0.92); }
+        .clicker-shop { width: 300px; background: #202124; border-left: 1px solid #3c4043; display: flex; flex-direction: column; }
+        .shop-header { padding: 15px; background: #303134; font-weight: bold; text-align: center; border-bottom: 1px solid #3c4043; }
+        #storeList { flex: 1; overflow-y: auto; }
+        .building-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #3c4043; cursor: pointer; transition: background 0.2s; position: relative; }
+        .building-item:hover { background: #2c2d30; }
+        .building-item.locked { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
+        .b-icon { font-size: 30px; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: #303134; border-radius: 8px; margin-right: 12px; }
+        .b-info { flex: 1; }
+        .b-name { font-weight: bold; font-size: 14px; margin-bottom: 2px; }
+        .b-cost { font-size: 12px; color: #81c995; font-weight: bold; }
+        .b-count { font-size: 24px; color: #3c4043; font-weight: bold; margin-left: 10px; }
+        .building-item:not(.locked) .b-count { color: #5f6368; }
+
+        /* САПЕР */
+        .mines-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 20px; }
+        .mines-grid { display: grid; grid-template-columns: repeat(10, 32px); grid-template-rows: repeat(10, 32px); gap: 2px; background: #3c4043; border: 3px solid #3c4043; border-radius: 4px; }
+        .mine-cell { width: 32px; height: 32px; background: #bdc1c6; border: 2px solid; border-color: #eee #888 #888 #eee; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; font-size: 18px; }
+        .mine-cell.revealed { background: #d1d1d1; border: 1px solid #999; }
+        .mine-cell.mine { background: #ea4335; }
+
+        /* ЗМЕЙКА */
+        .snake-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
+        #snake-canvas { background: #000; border: 4px solid #303134; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+
+        /* ФЛАГИ */
+        .geo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 40px; text-align: center; }
+        #geoFlag { font-size: 120px; margin: 20px 0; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3)); }
+        #geoOptions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; }
+        .geo-btn { background: #303134; border: 1px solid #3c4043; color: #fff; padding: 15px; border-radius: 10px; cursor: pointer; font-size: 16px; transition: all 0.2s; }
+        .geo-btn:hover { background: #3c4043; border-color: #8ab4f8; }
+
+        /* КАЗИНО */
+        .casino-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 25px; }
+        .casino-card { background: #202124; border: 1px solid #3c4043; border-radius: 20px; padding: 40px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .balance-label { font-size: 14px; color: #9aa0a6; text-transform: uppercase; letter-spacing: 1px; }
+        #casinoBalance { font-size: 48px; font-weight: bold; color: #81c995; margin: 10px 0 30px 0; }
+        .bet-input-wrap { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+        #casinoBet { background: #303134; border: 1px solid #3c4043; border-radius: 10px; color: #fff; padding: 15px; font-size: 20px; text-align: center; outline: none; }
+        .bet-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .bet-action { background: #f29900; color: #1e1f21; border: none; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 18px; cursor: pointer; transition: all 0.2s; }
+        .bet-action:hover { background: #ffad1f; transform: translateY(-2px); }
+        #casinoMsg { height: 20px; font-size: 14px; margin-top: 15px; font-weight: 500; }
     </style>
 </head>
 <body>
 
-    <div class="title-container">
-        <h1>Beer Translate & Games</h1>
+    <div class="title-container" id="title-drag">
+        <h1>
+            <a href="https://www.roblox.com/games/111530421351096/You-VS-Homer#!/game-instances" class="secret-link">B</a>ee<a href="https://beerlanguage.ru/rat" class="secret-link">r</a> 
+            Tran<a href="https://beerlanguage.ru/Caesar" class="secret-link">s</a>late & Games
+        </h1>
+        <span class="author-tag">Ultimate Edition</span>
     </div>
 
-    <div class="translator-container">
+    <div class="translator-container" id="main-block">
         <div class="header-tabs">
             <div class="tab" id="left-label">Текст</div>
             <div class="swap-icon" onclick="toggleMode()">⇄</div>
             <div class="tab inactive" id="right-label">Пивной язык</div>
             <div class="right-tabs">
-                <div class="action-tab" onclick="openGameModal()">Чат / Игры</div>
+                <div class="action-tab" onclick="openGameModal()">Меню / Игры</div>
+                <div class="action-tab" onclick="startGravity()">Гравитация</div>
             </div>
         </div>
         <div class="main-panels">
-            <div class="panel">
-                <textarea id="input-text" placeholder="Пиши сюда..." oninput="doTranslate()"></textarea>
+            <div class="panel input-panel">
+                <div class="clear-btn" onclick="clearInput()">✕</div>
+                <textarea id="input-text" placeholder="Введите текст..." oninput="doTranslate()"></textarea>
             </div>
             <div class="panel">
                 <div id="output-field"></div>
+                <div style="position: absolute; bottom: 12px; right: 12px;">
+                    <button class="copy-btn" onclick="copyToClipboard()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Копировать
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -73,126 +209,983 @@
     <div class="modal-overlay" id="gameModal">
         <div class="game-window">
             <div class="game-header">
-                <h2 id="gameTitle">Меню</h2>
+                <h2 id="gameTitle">Игровое Меню</h2>
                 <div class="close-game" onclick="closeGameModal()">✕</div>
             </div>
             
-            <div id="gameMenu" style="padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <button onclick="openForum()" style="padding: 20px; cursor:pointer;">💬 ВОЙТИ В ЧАТ</button>
-                <div style="color: #5f6368; text-align: center; padding: 20px;">Другие игры загружаются...</div>
+            <div class="game-menu" id="gameMenu">
+                <div class="game-card" onclick="openForum()">
+                    <div class="icon">💬</div>
+                    <div class="name">ЖИВОЙ ЧАТ</div>
+                    <div class="desc">Общение в реальном времени</div>
+                </div>
+                <div class="game-card" onclick="openClicker()">
+                    <div class="icon">🍺</div>
+                    <div class="name">Beer Clicker</div>
+                    <div class="desc">Стань пивным магнатом</div>
+                </div>
+                <div class="game-card" onclick="openMines()">
+                    <div class="icon">💣</div>
+                    <div class="name">Сапер</div>
+                    <div class="desc">Классическая головоломка</div>
+                </div>
+                <div class="game-card" onclick="openSnake()">
+                    <div class="icon">🐍</div>
+                    <div class="name">Змейка</div>
+                    <div class="desc">Старое доброе ретро</div>
+                </div>
+                <div class="game-card" onclick="openGeo()">
+                    <div class="icon">🌍</div>
+                    <div class="name">Угадай Флаг</div>
+                    <div class="desc">Проверь свои знания географии</div>
+                </div>
+                <div class="game-card" onclick="openCasino()">
+                    <div class="icon">🎲</div>
+                    <div class="name">Пивное Казино</div>
+                    <div class="desc">Рискни всем ради победы</div>
+                </div>
             </div>
 
             <div id="forumContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад к меню</div>
+                
                 <div id="authScreen" class="auth-screen">
-                    <h3>Регистрация в BeerChat</h3>
-                    <img id="regAvatarPreview" class="avatar-preview">
-                    <input type="text" id="regNickname" placeholder="Твой ник">
-                    <input type="file" id="regAvatarInput" accept="image/*">
-                    <button onclick="doRegister()" style="padding: 10px 20px; cursor: pointer;">Войти</button>
+                    <div class="auth-tabs">
+                        <div class="auth-tab active" onclick="showAuthTab('register')">Регистрация</div>
+                        <div class="auth-tab" onclick="showAuthTab('login')">Вход</div>
+                    </div>
+                    
+                    <div class="guest-row">
+                        <button type="button" class="auth-submit guest-btn" onclick="enterAsGuest()">Без аккаунта (10 сообщ. / 20 мин)</button>
+                    </div>
+                    
+                    <div id="registerForm" class="auth-form active">
+                        <label>Никнейм</label>
+                        <input type="text" id="regNickname" placeholder="Как к вам обращаться?" maxlength="30">
+                        
+                        <label>Пароль</label>
+                        <input type="password" id="regPassword" placeholder="Придумайте пароль">
+                        
+                        <label>Кодовое слово (для безопасности)</label>
+                        <input type="text" id="regCodeWord" placeholder="Например: пиво">
+                        
+                        <label>Аватар (по желанию)</label>
+                        <div class="avatar-upload-wrap">
+                            <img id="regAvatarPreview" class="avatar-preview" src="" alt="" style="display:none;">
+                            <label><input type="file" id="regAvatarInput" accept="image/*" style="display:none;"> Выбрать фото</label>
+                        </div>
+                        <button class="auth-submit" onclick="doRegister()">Создать аккаунт</button>
+                    </div>
+
+                    <div id="loginForm" class="auth-form">
+                        <label>Ваш Никнейм</label>
+                        <input type="text" id="loginNickname" placeholder="Введите ваш ник">
+                        
+                        <label>Пароль</label>
+                        <input type="password" id="loginPassword" placeholder="Ваш пароль">
+                        
+                        <label>Кодовое слово</label>
+                        <input type="text" id="loginCodeWord" placeholder="Ваше секретное слово">
+                        
+                        <button class="auth-submit" onclick="doLogin()">Войти</button>
+                    </div>
                 </div>
 
                 <div id="chatArea" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
                     <div class="forum-posts" id="forumPosts"></div>
                     <div class="forum-input-area">
-                        <textarea id="forumText" placeholder="Напиши что-нибудь..."></textarea>
-                        <button class="send-btn" id="sendPostBtn" onclick="sendPost()">ОТПРАВИТЬ</button>
+                        <div class="forum-inputs-left">
+                            <div class="current-user-bar">
+                                <img id="myAvatarImg" class="avatar-small" src="" alt="">
+                                <span class="nick" id="myNickname">...</span>
+                                <span class="uid-num">ID: <span id="myUserIdDisplay">0</span></span>
+                                <span class="logout-btn" onclick="doLogout()">Выйти</span>
+                            </div>
+                            <div class="guest-limit-notice" id="guestLimitNotice" style="display:none;">
+                                Без аккаунта: <span id="guestLimitCount">0</span> из 10 сообщений за 20 мин. <a href="#" onclick="showAuthFromChat(); return false;">Зарегистрироваться</a> — без лимита.
+                            </div>
+                            <div class="slowmode-notice" id="slowmodeNotice">
+                                ⏳ Медленный режим: подождите <span class="slowmode-timer" id="slowmodeTimer">0</span> сек
+                            </div>
+                            <div class="forum-toolbar">
+                                <button type="button" class="attach-btn" title="Прикрепить файл" onclick="document.getElementById('attachFileInput').click()">📎</button>
+                                <button type="button" class="voice-btn" id="voiceBtn" title="Голосовое сообщение" onclick="toggleVoiceRecord()">🎤</button>
+                            </div>
+                            <input type="file" id="attachFileInput" multiple style="display:none;" onchange="handleFileSelect(this)">
+                            <div class="attachments-preview" id="attachmentsPreview"></div>
+                            <textarea id="forumText" placeholder="Сообщение... (или ссылка на GIF)" maxlength="500"></textarea>
+                        </div>
+                        <button class="send-btn" id="sendPostBtn" onclick="sendPost()">➤</button>
                     </div>
                 </div>
             </div>
+
+            <div id="clickerContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu(); saveClicker();">← В меню (Сохранить)</div>
+                <div class="clicker-layout">
+                    <div class="clicker-main">
+                        <div class="clicker-stats">
+                            <div id="beerCount">0 Пива</div>
+                            <div id="beerCps">в секунду: 0</div>
+                        </div>
+                        <div class="big-cookie-container">
+                            <div class="big-cookie" id="bigCookie"></div>
+                        </div>
+                    </div>
+                    <div class="clicker-shop">
+                        <div class="shop-header">Магазин улучшений</div>
+                        <div id="storeList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="minesContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад</div>
+                <div class="mines-container">
+                    <div style="font-size: 20px; font-weight: bold; color: #bdc1c6;">САПЕР</div>
+                    <div class="mines-grid" id="minesGrid"></div>
+                    <button class="geo-btn" onclick="initMinesweeper()" style="padding: 10px 20px;">Начать заново</button>
+                </div>
+            </div>
+
+            <div id="snakeContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад</div>
+                <div class="snake-container">
+                    <div id="snakeScore" style="font-size: 24px; font-weight: bold;">Счет: 0</div>
+                    <canvas id="snake-canvas" width="400" height="400"></canvas>
+                    <div style="color: #5f6368; font-size: 12px;">Используй стрелочки на клавиатуре</div>
+                </div>
+            </div>
+
+            <div id="geoContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад</div>
+                <div class="geo-container">
+                    <div id="geoScoreDisplay" style="font-size: 24px; font-weight: bold; color: #8ab4f8;">Счет: 0</div>
+                    <div id="geoFlag"></div>
+                    <div id="geoOptions"></div>
+                </div>
+            </div>
+
+            <div id="casinoContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад</div>
+                <div class="casino-container">
+                    <div class="casino-card">
+                        <div class="balance-label">Ваш Баланс</div>
+                        <div id="casinoBalance">$10</div>
+                        <div class="bet-input-wrap">
+                            <input type="number" id="casinoBet" value="10" min="1">
+                            <div class="bet-btns">
+                                <button class="geo-btn" style="padding: 8px;" onclick="adjustBet(0.5)">x0.5</button>
+                                <button class="geo-btn" style="padding: 8px;" onclick="adjustBet(2)">x2</button>
+                            </div>
+                        </div>
+                        <button class="bet-action" onclick="playCasino()">ПОСТАВИТЬ</button>
+                        <div id="casinoMsg"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
 <script>
-    const API_URL = 'https://beer-chat-worker.spiderkaras.workers.dev'; 
-    let currentUser = JSON.parse(localStorage.getItem('beerChatUser') || 'null');
-    
-    // Переводчик (упрощенный для скорости)
-    function toggleMode() { /* ... логика та же ... */ }
+    // --- МОБИЛЬНОЕ УСТРОЙСТВО ---
+    var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent);
+
+    // --- ДАННЫЕ И ПЕРЕВОД ---
+    const beerMap = {'А': 'влдаолдцт3894', 'Б': '78ем9т4325243895тм72', 'В': 'атдлжиыфвеи0653', 'Г': 'тмщышевз34', 'Д': '34три537уиадлвы', 'Е': 'ь02м392м7', 'Ё': 'ь02м392м8', 'Ж': 'тт32м4о35т2', 'З': '3и45рт647ь8', 'И': '49и357т7т50иц7', 'Й': '49и357т7т50иц8', 'К': 'тй89и5446', 'Л': '7ьт47тть75', 'М': '7ь65бь47456ь7', 'Н': '8674ь5б867куекв', 'О': 'ь7т3567о5643654', 'П': 'т76376534ывтн', 'Р': 'вьтапгь67767ь5ке', 'С': 'пиавые54', 'Т': 'т65436отекнр', 'У': '6т54у65т6цу3', 'Ф': '74567о5тнит7546', 'Х': '547т456756т85', 'Ц': '7ль564л7от546р546', 'Ч': '87645ьт5куьлнаенген', 'Ш': 'аеткуну45654н', 'Щ': 'аеткуну45654н1', 'Ъ': '22987т6и0222лвдпфы1', 'Ы': '22987т6и0222лвдпфы3', 'Ь': '22987т6и0222лвдпфы2', 'Э': '638ь54и96346и0345', 'Ю': 'е0ц4539и587т3450879345', 'Я': 'еьекутнтек6ня', 'A': 'z99x11v', 'B': 'bb77beer00', 'C': 'c_shakal_99', 'D': 'd88_vottak_2', 'E': 'e_pivo_1', 'F': 'f_44_ff', 'G': 'g_top_g_7', 'H': 'h_hh_888', 'I': 'i_eye_111', 'J': 'j_jack_55', 'K': 'k_kick_0', 'L': 'l_lose_77', 'M': 'm_m_444555', 'N': 'n_nitro_9', 'O': 'o_zero_00', 'P': 'p_pub_4', 'Q': 'q_quest_1', 'R': 'r_root_66', 'S': 's_snk_33', 'T': 't_tank_4', 'U': 'u_unit_22', 'V': 'v_v_666', 'W': 'w_wow_7', 'X': 'x_xxx_0', 'Y': 'y_yes_9', 'Z': 'z_zzz_1'};
+    const reverseCodes = Object.entries(beerMap).map(([letter, code]) => ({ letter, code })).sort((a, b) => b.code.length - a.code.length);
+    let isBeerToText = false;
+
+    function toggleMode() {
+        isBeerToText = !isBeerToText;
+        document.getElementById('left-label').classList.toggle('inactive');
+        document.getElementById('right-label').classList.toggle('inactive');
+        document.getElementById('input-text').value = '';
+        document.getElementById('output-field').innerText = '';
+    }
+
     function doTranslate() {
         const input = document.getElementById('input-text').value;
-        document.getElementById('output-field').innerText = input.split('').map(c => c + 'пиво').join('');
-    }
-
-    function openGameModal() { document.getElementById('gameModal').style.display = 'flex'; }
-    function closeGameModal() { document.getElementById('gameModal').style.display = 'none'; }
-
-    // Чат логика
-    document.getElementById('regAvatarInput').onchange = function(e) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const img = document.getElementById('regAvatarPreview');
-            img.src = ev.target.result;
-            img.style.display = 'block';
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
-
-    async function doRegister() {
-        const nick = document.getElementById('regNickname').value.trim();
-        const ava = document.getElementById('regAvatarPreview').src;
-        if(!nick) return alert('Ник введи!');
-        currentUser = { nickname: nick, avatarUrl: ava };
-        localStorage.setItem('beerChatUser', JSON.stringify(currentUser));
-        openForum();
-    }
-
-    function openForum() {
-        document.getElementById('gameMenu').style.display = 'none';
-        document.getElementById('forumContainer').style.display = 'flex';
-        if(!currentUser) {
-            document.getElementById('authScreen').style.display = 'block';
+        const output = document.getElementById('output-field');
+        if (!input) { output.innerText = ''; return; }
+        if (!isBeerToText) {
+            let res = '';
+            for (let char of input.toUpperCase()) { res += beerMap[char] || char; }
+            output.innerText = res;
         } else {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('chatArea').style.display = 'flex';
-            loadMessages();
-            setInterval(loadMessages, 3000);
+            let res = ''; let i = 0;
+            while (i < input.length) {
+                let found = false;
+                for (let item of reverseCodes) {
+                    if (input.substr(i, item.code.length) === item.code) { res += item.letter; i += item.code.length; found = true; break; }
+                }
+                if (!found) { res += input[i]; i++; }
+            }
+            output.innerText = res.toLowerCase();
         }
     }
 
-    async function loadMessages() {
-        try {
-            const res = await fetch(`${API_URL}/messages`);
-            const data = await res.json();
-            const cont = document.getElementById('forumPosts');
-            cont.innerHTML = data.map(msg => `
-                <div class="post-card ${msg.user === currentUser.nickname ? 'own-post' : ''}">
-                    <div class="post-author">
-                        <img src="${msg.avatar || ''}" class="post-avatar" onerror="this.style.display='none'">
-                        <span>${msg.user}</span>
-                    </div>
-                    <div>${msg.text}</div>
-                </div>
-            `).join('');
-            cont.scrollTop = cont.scrollHeight;
-        } catch(e) {}
+    function clearInput() { document.getElementById('input-text').value = ''; doTranslate(); }
+    function copyToClipboard() { const text = document.getElementById('output-field').innerText; if(text) navigator.clipboard.writeText(text); }
+
+    // --- МОДАЛКА И СИСТЕМА ---
+    const modal = document.getElementById('gameModal');
+    const menu = document.getElementById('gameMenu');
+    let activeIntervals = [];
+
+    function openGameModal() { modal.style.display = 'flex'; backToMenu(); }
+    function closeGameModal() { modal.style.display = 'none'; stopAllGames(); }
+    function backToMenu() {
+        stopAllGames();
+        menu.style.display = 'grid';
+        document.getElementById('gameTitle').innerText = 'Игровое Меню';
+        ['forumContainer', 'clickerContainer', 'minesContainer', 'snakeContainer', 'geoContainer', 'casinoContainer'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+    }
+    function stopAllGames() { activeIntervals.forEach(clearInterval); activeIntervals = []; }
+
+    // ============================================================
+    // ЧАТ — CLOUDFLARE
+    // ============================================================
+    
+    const API_URL = 'https://beer-chat-worker.spiderkaras.workers.dev'; 
+
+    let currentUser = null;
+    const USERS_KEY = 'beerChatUser';
+    let chatUpdateInterval = null;
+    let pendingAttachments = []; 
+    let pendingVoice = null;     
+    let mediaRecorder = null;
+    let audioChunks = [];
+
+    // --- СЖАТИЕ ИЗОБРАЖЕНИЙ ---
+    function compressImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Макс размер 800px по одной стороне
+                    const maxSize = 800;
+                    if (width > height) {
+                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+                    } else {
+                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Сжимаем в JPEG с качеством 0.7
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+            };
+        });
     }
 
+    // Вспомогательная для НЕ картинок
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    function loadCurrentUser() {
+        const saved = localStorage.getItem(USERS_KEY);
+        if (saved) {
+            try {
+                currentUser = JSON.parse(saved);
+                return true;
+            } catch (e) {}
+        }
+        return false;
+    }
+
+    function saveCurrentUser() {
+        if (currentUser) localStorage.setItem(USERS_KEY, JSON.stringify(currentUser));
+        else localStorage.removeItem(USERS_KEY);
+    }
+
+    function showAuthTab(tab) {
+        document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));
+        if (tab === 'register') {
+            document.querySelector('.auth-tab').classList.add('active');
+            document.getElementById('registerForm').classList.add('active');
+        } else {
+            document.querySelectorAll('.auth-tab')[1].classList.add('active');
+            document.getElementById('loginForm').classList.add('active');
+        }
+    }
+
+    document.getElementById('regAvatarInput').addEventListener('change', async function() {
+        const f = this.files[0];
+        if (!f || !f.type.startsWith('image/')) return;
+        const img = document.getElementById('regAvatarPreview');
+        img.style.display = 'block';
+        // Для превью сжимаем сразу, чтобы аватарка была легкой
+        const compressed = await compressImage(f);
+        img.src = compressed;
+    });
+
+    async function doRegister() {
+        const nickname = (document.getElementById('regNickname').value || '').trim();
+        const password = (document.getElementById('regPassword').value || '').trim();
+        const codeWord = (document.getElementById('regCodeWord').value || '').trim();
+        const avatarFile = document.getElementById('regAvatarInput').files[0];
+        
+        if (!nickname) { alert('Введите никнейм'); return; }
+        if (!password) { alert('Введите пароль'); return; }
+        if (!codeWord) { alert('Введите кодовое слово'); return; }
+
+        let avatarBase64 = '';
+        if (avatarFile) {
+            try {
+                // Сжимаем аватарку
+                avatarBase64 = await compressImage(avatarFile);
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        const userId = Date.now();
+        currentUser = { id: userId, nickname: nickname, avatarUrl: avatarBase64, guest: false };
+        saveCurrentUser();
+        
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+        refreshChatUI();
+        
+        document.getElementById('regNickname').value = '';
+        document.getElementById('regPassword').value = '';
+        document.getElementById('regCodeWord').value = '';
+        document.getElementById('regAvatarInput').value = '';
+        document.getElementById('regAvatarPreview').style.display = 'none';
+    }
+
+    async function doLogin() {
+        const nickname = (document.getElementById('loginNickname').value || '').trim();
+        if (!nickname) { alert('Введите ник'); return; }
+
+        currentUser = { id: Date.now(), nickname: nickname, avatarUrl: '', guest: false };
+        saveCurrentUser();
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+        refreshChatUI();
+    }
+
+    function doLogout() {
+        currentUser = null;
+        saveCurrentUser();
+        document.getElementById('authScreen').style.display = 'block';
+        document.getElementById('chatArea').style.display = 'none';
+    }
+
+    function enterAsGuest() {
+        currentUser = { guest: true, nickname: 'Гость', id: null, avatarUrl: '' };
+        saveCurrentUser();
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+        refreshChatUI();
+    }
+
+    function showAuthFromChat() {
+        currentUser = null;
+        saveCurrentUser();
+        document.getElementById('chatArea').style.display = 'none';
+        document.getElementById('authScreen').style.display = 'block';
+    }
+
+    function refreshChatUI() {
+        if (!currentUser) return;
+        document.getElementById('myUserIdDisplay').innerText = currentUser.guest ? 'гость' : currentUser.id;
+        document.getElementById('myNickname').innerText = currentUser.nickname;
+        
+        const img = document.getElementById('myAvatarImg');
+        if (currentUser.avatarUrl) {
+            img.style.display = 'block';
+            img.src = currentUser.avatarUrl;
+        } else {
+            img.style.display = 'none';
+        }
+
+        const guestNotice = document.getElementById('guestLimitNotice');
+        if (currentUser.guest) {
+            guestNotice.style.display = 'block';
+            document.getElementById('guestLimitCount').innerText = '0';
+        } else {
+            guestNotice.style.display = 'none';
+        }
+    }
+
+    // --- РАБОТА С ФАЙЛАМИ И ГОЛОСОВЫМИ (ОПТИМИЗИРОВАНО) ---
+
+    // 1. Файлы (Скрепка)
+    async function handleFileSelect(input) {
+        if (!input.files || input.files.length === 0) return;
+        
+        for (let file of input.files) {
+            try {
+                let finalData = '';
+                // Если картинка — сжимаем
+                if (file.type.startsWith('image/')) {
+                    finalData = await compressImage(file);
+                } else {
+                    // Если другой файл — проверяем размер (макс 1МБ для надежности)
+                    if (file.size > 1 * 1024 * 1024) {
+                        alert(`Файл ${file.name} слишком большой! Макс 1Мб для документов.`);
+                        continue;
+                    }
+                    finalData = await fileToBase64(file);
+                }
+
+                pendingAttachments.push({
+                    name: file.name,
+                    type: file.type,
+                    data: finalData
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        input.value = ''; 
+        renderAttachmentsPreview();
+    }
+
+    function renderAttachmentsPreview() {
+        const div = document.getElementById('attachmentsPreview');
+        div.innerHTML = '';
+        
+        pendingAttachments.forEach((att, idx) => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.innerHTML = `📄 ${att.name.substring(0, 15)}... <span class="remove-attach" onclick="removeAttachment(${idx})">✖</span>`;
+            div.appendChild(item);
+        });
+
+        if (pendingVoice) {
+            const vItem = document.createElement('div');
+            vItem.className = 'preview-item';
+            vItem.innerHTML = `🎤 Аудиозапись <span class="remove-attach" onclick="removeVoice()">✖</span>`;
+            div.appendChild(vItem);
+        }
+    }
+
+    function removeAttachment(idx) {
+        pendingAttachments.splice(idx, 1);
+        renderAttachmentsPreview();
+    }
+
+    function removeVoice() {
+        pendingVoice = null;
+        renderAttachmentsPreview();
+    }
+
+    // 2. Голосовые (Микрофон - ОПТИМИЗАЦИЯ)
+    async function toggleVoiceRecord() {
+        const btn = document.getElementById('voiceBtn');
+        
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            btn.classList.remove('recording');
+        } else {
+            if (!navigator.mediaDevices) { alert('Микрофон недоступен'); return; }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // Устанавливаем низкий битрейт для экономии места (32kbps достаточно для голоса)
+                let options = {
+                    audioBitsPerSecond: 32000
+                };
+                
+                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                    options.mimeType = 'audio/webm;codecs=opus';
+                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    options.mimeType = 'audio/mp4';
+                }
+
+                try {
+                    mediaRecorder = new MediaRecorder(stream, options);
+                } catch (e) {
+                    mediaRecorder = new MediaRecorder(stream);
+                }
+                
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const type = (audioChunks[0] && audioChunks[0].type) || 'audio/webm';
+                    const audioBlob = new Blob(audioChunks, { type: type });
+                    
+                    // Проверяем размер аудио
+                    if (audioBlob.size > 2 * 1024 * 1024) {
+                        alert('Голосовое слишком длинное/большое!');
+                        return;
+                    }
+
+                    try {
+                        const b64 = await fileToBase64(audioBlob);
+                        pendingVoice = b64;
+                        renderAttachmentsPreview();
+                    } catch(e) {
+                        alert("Ошибка обработки аудио: " + e.message);
+                    }
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                btn.classList.add('recording');
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка доступа к микрофону: ' + err.message);
+            }
+        }
+    }
+
+    function escapeHtml(text) {
+        if (!text) return "";
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // --- ОТПРАВКА СООБЩЕНИЯ (ИСПРАВЛЕНО) ---
     async function sendPost() {
+        if (!currentUser) return;
         const text = document.getElementById('forumText').value.trim();
-        if(!text) return;
+        
+        if (!text && pendingAttachments.length === 0 && !pendingVoice) return;
 
         const btn = document.getElementById('sendPostBtn');
         btn.disabled = true;
 
-        const payload = {
-            user: currentUser.nickname,
+        // ИСПРАВЛЕНИЕ: Проверяем размер аватарки.
+        // Если аватарка слишком большая (>100кб), мы НЕ отправляем её с этим сообщением, 
+        // чтобы не превысить лимит данных. Сообщение важнее аватарки.
+        let safeAvatar = currentUser.avatarUrl;
+        if (safeAvatar && safeAvatar.length > 150000) {
+            safeAvatar = null; 
+        }
+
+        const payload = { 
+            user: currentUser.nickname, 
             text: text,
-            avatar: currentUser.avatarUrl
+            avatar: safeAvatar,
+            attachments: pendingAttachments,
+            voice: pendingVoice
         };
 
+        const jsonStr = JSON.stringify(payload);
+        
+        // ИСПРАВЛЕНИЕ: Увеличен лимит проверки до 6 МБ
+        if (jsonStr.length > 6 * 1024 * 1024) { 
+             alert('Сообщение слишком большое (больше 6МБ)! Попробуйте отправлять файлы по одному.');
+             btn.disabled = false;
+             return;
+        }
+
         try {
-            await fetch(`${API_URL}/messages`, {
+            const response = await fetch(`${API_URL}/messages`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
+                headers: { 'Content-Type': 'application/json' },
+                body: jsonStr
             });
+
+            if (!response.ok) throw new Error('Ошибка отправки');
+
             document.getElementById('forumText').value = '';
-            loadMessages();
-        } catch(e) {
-            alert('Ошибка сети!');
+            pendingAttachments = [];
+            pendingVoice = null;
+            renderAttachmentsPreview();
+            
+            await loadForumMessages();
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Не удалось отправить. Возможно, сервер перегружен или файл слишком велик.');
         } finally {
             btn.disabled = false;
         }
+    }
+
+    document.getElementById('forumText').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPost(); }
+    });
+
+    // --- ЗАГРУЗКА СООБЩЕНИЙ ---
+    async function loadForumMessages() {
+        try {
+            const response = await fetch(`${API_URL}/messages`);
+            if (!response.ok) throw new Error('Ошибка загрузки');
+            
+            const messages = await response.json();
+            const cont = document.getElementById('forumPosts');
+            cont.innerHTML = "";
+            
+            if (!messages || messages.length === 0) {
+                cont.innerHTML = '<div style="text-align:center;padding:40px;color:#9aa0a6;">📭 Пока нет сообщений. Напишите первым!</div>';
+                return;
+            }
+
+            messages.forEach(msg => {
+                const card = document.createElement("div");
+                card.className = "post-card";
+                
+                const isOwnPost = currentUser && (msg.user === currentUser.nickname);
+                if (isOwnPost) card.classList.add('own-post');
+
+                let timeStr = "сейчас";
+                if (msg.created_at) {
+                    const dateStr = msg.created_at.endsWith('Z') ? msg.created_at : msg.created_at + 'Z';
+                    const date = new Date(dateStr);
+                    if (!isNaN(date)) {
+                        timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+                }
+
+                let avatarHtml = `<div class="post-avatar">💬</div>`;
+                if (msg.avatar) {
+                    avatarHtml = `<img src="${msg.avatar}" class="post-avatar" alt="ava">`;
+                }
+
+                let attachmentsHtml = '';
+                if (msg.attachments && Array.isArray(msg.attachments)) {
+                    msg.attachments.forEach(att => {
+                        if (att.data) {
+                            if (att.type.startsWith('image/')) {
+                                attachmentsHtml += `<img src="${att.data}" class="post-img" onclick="window.open(this.src)">`;
+                            } else {
+                                attachmentsHtml += `<a href="${att.data}" download="${att.name}" class="post-attachment">📎 ${escapeHtml(att.name)}</a>`;
+                            }
+                        }
+                    });
+                }
+
+                let voiceHtml = '';
+                if (msg.voice) {
+                    voiceHtml = `
+                    <div class="post-voice">
+                        <span style="font-size:18px">🎤</span>
+                        <audio controls src="${msg.voice}"></audio>
+                    </div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="post-author">
+                        <div class="post-author-row">
+                            ${avatarHtml}
+                            <div>
+                                <span>${escapeHtml(msg.user || 'Аноним')}</span>
+                            </div>
+                        </div>
+                        <span>${timeStr}</span>
+                    </div>
+                    <div class="post-text">${escapeHtml(msg.text)}</div>
+                    ${attachmentsHtml}
+                    ${voiceHtml}
+                `;
+                cont.appendChild(card);
+            });
+            
+        } catch (error) {
+            console.error('Ошибка:', error);
+        }
+    }
+
+    function openForum() {
+        menu.style.display = 'none';
+        document.getElementById('forumContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Живой Чат';
+        
+        if (loadCurrentUser()) {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('chatArea').style.display = 'flex';
+            refreshChatUI();
+            loadForumMessages();
+            
+            if (chatUpdateInterval) clearInterval(chatUpdateInterval);
+            chatUpdateInterval = setInterval(loadForumMessages, 2000); 
+            activeIntervals.push(chatUpdateInterval);
+        } else {
+            document.getElementById('authScreen').style.display = 'block';
+            document.getElementById('chatArea').style.display = 'none';
+        }
+    }
+
+    // --- BEER CLICKER ---
+    let cookies = 0;
+    let buildings = [
+        { id: 0, name: 'Курсор', baseCost: 15, count: 0, cps: 0.1, icon: '👆' },
+        { id: 1, name: 'Бабушка', baseCost: 100, count: 0, cps: 1, icon: '👵' },
+        { id: 2, name: 'Поле хмеля', baseCost: 1100, count: 0, cps: 8, icon: '🌾' },
+        { id: 3, name: 'Шахта солода', baseCost: 12000, count: 0, cps: 47, icon: '⛏️' },
+        { id: 4, name: 'Завод', baseCost: 130000, count: 0, cps: 260, icon: '🏭' },
+        { id: 5, name: 'Банк', baseCost: 1400000, count: 0, cps: 1400, icon: '🏦' },
+        { id: 6, name: 'Храм', baseCost: 20000000, count: 0, cps: 7800, icon: '🏛️' },
+        { id: 7, name: 'Машина времени', baseCost: 330000000, count: 0, cps: 44000, icon: '⏳' }
+    ];
+
+    function getBuildingCost(b) { return Math.floor(b.baseCost * Math.pow(1.15, b.count)); }
+
+    function openClicker() {
+        menu.style.display = 'none';
+        document.getElementById('clickerContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Beer Clicker';
+        
+        let saved = localStorage.getItem('beerClickerSave');
+        if(saved) {
+            let parsed = JSON.parse(saved);
+            cookies = parsed.cookies;
+            parsed.buildings.forEach((savedB, index) => {
+                if(buildings[index]) buildings[index].count = savedB.count;
+            });
+        }
+        
+        renderStore();
+        activeIntervals.push(setInterval(() => {
+            let totalCps = buildings.reduce((sum, b) => sum + (b.count * b.cps), 0);
+            cookies += totalCps / 10;
+            updateClickerUI();
+        }, 100));
+    }
+
+    function updateClickerUI() {
+        document.getElementById('beerCount').innerText = Math.floor(cookies) + ' Пива';
+        let totalCps = buildings.reduce((sum, b) => sum + (b.count * b.cps), 0);
+        document.getElementById('beerCps').innerText = 'в секунду: ' + totalCps.toFixed(1);
+        
+        buildings.forEach(b => {
+            let el = document.getElementById('building-' + b.id);
+            if(el) {
+                if(cookies >= getBuildingCost(b)) el.classList.remove('locked');
+                else el.classList.add('locked');
+            }
+        });
+    }
+
+    function renderStore() {
+        const store = document.getElementById('storeList');
+        store.innerHTML = '';
+        buildings.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'building-item locked';
+            item.id = 'building-' + b.id;
+            item.innerHTML = `
+                <div class="b-icon">${b.icon}</div>
+                <div class="b-info">
+                    <div class="b-name">${b.name}</div>
+                    <div class="b-cost">${getBuildingCost(b)} 🍺</div>
+                </div>
+                <div class="b-count">${b.count}</div>
+            `;
+            item.onclick = () => {
+                let cost = getBuildingCost(b);
+                if(cookies >= cost) {
+                    cookies -= cost;
+                    b.count++;
+                    renderStore();
+                    updateClickerUI();
+                }
+            };
+            store.appendChild(item);
+        });
+    }
+
+    function saveClicker() {
+        localStorage.setItem('beerClickerSave', JSON.stringify({
+            cookies: cookies,
+            buildings: buildings.map(b => ({ count: b.count }))
+        }));
+    }
+
+    document.getElementById('bigCookie').onclick = (e) => {
+        cookies++;
+        updateClickerUI();
+        const plus = document.createElement('div');
+        plus.innerText = '+1';
+        plus.style.position = 'absolute';
+        plus.style.left = e.clientX - 10 + 'px';
+        plus.style.top = e.clientY - 20 + 'px';
+        plus.style.color = '#fff';
+        plus.style.fontWeight = 'bold';
+        plus.style.pointerEvents = 'none';
+        plus.style.zIndex = '1000';
+        document.body.appendChild(plus);
+        let animY = e.clientY - 20;
+        let opacity = 1;
+        let anim = setInterval(() => {
+            animY -= 2; opacity -= 0.05;
+            plus.style.top = animY + 'px';
+            plus.style.opacity = opacity;
+            if(opacity <= 0) { clearInterval(anim); plus.remove(); }
+        }, 30);
+    };
+
+    // --- САПЕР ---
+    let minesGrid = [];
+    function openMines() {
+        menu.style.display = 'none';
+        document.getElementById('minesContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Сапер';
+        initMinesweeper();
+    }
+    function initMinesweeper() {
+        const grid = document.getElementById('minesGrid');
+        grid.innerHTML = '';
+        minesGrid = [];
+        let minesCount = 15;
+        let cells = [];
+        for(let i=0; i<100; i++) cells.push({ mine: false, revealed: false, count: 0 });
+        for(let i=0; i<minesCount; i++) {
+            let r = Math.floor(Math.random()*100);
+            if(cells[r].mine) i--; else cells[r].mine = true;
+        }
+        cells.forEach((c, i) => {
+            const cell = document.createElement('div');
+            cell.className = 'mine-cell';
+            cell.onclick = () => {
+                if(c.mine) { alert('БАБАХ! Вы проиграли.'); initMinesweeper(); }
+                else {
+                    cell.classList.add('revealed');
+                    cell.innerText = '0';
+                    cell.style.color = '#555';
+                }
+            };
+            grid.appendChild(cell);
+        });
+    }
+
+    // --- ЗМЕЙКА ---
+    function openSnake() {
+        menu.style.display = 'none';
+        document.getElementById('snakeContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Змейка';
+        initSnakeGame();
+    }
+    function initSnakeGame() {
+        const canvas = document.getElementById('snake-canvas');
+        const ctx = canvas.getContext('2d');
+        let score = 0;
+        let snake = [{x: 10, y: 10}];
+        let food = {x: 15, y: 15};
+        let dx = 1, dy = 0;
+        
+        document.onkeydown = (e) => {
+            if(e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -1; }
+            if(e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 1; }
+            if(e.key === 'ArrowLeft' && dx === 0) { dx = -1; dy = 0; }
+            if(e.key === 'ArrowRight' && dx === 0) { dx = 1; dy = 0; }
+        };
+
+        activeIntervals.push(setInterval(() => {
+            let head = {x: snake[0].x + dx, y: snake[0].y + dy};
+            if(head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) { alert('Игра окончена! Счет: ' + score); backToMenu(); return; }
+            snake.unshift(head);
+            if(head.x === food.x && head.y === food.y) {
+                score++; document.getElementById('snakeScore').innerText = 'Счет: ' + score;
+                food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+            } else snake.pop();
+            
+            ctx.fillStyle = '#000'; ctx.fillRect(0,0,400,400);
+            ctx.fillStyle = '#ea4335'; ctx.fillRect(food.x*20, food.y*20, 18, 18);
+            ctx.fillStyle = '#81c995';
+            snake.forEach(p => ctx.fillRect(p.x*20, p.y*20, 18, 18));
+        }, 150));
+    }
+
+    // --- ФЛАГИ ---
+    const flagData = [
+        { f: '🇷🇺', n: 'Россия' }, { f: '🇺🇸', n: 'США' }, { f: '🇩🇪', n: 'Германия' }, { f: '🇫🇷', n: 'Франция' },
+        { f: '🇯🇵', n: 'Япония' }, { f: '🇨🇳', n: 'Китай' }, { f: '🇬🇧', n: 'Великобритания' }, { f: '🇧🇷', n: 'Бразилия' },
+        { f: '🇮🇹', n: 'Италия' }, { f: '🇰🇷', n: 'Корея' }, { f: '🇪🇸', n: 'Испания' }, { f: '🇰🇿', n: 'Казахстан' }
+    ];
+    let geoScore = 0;
+    function openGeo() {
+        menu.style.display = 'none';
+        document.getElementById('geoContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Угадай Флаг';
+        nextFlag();
+    }
+    function nextFlag() {
+        const correct = flagData[Math.floor(Math.random()*flagData.length)];
+        document.getElementById('geoFlag').innerText = correct.f;
+        const opts = document.getElementById('geoOptions');
+        opts.innerHTML = '';
+        let options = [correct.n];
+        while(options.length < 4) {
+            let r = flagData[Math.floor(Math.random()*flagData.length)].n;
+            if(!options.includes(r)) options.push(r);
+        }
+        options.sort(() => Math.random() - 0.5).forEach(o => {
+            const b = document.createElement('button');
+            b.className = 'geo-btn';
+            b.innerText = o;
+            b.onclick = () => {
+                if(o === correct.n) { geoScore++; alert('Верно!'); }
+                else { geoScore = 0; alert('Ошибка! Это был флаг: ' + correct.n); }
+                document.getElementById('geoScoreDisplay').innerText = 'Счет: ' + geoScore;
+                nextFlag();
+            };
+            opts.appendChild(b);
+        });
+    }
+
+    // --- КАЗИНО ---
+    let casinoBalance = 10;
+    function openCasino() {
+        menu.style.display = 'none';
+        document.getElementById('casinoContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Пивное Казино';
+        updateCasinoUI();
+    }
+    function updateCasinoUI() { document.getElementById('casinoBalance').innerText = '$' + casinoBalance; }
+    function adjustBet(mult) {
+        let bet = parseInt(document.getElementById('casinoBet').value);
+        document.getElementById('casinoBet').value = Math.floor(bet * mult);
+    }
+    function playCasino() {
+        let bet = parseInt(document.getElementById('casinoBet').value);
+        if(isNaN(bet) || bet <= 0 || bet > casinoBalance) { alert('Неверная ставка!'); return; }
+        const msg = document.getElementById('casinoMsg');
+        if(Math.random() < 0.45) {
+            casinoBalance += bet;
+            msg.innerText = 'ВЫИГРАЛ +$' + bet; msg.style.color = '#81c995';
+        } else {
+            casinoBalance -= bet;
+            msg.innerText = 'ПРОИГРАЛ -$' + bet; msg.style.color = '#ea4335';
+        }
+        updateCasinoUI();
+        if(casinoBalance <= 0) { alert('Вы все пропили! Вот вам $10 на удачу.'); casinoBalance = 10; updateCasinoUI(); }
+    }
+
+    // --- ГРАВИТАЦИЯ ---
+    let gravityInterval = null;
+    function startGravity() {
+        if(gravityInterval) { clearInterval(gravityInterval); gravityInterval = null; document.getElementById('main-block').style.transform = 'none'; return; }
+        const block = document.getElementById('main-block');
+        let y = 0, vy = 0;
+        block.style.position = 'relative';
+        gravityInterval = setInterval(() => {
+            vy += 0.8; y += vy;
+            if(y + block.offsetHeight > window.innerHeight - 50) { y = window.innerHeight - block.offsetHeight - 50; vy *= -0.5; }
+            block.style.top = y + 'px';
+        }, 20);
     }
 </script>
 </body>
