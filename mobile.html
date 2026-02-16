@@ -1,12 +1,1063 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мобильная версия</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Beer Translate & Games Ultimate (Mobile)</title>
+    <style>
+        /* --- ОСНОВНЫЕ СТИЛИ --- */
+        body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
+        
+        /* Заголовок */
+        .title-container { margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: grab; z-index: 20; text-align: center; }
+        h1 { font-weight: 400; font-size: 28px; color: #bdc1c6; margin: 0; pointer-events: none; line-height: 1.2; }
+        .secret-link { color: inherit; text-decoration: none; cursor: pointer; pointer-events: auto; transition: color 0.2s; }
+        .secret-link:hover { color: #8ab4f8; }
+        .author-tag { font-size: 12px; color: #5f6368; font-weight: 500; opacity: 0.7; pointer-events: none; }
+
+        /* Переводчик */
+        .translator-container { background-color: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 95%; max-width: 1100px; height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; z-index: 10; transition: transform 0.1s ease-out; }
+        .header-tabs { display: flex; align-items: center; padding: 0 10px; border-bottom: 1px solid #3c4043; height: 50px; flex-shrink: 0; justify-content: space-between; }
+        .tab-group { display: flex; align-items: center; height: 100%; }
+        .tab { color: #8ab4f8; font-size: 14px; font-weight: 500; border-bottom: 2px solid #8ab4f8; height: 100%; display: flex; align-items: center; padding: 0 8px; cursor: pointer; white-space: nowrap; }
+        .tab.inactive { border-bottom: 2px solid transparent; color: #9aa0a6; }
+        .swap-icon { margin: 0 10px; color: #9aa0a6; cursor: pointer; font-size: 20px; padding: 5px; }
+        
+        .right-tabs { display: flex; gap: 5px; }
+        .action-tab { color: #9aa0a6; font-size: 12px; text-transform: uppercase; font-weight: bold; cursor: pointer; padding: 6px 8px; border-radius: 4px; background: rgba(255,255,255,0.03); border: 1px solid #3c4043; }
+        .action-tab:active { color: #fff; background: rgba(255,255,255,0.1); }
+
+        .main-panels { display: flex; flex-direction: row; height: 100%; overflow: hidden; }
+        .panel { flex: 1; padding: 15px; position: relative; display: flex; flex-direction: column; background: #1e1f21; box-sizing: border-box; min-width: 0; }
+        .input-panel { border-right: 1px solid #3c4043; }
+        
+        textarea { width: 100%; height: 100%; background: transparent; border: none; color: #fff; font-size: 18px; resize: none; outline: none; font-family: inherit; -webkit-overflow-scrolling: touch; }
+        #output-field { font-size: 18px; color: #bdc1c6; word-break: break-all; white-space: pre-wrap; flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        
+        .clear-btn { position: absolute; top: 10px; right: 10px; color: #9aa0a6; cursor: pointer; font-size: 24px; z-index: 5; padding: 5px; background: rgba(30,31,33,0.8); border-radius: 50%; }
+        
+        .copy-btn { background: #303134; border: 1px solid #3c4043; color: #9aa0a6; cursor: pointer; padding: 8px 12px; border-radius: 20px; transition: all 0.2s; display: flex; align-items: center; gap: 5px; font-size: 12px; text-transform: uppercase; font-weight: bold; }
+        .copy-btn:active { color: #fff; background: #3c4043; transform: scale(0.95); }
+
+        /* --- МОДАЛЬНОЕ ОКНО (ИГРЫ) --- */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .game-window { background: #1e1f21; border: 1px solid #3c4043; border-radius: 12px; width: 800px; max-width: 95%; height: 600px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative; }
+        
+        .game-header { padding: 12px 15px; border-bottom: 1px solid #3c4043; display: flex; justify-content: space-between; align-items: center; background: #202124; height: 50px; box-sizing: border-box; }
+        .game-header h2 { margin: 0; font-size: 16px; color: #bdc1c6; font-weight: 500; }
+        .close-game { color: #9aa0a6; cursor: pointer; font-size: 24px; padding: 5px; width: 30px; text-align: center; }
+
+        /* Меню игр */
+        .game-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; padding: 15px; overflow-y: auto; }
+        .game-card { background: #303134; border: 1px solid #3c4043; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.1s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .game-card:active { background: #3c4043; border-color: #8ab4f8; }
+        .game-card .icon { font-size: 36px; }
+        .game-card .name { font-weight: bold; color: #e8eaed; font-size: 14px; }
+        .game-card .desc { font-size: 11px; color: #9aa0a6; }
+
+        .game-content { display: none; flex-direction: column; height: 100%; position: relative; overflow: hidden; }
+        .back-to-menu { padding: 10px 15px; background: #252629; border-bottom: 1px solid #3c4043; color: #8ab4f8; cursor: pointer; z-index: 100; font-weight: 500; display: flex; align-items: center; gap: 5px; font-size: 14px; }
+
+        /* --- ЧАТ --- */
+        #forumContainer { padding: 0; }
+        .forum-posts { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #121316; -webkit-overflow-scrolling: touch; }
+        .post-card { background: #1e1f21; border: 1px solid #3c4043; padding: 10px; border-radius: 12px; max-width: 90%; align-self: flex-start; }
+        .post-card.own-post { align-self: flex-end; background: #1a2634; border-color: #3a5a7a; }
+        .post-author { font-size: 12px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .post-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; margin-right: 6px; background: #303134; }
+        .post-text { font-size: 14px; line-height: 1.4; color: #e8eaed; word-break: break-word; }
+        .post-img { max-width: 100%; border-radius: 8px; margin-top: 8px; display: block; max-height: 250px; object-fit: contain; border: 1px solid #3c4043; }
+        
+        .forum-input-area { padding: 10px; background: #202124; border-top: 1px solid #3c4043; display: flex; gap: 8px; align-items: flex-end; }
+        .current-user-bar { padding: 6px; font-size: 11px; margin-bottom: 5px; }
+        .current-user-bar .avatar-small { width: 24px; height: 24px; }
+        
+        .forum-inputs-left { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+        .forum-toolbar { display: flex; align-items: center; gap: 8px; }
+        .attach-btn, .voice-btn { width: 40px; height: 40px; border-radius: 8px; font-size: 20px; flex-shrink: 0; }
+        
+        #forumText { min-height: 36px; padding: 8px; font-size: 14px; max-height: 80px; }
+        .send-btn { width: 42px; height: 42px; border-radius: 8px; font-size: 20px; }
+
+        /* Авторизация мобильная */
+        .auth-screen { padding: 15px; width: 100%; box-sizing: border-box; overflow-y: auto; }
+        .auth-tab { padding: 12px 10px; font-size: 14px; flex: 1; text-align: center; }
+        .auth-form input { padding: 12px; font-size: 16px; } /* 16px to prevent ios zoom */
+        .auth-submit { padding: 14px; font-size: 16px; }
+
+        /* --- ИГРЫ: АДАПТАЦИЯ --- */
+        
+        /* КЛИКЕР */
+        .clicker-layout { display: flex; height: 100%; width: 100%; }
+        .clicker-main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; background: radial-gradient(circle at center, #2c2d30 0%, #121316 100%); }
+        .clicker-stats { position: static; margin-bottom: 20px; text-align: center; }
+        #beerCount { font-size: 32px; }
+        .big-cookie-container { width: 200px; height: 200px; margin-top: 0; }
+        .clicker-shop { width: 35%; min-width: 200px; background: #202124; border-left: 1px solid #3c4043; display: flex; flex-direction: column; }
+        #storeList { flex: 1; overflow-y: auto; }
+        .building-item { padding: 10px; }
+        .b-icon { font-size: 24px; width: 36px; height: 36px; }
+        .b-name { font-size: 12px; }
+        .b-cost { font-size: 11px; }
+
+        /* САПЕР */
+        .mines-container { padding: 10px; }
+        .mines-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #3c4043; border: 2px solid #3c4043; width: 100%; max-width: 320px; aspect-ratio: 1/1; }
+        .mine-cell { width: 100%; height: 100%; font-size: 14px; }
+        
+        /* ЗМЕЙКА */
+        .snake-container { padding: 10px; }
+        #snake-canvas { width: 100%; max-width: 400px; height: auto; aspect-ratio: 1/1; background: #000; border: 2px solid #303134; }
+
+        /* ФЛАГИ */
+        .geo-container { padding: 20px; }
+        #geoFlag { font-size: 80px; }
+        #geoOptions { grid-template-columns: 1fr; width: 100%; max-width: 300px; }
+        .geo-btn { padding: 12px; font-size: 14px; }
+
+        /* КАЗИНО */
+        .casino-card { width: 90%; max-width: 350px; padding: 25px; }
+
+        /* --- MEDIA QUERIES (МОБИЛЬНАЯ ВЕРСИЯ) --- */
+        @media (max-width: 768px) {
+            .title-container h1 { font-size: 24px; }
+            .translator-container { width: 100%; height: 100vh; max-width: none; border: none; border-radius: 0; }
+            .main-panels { flex-direction: column; }
+            .panel { min-height: auto; border-right: none; border-bottom: 1px solid #3c4043; padding: 15px; }
+            .panel:last-child { border-bottom: none; background: #1a1b1d; }
+            .input-panel { flex: 1; }
+            .panel:nth-child(2) { flex: 1; }
+            
+            textarea { font-size: 16px; }
+            #output-field { font-size: 16px; }
+            .clear-btn { visibility: visible; }
+
+            /* Игровое окно на весь экран */
+            .game-window { width: 100%; height: 100%; border-radius: 0; border: none; max-height: 100%; }
+            .game-menu { grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
+            
+            /* Кликер - вертикальная раскладка */
+            .clicker-layout { flex-direction: column; }
+            .clicker-main { height: 50%; padding: 10px; }
+            .big-cookie-container { width: 160px; height: 160px; }
+            .clicker-shop { width: 100%; height: 50%; border-left: none; border-top: 1px solid #3c4043; }
+            
+            /* Змейка кнопки управления (если нужны будут, пока свайпы или тап) */
+            /* На самом деле в коде змейки управление стрелками, на телефоне нужна будет вирт клавиатура или кнопки. 
+               Добавим простые кнопки управления ниже */
+            .snake-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 10px; }
+            .s-btn { background: #303134; border: 1px solid #3c4043; color: #fff; padding: 15px; border-radius: 8px; text-align: center; font-size: 20px; }
+        }
+    </style>
 </head>
-<body style="background-color: #f0f0f0; text-align: center; padding-top: 50px;">
-    <h1>Это версия для телефона</h1>
-    <p>Скрипт сработал!</p>
+<body>
+
+    <div class="title-container">
+        <h1>
+            <a href="https://www.roblox.com/games/111530421351096/You-VS-Homer#!/game-instances" class="secret-link">B</a>ee<a href="https://beerlanguage.ru/rat" class="secret-link">r</a> 
+            Tran<a href="https://beerlanguage.ru/Caesar" class="secret-link">s</a>late
+        </h1>
+        <span class="author-tag">Ultimate Mobile</span>
+    </div>
+
+    <div class="translator-container" id="main-block">
+        <div class="header-tabs">
+            <div class="tab-group">
+                <div class="tab" id="left-label">Текст</div>
+                <div class="swap-icon" onclick="toggleMode()">⇄</div>
+                <div class="tab inactive" id="right-label">Пивной</div>
+            </div>
+            <div class="right-tabs">
+                <div class="action-tab" onclick="openGameModal()">🎮 Игры</div>
+            </div>
+        </div>
+        <div class="main-panels">
+            <div class="panel input-panel">
+                <div class="clear-btn" onclick="clearInput()">✕</div>
+                <textarea id="input-text" placeholder="Введите текст..." oninput="doTranslate()"></textarea>
+            </div>
+            <div class="panel">
+                <div id="output-field"></div>
+                <div style="position: absolute; bottom: 12px; right: 12px;">
+                    <button class="copy-btn" onclick="copyToClipboard()">
+                        КОПИРОВАТЬ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="gameModal">
+        <div class="game-window">
+            <div class="game-header">
+                <h2 id="gameTitle">Игровое Меню</h2>
+                <div class="close-game" onclick="closeGameModal()">✕</div>
+            </div>
+            
+            <div class="game-menu" id="gameMenu">
+                <div class="game-card" onclick="openForum()">
+                    <div class="icon">💬</div>
+                    <div class="name">ЧАТ</div>
+                </div>
+                <div class="game-card" onclick="openClicker()">
+                    <div class="icon">🍺</div>
+                    <div class="name">Clicker</div>
+                </div>
+                <div class="game-card" onclick="openMines()">
+                    <div class="icon">💣</div>
+                    <div class="name">Сапер</div>
+                </div>
+                <div class="game-card" onclick="openSnake()">
+                    <div class="icon">🐍</div>
+                    <div class="name">Змейка</div>
+                </div>
+                <div class="game-card" onclick="openGeo()">
+                    <div class="icon">🌍</div>
+                    <div class="name">Флаги</div>
+                </div>
+                <div class="game-card" onclick="openCasino()">
+                    <div class="icon">🎲</div>
+                    <div class="name">Казино</div>
+                </div>
+            </div>
+
+            <div id="forumContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад к играм</div>
+                
+                <div id="authScreen" class="auth-screen">
+                    <div class="auth-tabs">
+                        <div class="auth-tab active" onclick="showAuthTab('register')">Регистрация</div>
+                        <div class="auth-tab" onclick="showAuthTab('login')">Вход</div>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <button type="button" class="auth-submit guest-btn" style="background:#303134; color:#9aa0a6; border:none; border-radius:8px; width:100%; padding:12px;" onclick="enterAsGuest()">Войти Гостем</button>
+                    </div>
+                    
+                    <div id="registerForm" class="auth-form active">
+                        <label>Никнейм</label>
+                        <input type="text" id="regNickname" maxlength="30">
+                        <label>Пароль</label>
+                        <input type="password" id="regPassword">
+                        <label>Кодовое слово</label>
+                        <input type="text" id="regCodeWord">
+                        <label>Аватар (необязательно)</label>
+                        <div class="avatar-upload-wrap" style="margin-top:10px;">
+                            <img id="regAvatarPreview" class="avatar-preview" src="" alt="" style="display:none; width:50px; height:50px; border-radius:50%;">
+                            <label style="padding:10px; background:#303134; border-radius:8px; display:inline-block;"><input type="file" id="regAvatarInput" accept="image/*" style="display:none;"> 📸 Загрузить фото</label>
+                        </div>
+                        <button class="auth-submit" style="background:#8ab4f8; border:none; border-radius:8px; margin-top:15px; width:100%; color:#000; font-weight:bold;" onclick="doRegister()">Создать аккаунт</button>
+                    </div>
+
+                    <div id="loginForm" class="auth-form">
+                        <label>Никнейм</label>
+                        <input type="text" id="loginNickname">
+                        <label>Пароль</label>
+                        <input type="password" id="loginPassword">
+                        <label>Кодовое слово</label>
+                        <input type="text" id="loginCodeWord">
+                        <button class="auth-submit" style="background:#8ab4f8; border:none; border-radius:8px; margin-top:15px; width:100%; color:#000; font-weight:bold;" onclick="doLogin()">Войти</button>
+                    </div>
+                </div>
+
+                <div id="chatArea" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
+                    <div class="forum-posts" id="forumPosts"></div>
+                    <div class="forum-input-area">
+                        <div class="forum-inputs-left">
+                            <div class="current-user-bar">
+                                <img id="myAvatarImg" class="avatar-small" src="" alt="">
+                                <span class="nick" id="myNickname">...</span>
+                                <span class="logout-btn" onclick="doLogout()" style="margin-left:auto; color:#ea4335;">Выйти</span>
+                            </div>
+                            <div class="guest-limit-notice" id="guestLimitNotice" style="display:none; font-size:10px; color:#f29900;">
+                                Гость: <span id="guestLimitCount">0</span>/10.
+                            </div>
+                            <div class="attachments-preview" id="attachmentsPreview"></div>
+                            <div style="display:flex; gap:5px; width:100%;">
+                                <button type="button" class="attach-btn" style="background:#303134; border:1px solid #3c4043; color:#9aa0a6;" onclick="document.getElementById('attachFileInput').click()">📎</button>
+                                <button type="button" class="voice-btn" id="voiceBtn" style="background:#303134; border:1px solid #3c4043; color:#9aa0a6;" onclick="toggleVoiceRecord()">🎤</button>
+                                <textarea id="forumText" placeholder="Сообщение..." style="background:#303134; border:1px solid #3c4043; border-radius:6px; color:#fff; flex:1; resize:none;"></textarea>
+                            </div>
+                            <input type="file" id="attachFileInput" multiple style="display:none;" onchange="handleFileSelect(this)">
+                        </div>
+                        <button class="send-btn" id="sendPostBtn" style="background:#8ab4f8; border:none; color:#1e1f21;" onclick="sendPost()">➤</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="clickerContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu(); saveClicker();">← В меню (Сохранить)</div>
+                <div class="clicker-layout">
+                    <div class="clicker-main">
+                        <div class="clicker-stats">
+                            <div id="beerCount">0 Пива</div>
+                            <div id="beerCps" style="color:#9aa0a6; font-size:14px;">в секунду: 0</div>
+                        </div>
+                        <div class="big-cookie-container">
+                            <div class="big-cookie" id="bigCookie" style="width:100%; height:100%; background: url('https://img.icons8.com/color/480/beer-glass.png') no-repeat center/contain;"></div>
+                        </div>
+                    </div>
+                    <div class="clicker-shop">
+                        <div class="shop-header" style="padding:10px; background:#303134; text-align:center; font-weight:bold;">Магазин</div>
+                        <div id="storeList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="minesContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад</div>
+                <div class="mines-container">
+                    <div style="font-size: 18px; font-weight: bold; color: #bdc1c6; margin-bottom:10px;">САПЕР</div>
+                    <div class="mines-grid" id="minesGrid"></div>
+                    <button class="geo-btn" onclick="initMinesweeper()" style="padding: 10px 20px; margin-top:20px;">Заново</button>
+                </div>
+            </div>
+
+            <div id="snakeContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад</div>
+                <div class="snake-container">
+                    <div id="snakeScore" style="font-size: 20px; font-weight: bold;">Счет: 0</div>
+                    <canvas id="snake-canvas" width="400" height="400"></canvas>
+                    
+                    <div class="snake-controls" style="display:none;" id="mobileSnakeControls">
+                        <div></div>
+                        <div class="s-btn" onclick="setSnakeDir(0, -1)">▲</div>
+                        <div></div>
+                        <div class="s-btn" onclick="setSnakeDir(-1, 0)">◀</div>
+                        <div class="s-btn" onclick="setSnakeDir(0, 1)">▼</div>
+                        <div class="s-btn" onclick="setSnakeDir(1, 0)">▶</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="geoContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад</div>
+                <div class="geo-container">
+                    <div id="geoScoreDisplay" style="font-size: 20px; font-weight: bold; color: #8ab4f8;">Счет: 0</div>
+                    <div id="geoFlag"></div>
+                    <div id="geoOptions"></div>
+                </div>
+            </div>
+
+            <div id="casinoContainer" class="game-content">
+                <div class="back-to-menu" onclick="backToMenu()">← Назад</div>
+                <div class="casino-container">
+                    <div class="casino-card">
+                        <div class="balance-label">Баланс</div>
+                        <div id="casinoBalance" style="font-size:36px; color:#81c995; margin:10px 0;">$10</div>
+                        <div class="bet-input-wrap">
+                            <input type="number" id="casinoBet" value="10" min="1" style="width:100%; box-sizing:border-box; padding:10px; background:#303134; border:1px solid #3c4043; color:#fff; border-radius:8px;">
+                            <div class="bet-btns">
+                                <button class="geo-btn" style="padding: 10px;" onclick="adjustBet(0.5)">x0.5</button>
+                                <button class="geo-btn" style="padding: 10px;" onclick="adjustBet(2)">x2</button>
+                            </div>
+                        </div>
+                        <button class="bet-action" style="width:100%; margin-top:10px;" onclick="playCasino()">ПОСТАВИТЬ</button>
+                        <div id="casinoMsg"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+    // --- ПРОВЕРКА МОБИЛЬНОСТИ ---
+    var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent) || window.innerWidth < 768;
+    if(isMobile) {
+        // Показываем кнопки змейки на мобильном
+        document.addEventListener("DOMContentLoaded", () => {
+             const controls = document.getElementById('mobileSnakeControls');
+             if(controls) controls.style.display = 'grid';
+        });
+    }
+
+    // --- ДАННЫЕ И ПЕРЕВОД ---
+    const beerMap = {'А': 'влдаолдцт3894', 'Б': '78ем9т4325243895тм72', 'В': 'атдлжиыфвеи0653', 'Г': 'тмщышевз34', 'Д': '34три537уиадлвы', 'Е': 'ь02м392м7', 'Ё': 'ь02м392м8', 'Ж': 'тт32м4о35т2', 'З': '3и45рт647ь8', 'И': '49и357т7т50иц7', 'Й': '49и357т7т50иц8', 'К': 'тй89и5446', 'Л': '7ьт47тть75', 'М': '7ь65бь47456ь7', 'Н': '8674ь5б867куекв', 'О': 'ь7т3567о5643654', 'П': 'т76376534ывтн', 'Р': 'вьтапгь67767ь5ке', 'С': 'пиавые54', 'Т': 'т65436отекнр', 'У': '6т54у65т6цу3', 'Ф': '74567о5тнит7546', 'Х': '547т456756т85', 'Ц': '7ль564л7от546р546', 'Ч': '87645ьт5куьлнаенген', 'Ш': 'аеткуну45654н', 'Щ': 'аеткуну45654н1', 'Ъ': '22987т6и0222лвдпфы1', 'Ы': '22987т6и0222лвдпфы3', 'Ь': '22987т6и0222лвдпфы2', 'Э': '638ь54и96346и0345', 'Ю': 'е0ц4539и587т3450879345', 'Я': 'еьекутнтек6ня', 'A': 'z99x11v', 'B': 'bb77beer00', 'C': 'c_shakal_99', 'D': 'd88_vottak_2', 'E': 'e_pivo_1', 'F': 'f_44_ff', 'G': 'g_top_g_7', 'H': 'h_hh_888', 'I': 'i_eye_111', 'J': 'j_jack_55', 'K': 'k_kick_0', 'L': 'l_lose_77', 'M': 'm_m_444555', 'N': 'n_nitro_9', 'O': 'o_zero_00', 'P': 'p_pub_4', 'Q': 'q_quest_1', 'R': 'r_root_66', 'S': 's_snk_33', 'T': 't_tank_4', 'U': 'u_unit_22', 'V': 'v_v_666', 'W': 'w_wow_7', 'X': 'x_xxx_0', 'Y': 'y_yes_9', 'Z': 'z_zzz_1'};
+    const reverseCodes = Object.entries(beerMap).map(([letter, code]) => ({ letter, code })).sort((a, b) => b.code.length - a.code.length);
+    let isBeerToText = false;
+
+    function toggleMode() {
+        isBeerToText = !isBeerToText;
+        document.getElementById('left-label').classList.toggle('inactive');
+        document.getElementById('right-label').classList.toggle('inactive');
+        document.getElementById('input-text').value = '';
+        document.getElementById('output-field').innerText = '';
+    }
+
+    function doTranslate() {
+        const input = document.getElementById('input-text').value;
+        const output = document.getElementById('output-field');
+        if (!input) { output.innerText = ''; return; }
+        if (!isBeerToText) {
+            let res = '';
+            for (let char of input.toUpperCase()) { res += beerMap[char] || char; }
+            output.innerText = res;
+        } else {
+            let res = ''; let i = 0;
+            while (i < input.length) {
+                let found = false;
+                for (let item of reverseCodes) {
+                    if (input.substr(i, item.code.length) === item.code) { res += item.letter; i += item.code.length; found = true; break; }
+                }
+                if (!found) { res += input[i]; i++; }
+            }
+            output.innerText = res.toLowerCase();
+        }
+    }
+
+    function clearInput() { document.getElementById('input-text').value = ''; doTranslate(); }
+    function copyToClipboard() { const text = document.getElementById('output-field').innerText; if(text) navigator.clipboard.writeText(text); }
+
+    // --- МОДАЛКА И СИСТЕМА ---
+    const modal = document.getElementById('gameModal');
+    const menu = document.getElementById('gameMenu');
+    let activeIntervals = [];
+
+    function openGameModal() { modal.style.display = 'flex'; backToMenu(); }
+    function closeGameModal() { modal.style.display = 'none'; stopAllGames(); }
+    function backToMenu() {
+        stopAllGames();
+        menu.style.display = 'grid';
+        document.getElementById('gameTitle').innerText = 'Игровое Меню';
+        ['forumContainer', 'clickerContainer', 'minesContainer', 'snakeContainer', 'geoContainer', 'casinoContainer'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+    }
+    function stopAllGames() { activeIntervals.forEach(clearInterval); activeIntervals = []; }
+
+    // ============================================================
+    // ЧАТ
+    // ============================================================
+    
+    const API_URL = 'https://beer-chat-worker.spiderkaras.workers.dev'; 
+
+    let currentUser = null;
+    const USERS_KEY = 'beerChatUser';
+    let chatUpdateInterval = null;
+    let pendingAttachments = []; 
+    let pendingVoice = null;     
+    let mediaRecorder = null;
+    let audioChunks = [];
+
+    function compressImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxSize = 300; 
+                    if (width > height) {
+                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+                    } else {
+                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.5));
+                };
+            };
+        });
+    }
+
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    function loadCurrentUser() {
+        const saved = localStorage.getItem(USERS_KEY);
+        if (saved) {
+            try {
+                currentUser = JSON.parse(saved);
+                return true;
+            } catch (e) {}
+        }
+        return false;
+    }
+
+    function saveCurrentUser() {
+        if (currentUser) localStorage.setItem(USERS_KEY, JSON.stringify(currentUser));
+        else localStorage.removeItem(USERS_KEY);
+    }
+
+    function showAuthTab(tab) {
+        document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));
+        if (tab === 'register') {
+            document.querySelector('.auth-tab').classList.add('active');
+            document.getElementById('registerForm').classList.add('active');
+        } else {
+            document.querySelectorAll('.auth-tab')[1].classList.add('active');
+            document.getElementById('loginForm').classList.add('active');
+        }
+    }
+
+    document.getElementById('regAvatarInput').addEventListener('change', async function() {
+        const f = this.files[0];
+        if (!f || !f.type.startsWith('image/')) return;
+        const img = document.getElementById('regAvatarPreview');
+        img.style.display = 'block';
+        const compressed = await compressImage(f);
+        img.src = compressed;
+    });
+
+    async function doRegister() {
+        const nickname = (document.getElementById('regNickname').value || '').trim();
+        const password = (document.getElementById('regPassword').value || '').trim();
+        const codeWord = (document.getElementById('regCodeWord').value || '').trim();
+        const avatarFile = document.getElementById('regAvatarInput').files[0];
+        
+        if (!nickname) { alert('Введите никнейм'); return; }
+        if (!password) { alert('Введите пароль'); return; }
+        if (!codeWord) { alert('Введите кодовое слово'); return; }
+
+        let avatarBase64 = '';
+        if (avatarFile) {
+            try {
+                avatarBase64 = await compressImage(avatarFile);
+            } catch(e) { console.error(e); }
+        }
+
+        const userId = Date.now();
+        currentUser = { id: userId, nickname: nickname, avatarUrl: avatarBase64, guest: false };
+        saveCurrentUser();
+        
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+        refreshChatUI();
+        
+        document.getElementById('regNickname').value = '';
+        document.getElementById('regPassword').value = '';
+        document.getElementById('regCodeWord').value = '';
+    }
+
+    async function doLogin() {
+        const nickname = (document.getElementById('loginNickname').value || '').trim();
+        if (!nickname) { alert('Введите ник'); return; }
+        currentUser = { id: Date.now(), nickname: nickname, avatarUrl: '', guest: false };
+        saveCurrentUser();
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+        refreshChatUI();
+    }
+
+    function doLogout() {
+        currentUser = null;
+        saveCurrentUser();
+        document.getElementById('authScreen').style.display = 'block';
+        document.getElementById('chatArea').style.display = 'none';
+    }
+
+    function enterAsGuest() {
+        currentUser = { guest: true, nickname: 'Гость', id: null, avatarUrl: '' };
+        saveCurrentUser();
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+        refreshChatUI();
+    }
+
+    function refreshChatUI() {
+        if (!currentUser) return;
+        document.getElementById('myNickname').innerText = currentUser.nickname;
+        
+        const img = document.getElementById('myAvatarImg');
+        if (currentUser.avatarUrl) {
+            img.style.display = 'block';
+            img.src = currentUser.avatarUrl;
+        } else {
+            img.style.display = 'none';
+        }
+
+        const guestNotice = document.getElementById('guestLimitNotice');
+        if (currentUser.guest) {
+            guestNotice.style.display = 'block';
+            document.getElementById('guestLimitCount').innerText = '0';
+        } else {
+            guestNotice.style.display = 'none';
+        }
+    }
+
+    async function handleFileSelect(input) {
+        if (!input.files || input.files.length === 0) return;
+        
+        for (let file of input.files) {
+            try {
+                let finalData = '';
+                if (file.type.startsWith('image/')) {
+                    finalData = await compressImage(file);
+                } else {
+                    if (file.size > 1 * 1024 * 1024) {
+                        alert(`Файл ${file.name} слишком большой!`);
+                        continue;
+                    }
+                    finalData = await fileToBase64(file);
+                }
+                pendingAttachments.push({
+                    name: file.name,
+                    type: file.type,
+                    data: finalData
+                });
+            } catch (e) { console.error(e); }
+        }
+        input.value = ''; 
+        renderAttachmentsPreview();
+    }
+
+    function renderAttachmentsPreview() {
+        const div = document.getElementById('attachmentsPreview');
+        div.innerHTML = '';
+        
+        pendingAttachments.forEach((att, idx) => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.innerHTML = `📄 ${att.name.substring(0, 10)}... <span class="remove-attach" onclick="removeAttachment(${idx})">✖</span>`;
+            div.appendChild(item);
+        });
+
+        if (pendingVoice) {
+            const vItem = document.createElement('div');
+            vItem.className = 'preview-item';
+            vItem.innerHTML = `🎤 Аудио <span class="remove-attach" onclick="removeVoice()">✖</span>`;
+            div.appendChild(vItem);
+        }
+    }
+
+    function removeAttachment(idx) { pendingAttachments.splice(idx, 1); renderAttachmentsPreview(); }
+    function removeVoice() { pendingVoice = null; renderAttachmentsPreview(); }
+
+    async function toggleVoiceRecord() {
+        const btn = document.getElementById('voiceBtn');
+        
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            btn.classList.remove('recording');
+            btn.style.color = '#9aa0a6';
+        } else {
+            if (!navigator.mediaDevices) { alert('Нет доступа к микро'); return; }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                let options = { audioBitsPerSecond: 32000 };
+                try { mediaRecorder = new MediaRecorder(stream, options); } catch (e) { mediaRecorder = new MediaRecorder(stream); }
+                audioChunks = [];
+                mediaRecorder.ondataavailable = event => { if (event.data.size > 0) audioChunks.push(event.data); };
+                mediaRecorder.onstop = async () => {
+                    const type = (audioChunks[0] && audioChunks[0].type) || 'audio/webm';
+                    const audioBlob = new Blob(audioChunks, { type: type });
+                    if (audioBlob.size > 1024 * 1024) { alert('Голосовое слишком большое!'); return; }
+                    try {
+                        const b64 = await fileToBase64(audioBlob);
+                        pendingVoice = b64;
+                        renderAttachmentsPreview();
+                    } catch(e) {}
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                mediaRecorder.start();
+                btn.classList.add('recording');
+                btn.style.color = '#ea4335';
+            } catch (err) { alert('Ошибка микро: ' + err.message); }
+        }
+    }
+
+    function escapeHtml(text) {
+        if (!text) return "";
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    async function sendPost() {
+        if (!currentUser) return;
+        const text = document.getElementById('forumText').value.trim();
+        if (!text && pendingAttachments.length === 0 && !pendingVoice) return;
+        const btn = document.getElementById('sendPostBtn');
+        btn.disabled = true;
+
+        let safeAvatar = currentUser.avatarUrl;
+        if (safeAvatar && safeAvatar.length > 50000) safeAvatar = null; 
+
+        const payload = { 
+            user: currentUser.nickname, 
+            text: text,
+            avatar: safeAvatar,
+            attachments: pendingAttachments,
+            voice: pendingVoice
+        };
+
+        const jsonStr = JSON.stringify(payload);
+        if (jsonStr.length > 1 * 1024 * 1024) { 
+             alert('Слишком много данных!'); btn.disabled = false; return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: jsonStr
+            });
+            if (!response.ok) throw new Error('Ошибка ' + response.status);
+
+            document.getElementById('forumText').value = '';
+            pendingAttachments = [];
+            pendingVoice = null;
+            renderAttachmentsPreview();
+            await loadForumMessages();
+        } catch (error) {
+            alert('Ошибка отправки. Попробуйте только текст.');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function loadForumMessages() {
+        try {
+            const response = await fetch(`${API_URL}/messages`);
+            if (!response.ok) throw new Error('Err');
+            
+            const messages = await response.json();
+            const cont = document.getElementById('forumPosts');
+            cont.innerHTML = "";
+            
+            if (!messages || messages.length === 0) {
+                cont.innerHTML = '<div style="text-align:center;padding:20px;color:#9aa0a6;">Пусто...</div>';
+                return;
+            }
+
+            messages.forEach(msg => {
+                const card = document.createElement("div");
+                card.className = "post-card";
+                if (currentUser && (msg.user === currentUser.nickname)) card.classList.add('own-post');
+
+                let avatarHtml = `<div class="post-avatar">💬</div>`;
+                if (msg.avatar) avatarHtml = `<img src="${msg.avatar}" class="post-avatar">`;
+
+                let attachmentsHtml = '';
+                if (msg.attachments) {
+                    msg.attachments.forEach(att => {
+                        if (att.data) {
+                            if (att.type.startsWith('image/')) {
+                                attachmentsHtml += `<img src="${att.data}" class="post-img" onclick="window.open(this.src)">`;
+                            } else {
+                                attachmentsHtml += `<a href="${att.data}" download="${att.name}" style="display:block;margin-top:5px;color:#8ab4f8;">📎 ${escapeHtml(att.name)}</a>`;
+                            }
+                        }
+                    });
+                }
+                let voiceHtml = '';
+                if (msg.voice) voiceHtml = `<div style="margin-top:5px;"><audio controls src="${msg.voice}" style="height:30px; width:200px;"></audio></div>`;
+
+                card.innerHTML = `
+                    <div class="post-author">${avatarHtml} <span>${escapeHtml(msg.user)}</span></div>
+                    <div class="post-text">${escapeHtml(msg.text)}</div>
+                    ${attachmentsHtml} ${voiceHtml}
+                `;
+                cont.appendChild(card);
+            });
+        } catch (error) {}
+    }
+
+    function openForum() {
+        menu.style.display = 'none';
+        document.getElementById('forumContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Чат';
+        
+        if (loadCurrentUser()) {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('chatArea').style.display = 'flex';
+            refreshChatUI();
+            loadForumMessages();
+            if (chatUpdateInterval) clearInterval(chatUpdateInterval);
+            chatUpdateInterval = setInterval(loadForumMessages, 3000); 
+            activeIntervals.push(chatUpdateInterval);
+        } else {
+            document.getElementById('authScreen').style.display = 'block';
+            document.getElementById('chatArea').style.display = 'none';
+        }
+    }
+
+    // --- BEER CLICKER ---
+    let cookies = 0;
+    let buildings = [
+        { id: 0, name: 'Курсор', baseCost: 15, count: 0, cps: 0.1, icon: '👆' },
+        { id: 1, name: 'Бабушка', baseCost: 100, count: 0, cps: 1, icon: '👵' },
+        { id: 2, name: 'Хмель', baseCost: 1100, count: 0, cps: 8, icon: '🌾' },
+        { id: 3, name: 'Шахта', baseCost: 12000, count: 0, cps: 47, icon: '⛏️' },
+        { id: 4, name: 'Завод', baseCost: 130000, count: 0, cps: 260, icon: '🏭' },
+        { id: 5, name: 'Банк', baseCost: 1400000, count: 0, cps: 1400, icon: '🏦' },
+        { id: 6, name: 'Храм', baseCost: 20000000, count: 0, cps: 7800, icon: '🏛️' }
+    ];
+
+    function getBuildingCost(b) { return Math.floor(b.baseCost * Math.pow(1.15, b.count)); }
+
+    function openClicker() {
+        menu.style.display = 'none';
+        document.getElementById('clickerContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Clicker';
+        
+        let saved = localStorage.getItem('beerClickerSave');
+        if(saved) {
+            let parsed = JSON.parse(saved);
+            cookies = parsed.cookies;
+            parsed.buildings.forEach((savedB, index) => { if(buildings[index]) buildings[index].count = savedB.count; });
+        }
+        renderStore();
+        activeIntervals.push(setInterval(() => {
+            let totalCps = buildings.reduce((sum, b) => sum + (b.count * b.cps), 0);
+            cookies += totalCps / 10;
+            updateClickerUI();
+        }, 100));
+    }
+
+    function updateClickerUI() {
+        document.getElementById('beerCount').innerText = Math.floor(cookies);
+        let totalCps = buildings.reduce((sum, b) => sum + (b.count * b.cps), 0);
+        document.getElementById('beerCps').innerText = '/сек: ' + totalCps.toFixed(1);
+        
+        buildings.forEach(b => {
+            let el = document.getElementById('building-' + b.id);
+            if(el) {
+                if(cookies >= getBuildingCost(b)) el.style.opacity = '1'; else el.style.opacity = '0.5';
+            }
+        });
+    }
+
+    function renderStore() {
+        const store = document.getElementById('storeList');
+        store.innerHTML = '';
+        buildings.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'building-item';
+            item.id = 'building-' + b.id;
+            item.style.display = "flex";
+            item.style.alignItems = "center";
+            item.style.borderBottom = "1px solid #3c4043";
+            item.innerHTML = `
+                <div class="b-icon">${b.icon}</div>
+                <div style="flex:1">
+                    <div class="b-name">${b.name}</div>
+                    <div class="b-cost" style="color:#81c995">${getBuildingCost(b)}</div>
+                </div>
+                <div class="b-count" style="font-size:18px; font-weight:bold; color:#5f6368">${b.count}</div>
+            `;
+            item.onclick = () => {
+                let cost = getBuildingCost(b);
+                if(cookies >= cost) { cookies -= cost; b.count++; renderStore(); updateClickerUI(); }
+            };
+            store.appendChild(item);
+        });
+    }
+
+    function saveClicker() {
+        localStorage.setItem('beerClickerSave', JSON.stringify({
+            cookies: cookies,
+            buildings: buildings.map(b => ({ count: b.count }))
+        }));
+    }
+
+    document.getElementById('bigCookie').onclick = (e) => {
+        cookies++;
+        updateClickerUI();
+        
+        // Анимация клика (упрощенная)
+        const plus = document.createElement('div');
+        plus.innerText = '+1';
+        plus.style.position = 'absolute';
+        
+        // Коррекция позиции для тача
+        let cx = e.clientX; 
+        let cy = e.clientY;
+        // Если клик не мышкой (напр тач), координаты могут быть другими, но e.client работает обычно
+        
+        plus.style.left = cx + 'px';
+        plus.style.top = cy - 20 + 'px';
+        plus.style.color = '#fff';
+        plus.style.fontWeight = 'bold';
+        plus.style.zIndex = '1000';
+        plus.style.pointerEvents = 'none';
+        document.body.appendChild(plus);
+        
+        setTimeout(() => plus.remove(), 500);
+    };
+
+    // --- САПЕР ---
+    function openMines() {
+        menu.style.display = 'none';
+        document.getElementById('minesContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Сапер';
+        initMinesweeper();
+    }
+    function initMinesweeper() {
+        const grid = document.getElementById('minesGrid');
+        grid.innerHTML = '';
+        let minesCount = 12;
+        let cells = [];
+        for(let i=0; i<100; i++) cells.push({ mine: false, revealed: false });
+        for(let i=0; i<minesCount; i++) {
+            let r = Math.floor(Math.random()*100);
+            if(cells[r].mine) i--; else cells[r].mine = true;
+        }
+        cells.forEach((c) => {
+            const cell = document.createElement('div');
+            cell.className = 'mine-cell';
+            cell.style.background = '#bdc1c6';
+            cell.style.display = 'flex';
+            cell.style.alignItems = 'center';
+            cell.style.justifyContent = 'center';
+            cell.style.cursor = 'pointer';
+            
+            cell.onclick = () => {
+                if(c.mine) { 
+                    cell.style.background = '#ea4335';
+                    cell.innerText = '💣';
+                    setTimeout(() => { alert('БАБАХ!'); initMinesweeper(); }, 100);
+                }
+                else {
+                    cell.style.background = '#d1d1d1';
+                    cell.innerText = '';
+                }
+            };
+            grid.appendChild(cell);
+        });
+    }
+
+    // --- ЗМЕЙКА ---
+    let snakeDx = 1, snakeDy = 0;
+    
+    function openSnake() {
+        menu.style.display = 'none';
+        document.getElementById('snakeContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Змейка';
+        initSnakeGame();
+    }
+    
+    function setSnakeDir(x, y) {
+        if (x !== 0 && snakeDx === 0) { snakeDx = x; snakeDy = 0; }
+        if (y !== 0 && snakeDy === 0) { snakeDx = 0; snakeDy = y; }
+    }
+
+    function initSnakeGame() {
+        const canvas = document.getElementById('snake-canvas');
+        const ctx = canvas.getContext('2d');
+        // Сброс направления
+        snakeDx = 1; snakeDy = 0;
+        
+        let score = 0;
+        let snake = [{x: 10, y: 10}];
+        let food = {x: 15, y: 15};
+        
+        document.onkeydown = (e) => {
+            if(e.key === 'ArrowUp') setSnakeDir(0, -1);
+            if(e.key === 'ArrowDown') setSnakeDir(0, 1);
+            if(e.key === 'ArrowLeft') setSnakeDir(-1, 0);
+            if(e.key === 'ArrowRight') setSnakeDir(1, 0);
+        };
+
+        activeIntervals.push(setInterval(() => {
+            let head = {x: snake[0].x + snakeDx, y: snake[0].y + snakeDy};
+            // Проверка границ
+            if(head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) { 
+                alert('Счет: ' + score); backToMenu(); return; 
+            }
+            // Проверка хвоста
+            for(let part of snake) {
+                if(part.x === head.x && part.y === head.y) { alert('Счет: ' + score); backToMenu(); return; }
+            }
+
+            snake.unshift(head);
+            if(head.x === food.x && head.y === food.y) {
+                score++; document.getElementById('snakeScore').innerText = 'Счет: ' + score;
+                food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+            } else snake.pop();
+            
+            ctx.fillStyle = '#000'; ctx.fillRect(0,0,400,400);
+            ctx.fillStyle = '#ea4335'; ctx.fillRect(food.x*20, food.y*20, 18, 18);
+            ctx.fillStyle = '#81c995';
+            snake.forEach(p => ctx.fillRect(p.x*20, p.y*20, 18, 18));
+        }, 150));
+    }
+
+    // --- ФЛАГИ ---
+    const flagData = [
+        { f: '🇷🇺', n: 'Россия' }, { f: '🇺🇸', n: 'США' }, { f: '🇩🇪', n: 'Германия' }, { f: '🇫🇷', n: 'Франция' },
+        { f: '🇯🇵', n: 'Япония' }, { f: '🇨🇳', n: 'Китай' }, { f: '🇬🇧', n: 'Великобритания' }, { f: '🇧🇷', n: 'Бразилия' },
+        { f: '🇮🇹', n: 'Италия' }, { f: '🇰🇷', n: 'Корея' }, { f: '🇪🇸', n: 'Испания' }, { f: '🇰🇿', n: 'Казахстан' }
+    ];
+    let geoScore = 0;
+    function openGeo() {
+        menu.style.display = 'none';
+        document.getElementById('geoContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Флаги';
+        nextFlag();
+    }
+    function nextFlag() {
+        const correct = flagData[Math.floor(Math.random()*flagData.length)];
+        document.getElementById('geoFlag').innerText = correct.f;
+        const opts = document.getElementById('geoOptions');
+        opts.innerHTML = '';
+        opts.style.display = 'grid';
+        opts.style.gap = '10px';
+        
+        let options = [correct.n];
+        while(options.length < 4) {
+            let r = flagData[Math.floor(Math.random()*flagData.length)].n;
+            if(!options.includes(r)) options.push(r);
+        }
+        options.sort(() => Math.random() - 0.5).forEach(o => {
+            const b = document.createElement('button');
+            b.className = 'geo-btn';
+            b.style.background = '#303134';
+            b.style.color = '#fff';
+            b.style.border = '1px solid #3c4043';
+            b.style.borderRadius = '8px';
+            b.innerText = o;
+            b.onclick = () => {
+                if(o === correct.n) { geoScore++; alert('Верно!'); }
+                else { geoScore = 0; alert('Ошибка! Это: ' + correct.n); }
+                document.getElementById('geoScoreDisplay').innerText = 'Счет: ' + geoScore;
+                nextFlag();
+            };
+            opts.appendChild(b);
+        });
+    }
+
+    // --- КАЗИНО ---
+    let casinoBalance = 10;
+    function openCasino() {
+        menu.style.display = 'none';
+        document.getElementById('casinoContainer').style.display = 'flex';
+        document.getElementById('gameTitle').innerText = 'Казино';
+        updateCasinoUI();
+    }
+    function updateCasinoUI() { document.getElementById('casinoBalance').innerText = '$' + casinoBalance; }
+    function adjustBet(mult) {
+        let bet = parseInt(document.getElementById('casinoBet').value);
+        document.getElementById('casinoBet').value = Math.floor(bet * mult);
+    }
+    function playCasino() {
+        let bet = parseInt(document.getElementById('casinoBet').value);
+        if(isNaN(bet) || bet <= 0 || bet > casinoBalance) { alert('Неверная ставка!'); return; }
+        const msg = document.getElementById('casinoMsg');
+        if(Math.random() < 0.45) {
+            casinoBalance += bet;
+            msg.innerText = 'ВЫИГРАЛ +$' + bet; msg.style.color = '#81c995';
+        } else {
+            casinoBalance -= bet;
+            msg.innerText = 'ПРОИГРАЛ -$' + bet; msg.style.color = '#ea4335';
+        }
+        updateCasinoUI();
+        if(casinoBalance <= 0) { alert('Вы все пропили! Держи $10.'); casinoBalance = 10; updateCasinoUI(); }
+    }
+</script>
 </body>
 </html>
