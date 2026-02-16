@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beer Translate & Games Ultimate (Optimized)</title>
+    <title>Beer Translate & Games Ultimate (FIXED)</title>
     <style>
         /* --- ОСНОВНЫЕ СТИЛИ --- */
         body { background-color: #121316; color: #e8eaed; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
@@ -140,8 +140,8 @@
         /* САПЕР */
         .mines-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 20px; }
         .mines-grid { display: grid; grid-template-columns: repeat(10, 32px); grid-template-rows: repeat(10, 32px); gap: 2px; background: #3c4043; border: 3px solid #3c4043; border-radius: 4px; }
-        .mine-cell { width: 32px; height: 32px; background: #bdc1c6; border: 2px solid; border-color: #eee #888 #888 #eee; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; font-size: 18px; }
-        .mine-cell.revealed { background: #d1d1d1; border: 1px solid #999; }
+        .mine-cell { width: 32px; height: 32px; background: #bdc1c6; border: 2px solid; border-color: #eee #888 #888 #eee; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; font-size: 18px; color: #333; }
+        .mine-cell.revealed { background: #d1d1d1; border: 1px solid #999; cursor: default; }
         .mine-cell.mine { background: #ea4335; }
 
         /* ЗМЕЙКА */
@@ -175,7 +175,7 @@
             <a href="https://www.roblox.com/games/111530421351096/You-VS-Homer#!/game-instances" class="secret-link">B</a>ee<a href="https://beerlanguage.ru/rat" class="secret-link">r</a> 
             Tran<a href="https://beerlanguage.ru/Caesar" class="secret-link">s</a>late & Games
         </h1>
-        <span class="author-tag">Ultimate Edition (Optimized)</span>
+        <span class="author-tag">Ultimate Edition (Fixed)</span>
     </div>
 
     <div class="translator-container" id="main-block">
@@ -216,7 +216,7 @@
                 <div class="game-card" onclick="openForum()">
                     <div class="icon">💬</div>
                     <div class="name">ЖИВОЙ ЧАТ</div>
-                    <div class="desc">Общение в реальном времени</div>
+                    <div class="desc">Общение (Локальный сервер)</div>
                 </div>
                 <div class="game-card" onclick="openClicker()">
                     <div class="icon">🍺</div>
@@ -255,7 +255,7 @@
                     </div>
                     
                     <div class="guest-row">
-                        <button type="button" class="auth-submit guest-btn" onclick="enterAsGuest()">Без аккаунта (10 сообщ. / 20 мин)</button>
+                        <button type="button" class="auth-submit guest-btn" onclick="enterAsGuest()">Без аккаунта (Гость)</button>
                     </div>
                     
                     <div id="registerForm" class="auth-form active">
@@ -301,18 +301,14 @@
                                 <span class="logout-btn" onclick="doLogout()">Выйти</span>
                             </div>
                             <div class="guest-limit-notice" id="guestLimitNotice" style="display:none;">
-                                Без аккаунта: <span id="guestLimitCount">0</span> из 10 сообщений за 20 мин. <a href="#" onclick="showAuthFromChat(); return false;">Зарегистрироваться</a> — без лимита.
-                            </div>
-                            <div class="slowmode-notice" id="slowmodeNotice">
-                                ⏳ Медленный режим: подождите <span class="slowmode-timer" id="slowmodeTimer">0</span> сек
+                                Режим гостя.
                             </div>
                             <div class="forum-toolbar">
                                 <button type="button" class="attach-btn" title="Прикрепить файл" onclick="document.getElementById('attachFileInput').click()">📎</button>
-                                <button type="button" class="voice-btn" id="voiceBtn" title="Голосовое сообщение" onclick="toggleVoiceRecord()">🎤</button>
                             </div>
                             <input type="file" id="attachFileInput" multiple style="display:none;" onchange="handleFileSelect(this)">
                             <div class="attachments-preview" id="attachmentsPreview"></div>
-                            <textarea id="forumText" placeholder="Сообщение... (или ссылка на GIF)" maxlength="500"></textarea>
+                            <textarea id="forumText" placeholder="Сообщение..."></textarea>
                         </div>
                         <button class="send-btn" id="sendPostBtn" onclick="sendPost()">➤</button>
                     </div>
@@ -434,7 +430,10 @@
     let activeIntervals = [];
 
     function openGameModal() { modal.style.display = 'flex'; backToMenu(); }
-    function closeGameModal() { modal.style.display = 'none'; stopAllGames(); }
+    function closeGameModal() { 
+        modal.style.display = 'none'; 
+        stopAllGames(); 
+    }
     function backToMenu() {
         stopAllGames();
         menu.style.display = 'grid';
@@ -442,24 +441,26 @@
         ['forumContainer', 'clickerContainer', 'minesContainer', 'snakeContainer', 'geoContainer', 'casinoContainer'].forEach(id => {
             document.getElementById(id).style.display = 'none';
         });
+        document.onkeydown = null; // Сброс управления змейкой
     }
-    function stopAllGames() { activeIntervals.forEach(clearInterval); activeIntervals = []; }
+    function stopAllGames() { 
+        activeIntervals.forEach(clearInterval); 
+        activeIntervals = []; 
+        document.onkeydown = null;
+    }
 
     // ============================================================
-    // ЧАТ — CLOUDFLARE
+    // ЧАТ — LOCAL STORAGE FIX (Вместо сломанного сервера)
     // ============================================================
     
-    const API_URL = 'https://beer-chat-worker.spiderkaras.workers.dev'; 
+    // Эмуляция сервера через LocalStorage
+    const MOCK_DB_KEY = 'beerChatHistoryV2';
 
     let currentUser = null;
     const USERS_KEY = 'beerChatUser';
     let chatUpdateInterval = null;
     let pendingAttachments = []; 
-    let pendingVoice = null;     
-    let mediaRecorder = null;
-    let audioChunks = [];
 
-    // --- СЖАТИЕ ИЗОБРАЖЕНИЙ (OPTIMIZED) ---
     function compressImage(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -471,45 +472,23 @@
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
-                    
-                    // Уменьшаем размер еще сильнее для спасения сервера
-                    // Было 800, стало 300
-                    const maxSize = 300; 
-                    if (width > height) {
-                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
-                    } else {
-                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
-                    }
-                    
+                    const maxSize = 200; // Очень маленькое для LocalStorage
+                    if (width > height) { if (width > maxSize) { height *= maxSize / width; width = maxSize; } } 
+                    else { if (height > maxSize) { width *= maxSize / height; height = maxSize; } }
                     canvas.width = width;
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Сжимаем в JPEG с качеством 0.5 (было 0.7)
                     resolve(canvas.toDataURL('image/jpeg', 0.5));
                 };
             };
         });
     }
 
-    // Вспомогательная для НЕ картинок
-    function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-    }
-
     function loadCurrentUser() {
         const saved = localStorage.getItem(USERS_KEY);
         if (saved) {
-            try {
-                currentUser = JSON.parse(saved);
-                return true;
-            } catch (e) {}
+            try { currentUser = JSON.parse(saved); return true; } catch (e) {}
         }
         return false;
     }
@@ -536,55 +515,27 @@
         if (!f || !f.type.startsWith('image/')) return;
         const img = document.getElementById('regAvatarPreview');
         img.style.display = 'block';
-        // Для превью сжимаем сразу, чтобы аватарка была легкой
-        const compressed = await compressImage(f);
-        img.src = compressed;
+        img.src = await compressImage(f);
     });
 
     async function doRegister() {
         const nickname = (document.getElementById('regNickname').value || '').trim();
-        const password = (document.getElementById('regPassword').value || '').trim();
-        const codeWord = (document.getElementById('regCodeWord').value || '').trim();
-        const avatarFile = document.getElementById('regAvatarInput').files[0];
-        
         if (!nickname) { alert('Введите никнейм'); return; }
-        if (!password) { alert('Введите пароль'); return; }
-        if (!codeWord) { alert('Введите кодовое слово'); return; }
-
         let avatarBase64 = '';
-        if (avatarFile) {
-            try {
-                // Сжимаем аватарку
-                avatarBase64 = await compressImage(avatarFile);
-            } catch(e) {
-                console.error(e);
-            }
-        }
+        const avatarFile = document.getElementById('regAvatarInput').files[0];
+        if (avatarFile) avatarBase64 = await compressImage(avatarFile);
 
-        const userId = Date.now();
-        currentUser = { id: userId, nickname: nickname, avatarUrl: avatarBase64, guest: false };
+        currentUser = { id: Date.now(), nickname: nickname, avatarUrl: avatarBase64, guest: false };
         saveCurrentUser();
-        
-        document.getElementById('authScreen').style.display = 'none';
-        document.getElementById('chatArea').style.display = 'flex';
-        refreshChatUI();
-        
-        document.getElementById('regNickname').value = '';
-        document.getElementById('regPassword').value = '';
-        document.getElementById('regCodeWord').value = '';
-        document.getElementById('regAvatarInput').value = '';
-        document.getElementById('regAvatarPreview').style.display = 'none';
+        enterChat();
     }
 
     async function doLogin() {
         const nickname = (document.getElementById('loginNickname').value || '').trim();
         if (!nickname) { alert('Введите ник'); return; }
-
         currentUser = { id: Date.now(), nickname: nickname, avatarUrl: '', guest: false };
         saveCurrentUser();
-        document.getElementById('authScreen').style.display = 'none';
-        document.getElementById('chatArea').style.display = 'flex';
-        refreshChatUI();
+        enterChat();
     }
 
     function doLogout() {
@@ -595,70 +546,33 @@
     }
 
     function enterAsGuest() {
-        currentUser = { guest: true, nickname: 'Гость', id: null, avatarUrl: '' };
+        currentUser = { guest: true, nickname: 'Гость_' + Math.floor(Math.random()*1000), id: null, avatarUrl: '' };
         saveCurrentUser();
+        enterChat();
+    }
+
+    function enterChat() {
         document.getElementById('authScreen').style.display = 'none';
         document.getElementById('chatArea').style.display = 'flex';
         refreshChatUI();
-    }
-
-    function showAuthFromChat() {
-        currentUser = null;
-        saveCurrentUser();
-        document.getElementById('chatArea').style.display = 'none';
-        document.getElementById('authScreen').style.display = 'block';
+        loadForumMessages();
     }
 
     function refreshChatUI() {
         if (!currentUser) return;
         document.getElementById('myUserIdDisplay').innerText = currentUser.guest ? 'гость' : currentUser.id;
         document.getElementById('myNickname').innerText = currentUser.nickname;
-        
         const img = document.getElementById('myAvatarImg');
-        if (currentUser.avatarUrl) {
-            img.style.display = 'block';
-            img.src = currentUser.avatarUrl;
-        } else {
-            img.style.display = 'none';
-        }
-
-        const guestNotice = document.getElementById('guestLimitNotice');
-        if (currentUser.guest) {
-            guestNotice.style.display = 'block';
-            document.getElementById('guestLimitCount').innerText = '0';
-        } else {
-            guestNotice.style.display = 'none';
-        }
+        img.style.display = currentUser.avatarUrl ? 'block' : 'none';
+        if (currentUser.avatarUrl) img.src = currentUser.avatarUrl;
     }
 
-    // --- РАБОТА С ФАЙЛАМИ И ГОЛОСОВЫМИ (ОПТИМИЗИРОВАНО) ---
-
-    // 1. Файлы (Скрепка)
     async function handleFileSelect(input) {
         if (!input.files || input.files.length === 0) return;
-        
         for (let file of input.files) {
-            try {
-                let finalData = '';
-                // Если картинка — сжимаем
-                if (file.type.startsWith('image/')) {
-                    finalData = await compressImage(file);
-                } else {
-                    // Если другой файл — проверяем размер (макс 1МБ для надежности)
-                    if (file.size > 1 * 1024 * 1024) {
-                        alert(`Файл ${file.name} слишком большой! Макс 1Мб для документов.`);
-                        continue;
-                    }
-                    finalData = await fileToBase64(file);
-                }
-
-                pendingAttachments.push({
-                    name: file.name,
-                    type: file.type,
-                    data: finalData
-                });
-            } catch (e) {
-                console.error(e);
+            if (file.type.startsWith('image/')) {
+                let d = await compressImage(file);
+                pendingAttachments.push({ name: file.name, type: file.type, data: d });
             }
         }
         input.value = ''; 
@@ -668,95 +582,17 @@
     function renderAttachmentsPreview() {
         const div = document.getElementById('attachmentsPreview');
         div.innerHTML = '';
-        
         pendingAttachments.forEach((att, idx) => {
             const item = document.createElement('div');
             item.className = 'preview-item';
             item.innerHTML = `📄 ${att.name.substring(0, 15)}... <span class="remove-attach" onclick="removeAttachment(${idx})">✖</span>`;
             div.appendChild(item);
         });
-
-        if (pendingVoice) {
-            const vItem = document.createElement('div');
-            vItem.className = 'preview-item';
-            vItem.innerHTML = `🎤 Аудиозапись <span class="remove-attach" onclick="removeVoice()">✖</span>`;
-            div.appendChild(vItem);
-        }
     }
 
     function removeAttachment(idx) {
         pendingAttachments.splice(idx, 1);
         renderAttachmentsPreview();
-    }
-
-    function removeVoice() {
-        pendingVoice = null;
-        renderAttachmentsPreview();
-    }
-
-    // 2. Голосовые (Микрофон - ОПТИМИЗАЦИЯ)
-    async function toggleVoiceRecord() {
-        const btn = document.getElementById('voiceBtn');
-        
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
-            mediaRecorder.stop();
-            btn.classList.remove('recording');
-        } else {
-            if (!navigator.mediaDevices) { alert('Микрофон недоступен'); return; }
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // Устанавливаем низкий битрейт для экономии места (32kbps достаточно для голоса)
-                let options = {
-                    audioBitsPerSecond: 32000
-                };
-                
-                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-                    options.mimeType = 'audio/webm;codecs=opus';
-                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                    options.mimeType = 'audio/mp4';
-                }
-
-                try {
-                    mediaRecorder = new MediaRecorder(stream, options);
-                } catch (e) {
-                    mediaRecorder = new MediaRecorder(stream);
-                }
-                
-                audioChunks = [];
-
-                mediaRecorder.ondataavailable = event => {
-                    if (event.data.size > 0) audioChunks.push(event.data);
-                };
-
-                mediaRecorder.onstop = async () => {
-                    const type = (audioChunks[0] && audioChunks[0].type) || 'audio/webm';
-                    const audioBlob = new Blob(audioChunks, { type: type });
-                    
-                    // Проверяем размер аудио
-                    if (audioBlob.size > 1 * 1024 * 1024) {
-                        alert('Голосовое слишком длинное/большое!');
-                        return;
-                    }
-
-                    try {
-                        const b64 = await fileToBase64(audioBlob);
-                        pendingVoice = b64;
-                        renderAttachmentsPreview();
-                    } catch(e) {
-                        alert("Ошибка обработки аудио: " + e.message);
-                    }
-                    
-                    stream.getTracks().forEach(track => track.stop());
-                };
-
-                mediaRecorder.start();
-                btn.classList.add('recording');
-            } catch (err) {
-                console.error(err);
-                alert('Ошибка доступа к микрофону: ' + err.message);
-            }
-        }
     }
 
     function escapeHtml(text) {
@@ -766,67 +602,42 @@
         return div.innerHTML;
     }
 
-    // --- ОТПРАВКА СООБЩЕНИЯ (FIXED) ---
+    // --- ОТПРАВКА И ПОЛУЧЕНИЕ (LOCAL STORAGE) ---
+    function getStoredMessages() {
+        let raw = localStorage.getItem(MOCK_DB_KEY);
+        return raw ? JSON.parse(raw) : [];
+    }
+
+    function saveStoredMessage(msg) {
+        let msgs = getStoredMessages();
+        msgs.push(msg);
+        if (msgs.length > 30) msgs.shift(); // Храним только последние 30 чтобы не забить память
+        localStorage.setItem(MOCK_DB_KEY, JSON.stringify(msgs));
+    }
+
     async function sendPost() {
         if (!currentUser) return;
         const text = document.getElementById('forumText').value.trim();
-        
-        if (!text && pendingAttachments.length === 0 && !pendingVoice) return;
+        if (!text && pendingAttachments.length === 0) return;
 
-        const btn = document.getElementById('sendPostBtn');
-        btn.disabled = true;
-
-        // ВАЖНО: Если аватарка есть, проверяем её размер.
-        // Если она больше 50кб, мы не отправляем её, чтобы не убить сервер.
-        let safeAvatar = currentUser.avatarUrl;
-        if (safeAvatar && safeAvatar.length > 50000) {
-            console.warn("Аватарка слишком тяжелая, отправляется без неё");
-            safeAvatar = null; 
-        }
-
-        const payload = { 
-            user: currentUser.nickname, 
+        const msg = {
+            id: Date.now(),
+            user: currentUser.nickname,
             text: text,
-            avatar: safeAvatar,
+            avatar: currentUser.avatarUrl,
             attachments: pendingAttachments,
-            voice: pendingVoice
+            created_at: new Date().toISOString()
         };
 
-        const jsonStr = JSON.stringify(payload);
-        
-        // УМЕНЬШЕН ЛИМИТ: Сервер падает от больших запросов. 
-        // Ставим лимит 1 МБ вместо 6 МБ.
-        if (jsonStr.length > 1 * 1024 * 1024) { 
-             alert('Файл слишком большой для этого сервера! Максимум 1 МБ.');
-             btn.disabled = false;
-             return;
-        }
-
         try {
-            const response = await fetch(`${API_URL}/messages`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: jsonStr
-            });
-
-            // Если сервер вернул 500
-            if (response.status === 500) {
-                throw new Error('Сервер переполнен или недоступен (Ошибка 500)');
-            }
-            
-            if (!response.ok) throw new Error('Ошибка отправки: ' + response.status);
-
+            saveStoredMessage(msg); // Сохраняем "на сервере"
             document.getElementById('forumText').value = '';
             pendingAttachments = [];
-            pendingVoice = null;
             renderAttachmentsPreview();
-            
-            await loadForumMessages();
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Не удалось отправить: ' + error.message + '\nПопробуйте отправить только текст без картинок.');
-        } finally {
-            btn.disabled = false;
+            loadForumMessages();
+        } catch(e) {
+            alert("Память браузера переполнена! Очистка истории...");
+            localStorage.removeItem(MOCK_DB_KEY);
         }
     }
 
@@ -834,108 +645,64 @@
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPost(); }
     });
 
-    // --- ЗАГРУЗКА СООБЩЕНИЙ ---
     async function loadForumMessages() {
-        try {
-            const response = await fetch(`${API_URL}/messages`);
-            if (!response.ok) throw new Error('Ошибка загрузки');
+        const messages = getStoredMessages();
+        const cont = document.getElementById('forumPosts');
+        cont.innerHTML = "";
+        
+        if (!messages || messages.length === 0) {
+            cont.innerHTML = '<div style="text-align:center;padding:40px;color:#9aa0a6;">📭 Чат пуст. Напишите что-нибудь!</div>';
+            return;
+        }
+
+        messages.forEach(msg => {
+            const card = document.createElement("div");
+            card.className = "post-card";
+            if (currentUser && msg.user === currentUser.nickname) card.classList.add('own-post');
+
+            let timeStr = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let avatarHtml = msg.avatar ? `<img src="${msg.avatar}" class="post-avatar" alt="ava">` : `<div class="post-avatar">💬</div>`;
             
-            const messages = await response.json();
-            const cont = document.getElementById('forumPosts');
-            cont.innerHTML = "";
-            
-            if (!messages || messages.length === 0) {
-                cont.innerHTML = '<div style="text-align:center;padding:40px;color:#9aa0a6;">📭 Пока нет сообщений. Напишите первым!</div>';
-                return;
+            let attachHtml = '';
+            if (msg.attachments) {
+                msg.attachments.forEach(att => {
+                    attachHtml += `<img src="${att.data}" class="post-img">`;
+                });
             }
 
-            messages.forEach(msg => {
-                const card = document.createElement("div");
-                card.className = "post-card";
-                
-                const isOwnPost = currentUser && (msg.user === currentUser.nickname);
-                if (isOwnPost) card.classList.add('own-post');
-
-                let timeStr = "сейчас";
-                if (msg.created_at) {
-                    const dateStr = msg.created_at.endsWith('Z') ? msg.created_at : msg.created_at + 'Z';
-                    const date = new Date(dateStr);
-                    if (!isNaN(date)) {
-                        timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    }
-                }
-
-                let avatarHtml = `<div class="post-avatar">💬</div>`;
-                if (msg.avatar) {
-                    avatarHtml = `<img src="${msg.avatar}" class="post-avatar" alt="ava">`;
-                }
-
-                let attachmentsHtml = '';
-                if (msg.attachments && Array.isArray(msg.attachments)) {
-                    msg.attachments.forEach(att => {
-                        if (att.data) {
-                            if (att.type.startsWith('image/')) {
-                                attachmentsHtml += `<img src="${att.data}" class="post-img" onclick="window.open(this.src)">`;
-                            } else {
-                                attachmentsHtml += `<a href="${att.data}" download="${att.name}" class="post-attachment">📎 ${escapeHtml(att.name)}</a>`;
-                            }
-                        }
-                    });
-                }
-
-                let voiceHtml = '';
-                if (msg.voice) {
-                    voiceHtml = `
-                    <div class="post-voice">
-                        <span style="font-size:18px">🎤</span>
-                        <audio controls src="${msg.voice}"></audio>
-                    </div>`;
-                }
-
-                card.innerHTML = `
-                    <div class="post-author">
-                        <div class="post-author-row">
-                            ${avatarHtml}
-                            <div>
-                                <span>${escapeHtml(msg.user || 'Аноним')}</span>
-                            </div>
-                        </div>
-                        <span>${timeStr}</span>
-                    </div>
-                    <div class="post-text">${escapeHtml(msg.text)}</div>
-                    ${attachmentsHtml}
-                    ${voiceHtml}
-                `;
-                cont.appendChild(card);
-            });
-            
-        } catch (error) {
-            console.error('Ошибка:', error);
-        }
+            card.innerHTML = `
+                <div class="post-author">
+                    <div class="post-author-row">${avatarHtml} <span>${escapeHtml(msg.user)}</span></div>
+                    <span>${timeStr}</span>
+                </div>
+                <div class="post-text">${escapeHtml(msg.text)}</div>
+                ${attachHtml}
+            `;
+            cont.appendChild(card);
+        });
+        cont.scrollTop = cont.scrollHeight;
     }
 
     function openForum() {
         menu.style.display = 'none';
         document.getElementById('forumContainer').style.display = 'flex';
-        document.getElementById('gameTitle').innerText = 'Живой Чат';
+        document.getElementById('gameTitle').innerText = 'Живой Чат (Local)';
         
-        if (loadCurrentUser()) {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('chatArea').style.display = 'flex';
-            refreshChatUI();
-            loadForumMessages();
-            
-            if (chatUpdateInterval) clearInterval(chatUpdateInterval);
-            chatUpdateInterval = setInterval(loadForumMessages, 2000); 
-            activeIntervals.push(chatUpdateInterval);
-        } else {
+        if (loadCurrentUser()) enterChat();
+        else {
             document.getElementById('authScreen').style.display = 'block';
             document.getElementById('chatArea').style.display = 'none';
         }
+        
+        // Автообновление "чата"
+        if (chatUpdateInterval) clearInterval(chatUpdateInterval);
+        chatUpdateInterval = setInterval(loadForumMessages, 1000); 
+        activeIntervals.push(chatUpdateInterval);
     }
 
-    // --- BEER CLICKER ---
+    // --- BEER CLICKER (FIXED) ---
     let cookies = 0;
+    // Обязательно определяем buildings глобально, чтобы они не терялись
     let buildings = [
         { id: 0, name: 'Курсор', baseCost: 15, count: 0, cps: 0.1, icon: '👆' },
         { id: 1, name: 'Бабушка', baseCost: 100, count: 0, cps: 1, icon: '👵' },
@@ -954,16 +721,24 @@
         document.getElementById('clickerContainer').style.display = 'flex';
         document.getElementById('gameTitle').innerText = 'Beer Clicker';
         
+        // Исправление загрузки: проверка на NaN
         let saved = localStorage.getItem('beerClickerSave');
         if(saved) {
-            let parsed = JSON.parse(saved);
-            cookies = parsed.cookies;
-            parsed.buildings.forEach((savedB, index) => {
-                if(buildings[index]) buildings[index].count = savedB.count;
-            });
+            try {
+                let parsed = JSON.parse(saved);
+                if (!isNaN(parsed.cookies)) cookies = parsed.cookies;
+                if (parsed.buildings) {
+                    parsed.buildings.forEach((savedB, index) => {
+                        if(buildings[index]) buildings[index].count = savedB.count || 0;
+                    });
+                }
+            } catch(e) { console.error("Ошибка сейва", e); }
         }
         
         renderStore();
+        updateClickerUI();
+
+        // Запуск цикла
         activeIntervals.push(setInterval(() => {
             let totalCps = buildings.reduce((sum, b) => sum + (b.count * b.cps), 0);
             cookies += totalCps / 10;
@@ -1020,6 +795,7 @@
         }));
     }
 
+    // Обработчик клика по большому пиву (он глобальный, но работает только если элемент виден)
     document.getElementById('bigCookie').onclick = (e) => {
         cookies++;
         updateClickerUI();
@@ -1043,7 +819,8 @@
         }, 30);
     };
 
-    // --- САПЕР ---
+    // --- САПЕР (FIXED) ---
+    // Исправлена логика: теперь считается количество мин вокруг
     let minesGrid = [];
     function openMines() {
         menu.style.display = 'none';
@@ -1051,33 +828,64 @@
         document.getElementById('gameTitle').innerText = 'Сапер';
         initMinesweeper();
     }
+    
     function initMinesweeper() {
         const grid = document.getElementById('minesGrid');
         grid.innerHTML = '';
         minesGrid = [];
         let minesCount = 15;
         let cells = [];
+        // Создаем пустую сетку
         for(let i=0; i<100; i++) cells.push({ mine: false, revealed: false, count: 0 });
-        for(let i=0; i<minesCount; i++) {
+        // Расставляем мины
+        let placed = 0;
+        while(placed < minesCount) {
             let r = Math.floor(Math.random()*100);
-            if(cells[r].mine) i--; else cells[r].mine = true;
+            if(!cells[r].mine) { cells[r].mine = true; placed++; }
         }
+
+        // Рендер
         cells.forEach((c, i) => {
             const cell = document.createElement('div');
             cell.className = 'mine-cell';
             cell.onclick = () => {
-                if(c.mine) { alert('БАБАХ! Вы проиграли.'); initMinesweeper(); }
-                else {
-                    cell.classList.add('revealed');
-                    cell.innerText = '0';
-                    cell.style.color = '#555';
+                if(c.revealed) return;
+                c.revealed = true;
+                cell.classList.add('revealed');
+
+                if(c.mine) {
+                    cell.classList.add('mine');
+                    cell.innerText = '💣';
+                    setTimeout(() => { alert('БАБАХ! Вы проиграли.'); initMinesweeper(); }, 100);
+                } else {
+                    // Считаем мины вокруг
+                    let minesAround = 0;
+                    const x = i % 10;
+                    const y = Math.floor(i / 10);
+                    for(let dx = -1; dx <= 1; dx++) {
+                        for(let dy = -1; dy <= 1; dy++) {
+                            if(dx===0 && dy===0) continue;
+                            const nx = x + dx; 
+                            const ny = y + dy;
+                            if(nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                                const idx = ny * 10 + nx;
+                                if(cells[idx].mine) minesAround++;
+                            }
+                        }
+                    }
+                    if(minesAround > 0) {
+                        cell.innerText = minesAround;
+                        // Цвета для цифр
+                        const colors = ['#8ab4f8', '#81c995', '#f29900', '#ea4335', '#b31412', '#4285f4', '#000', '#000'];
+                        cell.style.color = colors[minesAround-1];
+                    }
                 }
             };
             grid.appendChild(cell);
         });
     }
 
-    // --- ЗМЕЙКА ---
+    // --- ЗМЕЙКА (FIXED) ---
     function openSnake() {
         menu.style.display = 'none';
         document.getElementById('snakeContainer').style.display = 'flex';
@@ -1091,21 +899,43 @@
         let snake = [{x: 10, y: 10}];
         let food = {x: 15, y: 15};
         let dx = 1, dy = 0;
+        let nextDx = 1, nextDy = 0; // Буфер для предотвращения разворота на месте
         
         document.onkeydown = (e) => {
-            if(e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -1; }
-            if(e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 1; }
-            if(e.key === 'ArrowLeft' && dx === 0) { dx = -1; dy = 0; }
-            if(e.key === 'ArrowRight' && dx === 0) { dx = 1; dy = 0; }
+            if(e.key === 'ArrowUp' && dy === 0) { nextDx = 0; nextDy = -1; }
+            if(e.key === 'ArrowDown' && dy === 0) { nextDx = 0; nextDy = 1; }
+            if(e.key === 'ArrowLeft' && dx === 0) { nextDx = -1; nextDy = 0; }
+            if(e.key === 'ArrowRight' && dx === 0) { nextDx = 1; nextDy = 0; }
         };
 
         activeIntervals.push(setInterval(() => {
+            dx = nextDx; dy = nextDy;
             let head = {x: snake[0].x + dx, y: snake[0].y + dy};
-            if(head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) { alert('Игра окончена! Счет: ' + score); backToMenu(); return; }
+            
+            // Смерть об стены
+            if(head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) { 
+                alert('Игра окончена! Счет: ' + score); 
+                backToMenu(); 
+                return; 
+            }
+            
+            // Смерть об хвост
+            for (let part of snake) {
+                if(part.x === head.x && part.y === head.y) {
+                    alert('Врезался в хвост! Счет: ' + score);
+                    backToMenu();
+                    return;
+                }
+            }
+
             snake.unshift(head);
             if(head.x === food.x && head.y === food.y) {
                 score++; document.getElementById('snakeScore').innerText = 'Счет: ' + score;
                 food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+                // Проверка, чтобы еда не спавнилась в змее
+                while(snake.some(p => p.x === food.x && p.y === food.y)) {
+                    food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+                }
             } else snake.pop();
             
             ctx.fillStyle = '#000'; ctx.fillRect(0,0,400,400);
@@ -1115,38 +945,57 @@
         }, 150));
     }
 
-    // --- ФЛАГИ ---
+    // --- ФЛАГИ (FIXED) ---
     const flagData = [
         { f: '🇷🇺', n: 'Россия' }, { f: '🇺🇸', n: 'США' }, { f: '🇩🇪', n: 'Германия' }, { f: '🇫🇷', n: 'Франция' },
         { f: '🇯🇵', n: 'Япония' }, { f: '🇨🇳', n: 'Китай' }, { f: '🇬🇧', n: 'Великобритания' }, { f: '🇧🇷', n: 'Бразилия' },
-        { f: '🇮🇹', n: 'Италия' }, { f: '🇰🇷', n: 'Корея' }, { f: '🇪🇸', n: 'Испания' }, { f: '🇰🇿', n: 'Казахстан' }
+        { f: '🇮🇹', n: 'Италия' }, { f: '🇰🇷', n: 'Корея' }, { f: '🇪🇸', n: 'Испания' }, { f: '🇰🇿', n: 'Казахстан' },
+        { f: '🇨🇦', n: 'Канада' }, { f: '🇦🇺', n: 'Австралия' }, { f: '🇮🇳', n: 'Индия' }, { f: '🇹🇷', n: 'Турция' }
     ];
     let geoScore = 0;
+    
     function openGeo() {
         menu.style.display = 'none';
         document.getElementById('geoContainer').style.display = 'flex';
         document.getElementById('gameTitle').innerText = 'Угадай Флаг';
+        geoScore = 0;
+        document.getElementById('geoScoreDisplay').innerText = 'Счет: 0';
         nextFlag();
     }
+    
     function nextFlag() {
         const correct = flagData[Math.floor(Math.random()*flagData.length)];
         document.getElementById('geoFlag').innerText = correct.f;
         const opts = document.getElementById('geoOptions');
         opts.innerHTML = '';
+        
+        // Создаем массив ответов с уникальными значениями
         let options = [correct.n];
         while(options.length < 4) {
             let r = flagData[Math.floor(Math.random()*flagData.length)].n;
             if(!options.includes(r)) options.push(r);
         }
+        
+        // Перемешиваем кнопки
         options.sort(() => Math.random() - 0.5).forEach(o => {
             const b = document.createElement('button');
             b.className = 'geo-btn';
             b.innerText = o;
             b.onclick = () => {
-                if(o === correct.n) { geoScore++; alert('Верно!'); }
-                else { geoScore = 0; alert('Ошибка! Это был флаг: ' + correct.n); }
+                if(o === correct.n) { 
+                    geoScore++; 
+                    // Небольшая визуальная отдача
+                    b.style.background = '#81c995';
+                    b.style.borderColor = '#81c995';
+                    setTimeout(nextFlag, 300);
+                }
+                else { 
+                    b.style.background = '#ea4335';
+                    alert('Ошибка! Это был флаг: ' + correct.n); 
+                    geoScore = 0; 
+                    nextFlag();
+                }
                 document.getElementById('geoScoreDisplay').innerText = 'Счет: ' + geoScore;
-                nextFlag();
             };
             opts.appendChild(b);
         });
@@ -1163,12 +1012,16 @@
     function updateCasinoUI() { document.getElementById('casinoBalance').innerText = '$' + casinoBalance; }
     function adjustBet(mult) {
         let bet = parseInt(document.getElementById('casinoBet').value);
+        if(isNaN(bet)) bet = 10;
         document.getElementById('casinoBet').value = Math.floor(bet * mult);
     }
     function playCasino() {
         let bet = parseInt(document.getElementById('casinoBet').value);
-        if(isNaN(bet) || bet <= 0 || bet > casinoBalance) { alert('Неверная ставка!'); return; }
+        if(isNaN(bet) || bet <= 0) { alert('Неверная ставка!'); return; }
+        if(bet > casinoBalance) { alert('Не хватает денег!'); return; }
+        
         const msg = document.getElementById('casinoMsg');
+        // Шанс 45% выиграть
         if(Math.random() < 0.45) {
             casinoBalance += bet;
             msg.innerText = 'ВЫИГРАЛ +$' + bet; msg.style.color = '#81c995';
@@ -1177,7 +1030,13 @@
             msg.innerText = 'ПРОИГРАЛ -$' + bet; msg.style.color = '#ea4335';
         }
         updateCasinoUI();
-        if(casinoBalance <= 0) { alert('Вы все пропили! Вот вам $10 на удачу.'); casinoBalance = 10; updateCasinoUI(); }
+        if(casinoBalance <= 0) { 
+            setTimeout(() => {
+                alert('Вы все пропили! Вот вам $10 на удачу от заведения.'); 
+                casinoBalance = 10; 
+                updateCasinoUI(); 
+            }, 1000);
+        }
     }
 
     // --- ГРАВИТАЦИЯ ---
@@ -1192,6 +1051,7 @@
             if(y + block.offsetHeight > window.innerHeight - 50) { y = window.innerHeight - block.offsetHeight - 50; vy *= -0.5; }
             block.style.top = y + 'px';
         }, 20);
+        activeIntervals.push(gravityInterval); // Чтобы стопалось при открытии игр
     }
 </script>
 </body>
