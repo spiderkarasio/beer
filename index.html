@@ -66,10 +66,10 @@ textarea::placeholder { color:var(--muted); }
 /* MODAL */
 .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:5000;
   justify-content:center; align-items:center; backdrop-filter:blur(8px); }
-.gwin { background:rgba(16,18,30,.94); border:1px solid var(--glass-b); border-radius:20px;
+.gwin { background:rgba(12,14,26,0.55); border:1px solid rgba(255,255,255,0.18); border-radius:20px;
   width:860px; max-width:96%; height:620px; max-height:92vh; overflow:hidden;
   display:flex; flex-direction:column; position:relative;
-  box-shadow:0 30px 80px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.1); backdrop-filter:blur(30px); }
+  box-shadow:0 30px 80px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.15); backdrop-filter:blur(40px) saturate(1.6); }
 .ghdr { padding:16px 22px; border-bottom:1px solid var(--glass-b); display:flex; justify-content:space-between; align-items:center;
   background:rgba(255,255,255,.04); flex-shrink:0; }
 .ghdr h2 { margin:0; font-size:17px; color:var(--txt); font-weight:600; }
@@ -78,10 +78,11 @@ textarea::placeholder { color:var(--muted); }
 
 /* GAME MENU */
 .gmenu { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px;
-  padding:24px; overflow-y:auto; flex:1; }
-.gcard { background:var(--glass); border:1px solid var(--glass-b); border-radius:16px; padding:22px 16px;
-  text-align:center; cursor:pointer; transition:all .25s; display:flex; flex-direction:column; align-items:center; gap:10px; }
-.gcard:hover { background:var(--glass-h); transform:translateY(-6px); border-color:var(--acc); box-shadow:0 10px 30px rgba(245,166,35,.2); }
+  padding:24px; overflow-y:auto; flex:1; background:rgba(255,255,255,0.02); }
+.gcard { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:16px; padding:22px 16px;
+  text-align:center; cursor:pointer; transition:all .25s; display:flex; flex-direction:column; align-items:center; gap:10px;
+  backdrop-filter:blur(16px); box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.12); }
+.gcard:hover { background:rgba(255,255,255,0.14); transform:translateY(-6px); border-color:var(--acc); box-shadow:0 10px 30px rgba(245,166,35,.25),inset 0 1px 0 rgba(255,255,255,0.2); }
 .gcard .ic { font-size:38px; }
 .gcard .nm { font-weight:700; color:var(--txt); font-size:14px; }
 .gcard .ds { font-size:11px; color:var(--muted); line-height:1.4; }
@@ -161,16 +162,26 @@ textarea::placeholder { color:var(--muted); }
 .fbtn:disabled { cursor:default; }
 
 /* ===== CASINO ===== */
-.casino-wrap { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-  overflow-y:auto; padding:55px 20px 20px; gap:12px;
-  background:radial-gradient(ellipse at center,rgba(245,166,35,.08) 0%,transparent 70%); }
-.cas-title { font-size:20px; font-weight:800; letter-spacing:2px; text-transform:uppercase;
+.casino-wrap { position:absolute; inset:0; display:flex; flex-direction:column;
+  background:radial-gradient(ellipse at 50% 30%,rgba(245,166,35,.09) 0%,transparent 65%); }
+.cas-header { display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+  padding:52px 22px 8px; gap:16px; }
+.cas-title { font-size:17px; font-weight:800; letter-spacing:2px; text-transform:uppercase;
   color:var(--acc); text-shadow:0 0 20px rgba(245,166,35,.5); }
-.cas-bal-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; }
-#casbal { font-size:44px; font-weight:900; color:var(--green); font-family:'Courier New',monospace;
+.cas-bal-block { display:flex; flex-direction:column; align-items:flex-end; }
+.cas-bal-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; }
+#casbal { font-size:32px; font-weight:900; color:var(--green); font-family:'Courier New',monospace;
   text-shadow:0 0 20px rgba(111,207,151,.4); transition:color .3s,text-shadow .3s; }
 #casbal.wf { color:#fff; text-shadow:0 0 40px var(--green),0 0 80px var(--green); }
 #casbal.lf { color:var(--red); text-shadow:0 0 30px var(--red); }
+/* Sub-tabs inside casino */
+.cas-tabs { display:flex; gap:0; border-bottom:1px solid var(--glass-b); flex-shrink:0; padding:0 22px; }
+.cas-tab { padding:9px 22px; font-size:14px; font-weight:700; color:var(--muted); cursor:pointer;
+  border-bottom:2px solid transparent; transition:all .2s; letter-spacing:.5px; user-select:none; }
+.cas-tab.active { color:var(--acc); border-bottom-color:var(--acc); }
+.cas-tab:hover:not(.active) { color:var(--txt); background:var(--glass); }
+.cas-panel { flex:1; overflow-y:auto; display:none; flex-direction:column; align-items:center; padding:12px 20px 18px; gap:10px; }
+.cas-panel.visible { display:flex; }
 
 /* REELS MACHINE */
 .reels-machine { display:flex; flex-direction:column; align-items:center; gap:12px; }
@@ -274,6 +285,14 @@ textarea::placeholder { color:var(--muted); }
   100%{transform:translate(calc(-50% + var(--tx)),calc(-100px + var(--ty)))scale(.3)rotate(var(--rot));opacity:0}
 }
 
+/* ===== PLINKO ===== */
+.plinko-controls { display:flex; gap:20px; align-items:flex-end; flex-wrap:wrap; justify-content:center; }
+.plinko-field { display:flex; flex-direction:column; align-items:center; gap:5px; }
+.plinko-field label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight:700; }
+#plinkoCvs { border-radius:14px; border:1px solid rgba(126,184,247,.2); display:block; max-width:100%;
+  box-shadow:0 0 40px rgba(126,184,247,.08), inset 0 0 0 0px transparent; }
+#plinkoMsg { min-height:24px; font-size:15px; font-weight:700; text-align:center; letter-spacing:.5px; }
+
 ::-webkit-scrollbar { width:4px; }
 ::-webkit-scrollbar-thumb { background:var(--glass-b); border-radius:10px; }
 
@@ -333,7 +352,7 @@ textarea::placeholder { color:var(--muted); }
       <div class="gcard" onclick="openMines()"><div class="ic">💣</div><div class="nm">Сапер</div><div class="ds">Классическая головоломка</div></div>
       <div class="gcard" onclick="openSnake()"><div class="ic">🐍</div><div class="nm">Змейка</div><div class="ds">Старое доброе ретро</div></div>
       <div class="gcard" onclick="openFlags()"><div class="ic">🌍</div><div class="nm">Угадай Флаг</div><div class="ds">Проверь знание географии</div></div>
-      <div class="gcard" onclick="openCasino()"><div class="ic">🎰</div><div class="nm">Пивное Казино</div><div class="ds">Крути барабаны!</div></div>
+      <div class="gcard" onclick="openCasino()"><div class="ic">🎰</div><div class="nm">Пивное Казино</div><div class="ds">Слоты и Плинко!</div></div>
     </div>
 
     <!-- CLICKER -->
@@ -400,49 +419,93 @@ textarea::placeholder { color:var(--muted); }
       </div>
     </div>
 
-    <!-- CASINO -->
+    <!-- CASINO (slots + plinko tabs) -->
     <div id="gCasino" class="gcont">
       <div class="back" onclick="backMenu()">← Назад</div>
       <div class="casino-wrap" id="casinoWrap">
-        <div class="cas-title">🍺 Пивное Казино 🍺</div>
-        <div class="cas-bal-lbl">Баланс</div>
-        <div id="casbal">$10</div>
 
-        <div class="reels-machine">
-          <div class="reels-frame" id="reelsFrame">
-            <div class="payline-overlay"></div>
-            <div class="reels-row">
-              <div class="reel-vp"><div class="reel-strip" id="rs0"></div></div>
-              <div class="reel-vp"><div class="reel-strip" id="rs1"></div></div>
-              <div class="reel-vp"><div class="reel-strip" id="rs2"></div></div>
+        <!-- Shared header: title + balance -->
+        <div class="cas-header">
+          <div class="cas-title">🍺 Пивное Казино 🍺</div>
+          <div class="cas-bal-block">
+            <div class="cas-bal-lbl">Баланс</div>
+            <div id="casbal">$10</div>
+          </div>
+        </div>
+
+        <!-- Sub-tabs -->
+        <div class="cas-tabs">
+          <div class="cas-tab active" id="ctab-slots" onclick="switchCasTab('slots')">🎰 Слоты</div>
+          <div class="cas-tab" id="ctab-plinko" onclick="switchCasTab('plinko')">🎯 Плинко</div>
+        </div>
+
+        <!-- SLOTS PANEL -->
+        <div id="cas-panel-slots" class="cas-panel visible">
+          <div class="reels-machine">
+            <div class="reels-frame" id="reelsFrame">
+              <div class="payline-overlay"></div>
+              <div class="reels-row">
+                <div class="reel-vp"><div class="reel-strip" id="rs0"></div></div>
+                <div class="reel-vp"><div class="reel-strip" id="rs1"></div></div>
+                <div class="reel-vp"><div class="reel-strip" id="rs2"></div></div>
+              </div>
             </div>
-          </div>
-
-          <div class="bet-row">
-            <button class="bbt" onclick="adjBet(.5)">½</button>
-            <input type="number" id="casbet" value="1" min="1">
-            <button class="bbt" onclick="adjBet(2)">×2</button>
-            <button class="bbt" onclick="maxBet()">MAX</button>
-          </div>
-          <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎰 КРУТИТЬ</button>
-          <div id="casmsg"></div>
-
-          <div class="ptable">
-            <div class="pt-hdr">💡 Таблица выплат — средняя линия</div>
-            <div class="pt-grid">
-              <div class="pt-r"><span class="pt-c">💎💎💎</span><span class="pt-p">×50 <span class="pt-ch">~0.2%</span></span></div>
-              <div class="pt-r"><span class="pt-c">🍺🍺🍺</span><span class="pt-p">×20 <span class="pt-ch">~8%</span></span></div>
-              <div class="pt-r"><span class="pt-c">🍻🍻🍻</span><span class="pt-p">×15 <span class="pt-ch">~4%</span></span></div>
-              <div class="pt-r"><span class="pt-c">🍀🍀🍀</span><span class="pt-p">×12 <span class="pt-ch">~2%</span></span></div>
-              <div class="pt-r"><span class="pt-c">⭐⭐⭐</span><span class="pt-p">×10 <span class="pt-ch">~2%</span></span></div>
-              <div class="pt-r"><span class="pt-c">🎲🎲🎲</span><span class="pt-p">×8 <span class="pt-ch">~1%</span></span></div>
-              <div class="pt-r"><span class="pt-c">🔔🔔🔔</span><span class="pt-p">×6 <span class="pt-ch">~1%</span></span></div>
-              <div class="pt-r"><span class="pt-c">🍋🍋🍋</span><span class="pt-p">×5 <span class="pt-ch">~1%</span></span></div>
-              <div class="pt-r" style="grid-column:1/-1"><span class="pt-c">Любая пара</span><span class="pt-p">×1.5 <span class="pt-ch">~42%</span></span></div>
-              <div class="pt-r" style="grid-column:1/-1"><span class="pt-c">Ничего</span><span class="pt-p" style="color:var(--red)">×0 <span class="pt-ch">~39%</span></span></div>
+            <div class="bet-row">
+              <button class="bbt" onclick="adjBet(.5)">½</button>
+              <input type="number" id="casbet" value="1" min="1">
+              <button class="bbt" onclick="adjBet(2)">×2</button>
+              <button class="bbt" onclick="maxBet()">MAX</button>
+            </div>
+            <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎰 КРУТИТЬ</button>
+            <div id="casmsg"></div>
+            <div class="ptable">
+              <div class="pt-hdr">💡 Таблица выплат — средняя линия</div>
+              <div class="pt-grid">
+                <div class="pt-r"><span class="pt-c">💎💎💎</span><span class="pt-p">×50 <span class="pt-ch">~0.03%</span></span></div>
+                <div class="pt-r"><span class="pt-c">🍋🍋🍋</span><span class="pt-p">×20 <span class="pt-ch">~0.3%</span></span></div>
+                <div class="pt-r"><span class="pt-c">🍻🍻🍻</span><span class="pt-p">×15 <span class="pt-ch">~4%</span></span></div>
+                <div class="pt-r"><span class="pt-c">🍀🍀🍀</span><span class="pt-p">×12 <span class="pt-ch">~2.7%</span></span></div>
+                <div class="pt-r"><span class="pt-c">⭐⭐⭐</span><span class="pt-p">×10 <span class="pt-ch">~2.7%</span></span></div>
+                <div class="pt-r"><span class="pt-c">🎲🎲🎲</span><span class="pt-p">×6 <span class="pt-ch">~1.1%</span></span></div>
+                <div class="pt-r"><span class="pt-c">🔔🔔🔔</span><span class="pt-p">×5 <span class="pt-ch">~1.1%</span></span></div>
+                <div class="pt-r"><span class="pt-c">🍺🍺🍺</span><span class="pt-p">×8 <span class="pt-ch">~17%</span></span></div>
+                <div class="pt-r" style="grid-column:1/-1"><span class="pt-c">Любая пара</span><span class="pt-p">×1.5 <span class="pt-ch">~42%</span></span></div>
+                <div class="pt-r" style="grid-column:1/-1"><span class="pt-c">Ничего</span><span class="pt-p" style="color:var(--red)">×0 <span class="pt-ch">~29%</span></span></div>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- PLINKO PANEL -->
+        <div id="cas-panel-plinko" class="cas-panel">
+          <canvas id="plinkoCvs" width="480" height="308"></canvas>
+          <div class="plinko-controls">
+            <div class="plinko-field">
+              <label>💰 Ставка за 1 мяч</label>
+              <div class="bet-row">
+                <button class="bbt" onclick="adjPlinkoBet(.5)">½</button>
+                <input type="number" id="plinkoBet" value="1" min="1"
+                  style="background:rgba(0,0,0,.5);border:1px solid var(--glass-b);border-radius:10px;color:var(--txt);padding:10px;font-size:18px;font-weight:700;text-align:center;outline:none;width:100px;font-family:'Courier New',monospace;">
+                <button class="bbt" onclick="adjPlinkoBet(2)">×2</button>
+                <button class="bbt" onclick="maxPlinkoBet()">MAX</button>
+              </div>
+            </div>
+            <div class="plinko-field">
+              <label>🎱 Количество мячей</label>
+              <div class="bet-row">
+                <button class="bbt" onclick="adjPlinkoCount(-5)">−5</button>
+                <button class="bbt" onclick="adjPlinkoCount(-1)">−</button>
+                <input type="number" id="plinkoCount" value="1" min="1" max="20"
+                  style="background:rgba(0,0,0,.5);border:1px solid var(--glass-b);border-radius:10px;color:var(--txt);padding:10px;font-size:18px;font-weight:700;text-align:center;outline:none;width:74px;font-family:'Courier New',monospace;">
+                <button class="bbt" onclick="adjPlinkoCount(1)">+</button>
+                <button class="bbt" onclick="adjPlinkoCount(5)">+5</button>
+              </div>
+            </div>
+          </div>
+          <button class="spin-btn" id="plinkoBtn" onclick="dropPlinko()">🎯 БРОСИТЬ</button>
+          <div id="plinkoMsg"></div>
+        </div>
+
       </div>
     </div>
 
@@ -718,20 +781,25 @@ function nextFlag(){
   const choices=[correct.n];
   while(choices.length<4){ const r=FLAGS[Math.floor(Math.random()*FLAGS.length)].n; if(!choices.includes(r)) choices.push(r); }
   choices.sort(()=>Math.random()-.5);
-  let done=false;
   choices.forEach(name=>{
     const b=document.createElement('button'); b.className='fbtn'; b.textContent=name;
     b.onclick=()=>{
-      if(done) return; done=true;
+      // disable all buttons immediately
+      opts.querySelectorAll('.fbtn').forEach(x=>x.disabled=true);
       if(name===correct.n){
         flScore++; document.getElementById('flScore').innerText='Счёт: '+flScore;
         b.style.background='rgba(111,207,151,.35)'; b.style.borderColor='var(--green)'; b.style.color='var(--green)';
-        setTimeout(nextFlag,450);
+        b.style.boxShadow='0 0 12px rgba(111,207,151,.5)';
+        setTimeout(nextFlag,500);
       } else {
         b.style.background='rgba(235,87,87,.35)'; b.style.borderColor='var(--red)'; b.style.color='var(--red)';
-        opts.querySelectorAll('.fbtn').forEach(x=>{ if(x.textContent===correct.n){ x.style.background='rgba(111,207,151,.35)'; x.style.borderColor='var(--green)'; x.style.color='var(--green)'; } });
+        opts.querySelectorAll('.fbtn').forEach(x=>{
+          if(x.textContent===correct.n){
+            x.style.background='rgba(111,207,151,.35)'; x.style.borderColor='var(--green)'; x.style.color='var(--green)';
+          }
+        });
         flScore=0; document.getElementById('flScore').innerText='Счёт: 0';
-        setTimeout(nextFlag,1200);
+        setTimeout(nextFlag,1400);
       }
     };
     opts.appendChild(b);
@@ -746,15 +814,23 @@ function nextFlag(){
 // To show index N in the MIDDLE slot: translateY = -(N-1)*74
 // So for final at index 25: translateY = -24*74 = -1776px
 
-const SYM_POOL = ['🍺','🍺','🍺','🍺','🍺','🍺',
-                  '🍻','🍻','🍻','🍻',
-                  '🍀','🍀','🍀',
-                  '⭐','⭐','⭐',
-                  '🔔','🔔',
-                  '🎲','🎲',
-                  '🍋','🍋',
-                  '💎'];
-const PAYS = {'💎':50,'🍺':20,'🍻':15,'🍀':12,'⭐':10,'🎲':8,'🔔':6,'🍋':5};
+// Symbol pool — carefully weighted so probabilities match payout table
+// 💎×1 = ~0.2% triple; 🍋×2 = ~1%; 🔔×3 = ~1.5%; 🎲×3 = ~2%;
+// ⭐×4 = ~3%; 🍀×4 = ~4%; 🍻×5 = ~7%; 🍺×8 = ~16%
+const SYM_POOL = [
+  '🍺','🍺','🍺','🍺','🍺','🍺','🍺','🍺',  // 8 — most common
+  '🍻','🍻','🍻','🍻','🍻',                    // 5
+  '🍀','🍀','🍀','🍀',                          // 4
+  '⭐','⭐','⭐','⭐',                            // 4
+  '🎲','🎲','🎲',                                // 3
+  '🔔','🔔','🔔',                                // 3
+  '🍋','🍋',                                     // 2 — rare
+  '💎'                                           // 1 — jackpot
+];
+// Approx triple probability for N copies out of 31: (N/31)^3
+// 🍺: (8/31)^3 ≈ 17% | 🍻: (5/31)^3 ≈ 4% | 🍀/⭐: (4/31)^3 ≈ 2.7%
+// 🎲/🔔: (3/31)^3 ≈ 1.1% | 🍋: (2/31)^3 ≈ 0.3% | 💎: (1/31)^3 ≈ 0.03%
+const PAYS = {'💎':50,'🍺':8,'🍻':15,'🍀':12,'⭐':10,'🎲':6,'🔔':5,'🍋':20};
 const CELL = 74;      // cell height px — matches .rs height
 const SPIN_LEN = 24;  // random symbols before the final
 // Final symbol sits at index SPIN_LEN+1 (indices: 0..SPIN_LEN-1 random, SPIN_LEN top-neighbor, SPIN_LEN+1 FINAL, SPIN_LEN+2 bot-neighbor)
@@ -792,9 +868,18 @@ function showIdleStrip(id) {
   el.style.transform = 'translateY(0px)';
 }
 
+function switchCasTab(tab) {
+  ['slots','plinko'].forEach(t => {
+    document.getElementById('ctab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('cas-panel-'+t).classList.toggle('visible', t===tab);
+  });
+  if (tab==='plinko') { setTimeout(plinkoDrawIdle, 30); }
+}
+
 function openCasino() {
   showGame('gCasino', '🎰 Пивное Казино');
   updateCasBal();
+  switchCasTab('slots');
   for (let i = 0; i < 3; i++) showIdleStrip('rs' + i);
 }
 
@@ -921,6 +1006,176 @@ function addWinLine() {
   const l = document.createElement('div'); l.className = 'win-line';
   f.appendChild(l);
   setTimeout(() => l.remove(), 1400);
+}
+
+// ─── PLINKO ──────────────────────────────────────────────
+// 13 buckets: [100,15,10,5,2,1,0.5,1,2,5,10,15,100] — like screenshot. EV≈0.72
+const PL_ROWS=12, PL_SX=36, PL_SY=22, PL_TOP=16, PL_PR=4, PL_BR=7;
+const PL_G=0.32, PL_FRIC=0.997, PL_BNC=0.52;
+const PL_M  = [100,15,10,5,2,1,0.5,1,2,5,10,15,100];
+const PL_BC = ['#f5c842','#f5a623','#2ecc71','#3498db','#9b59b6','#95a5a6','#7f8c8d','#95a5a6','#9b59b6','#3498db','#2ecc71','#f5a623','#f5c842'];
+const PL_BPAL=['#f5a623','#7eb8f7','#6fcf97','#eb5757','#a29bfe','#fd79a8','#fdcb6e','#74b9ff','#00cec9','#e17055','#55efc4','#d63031'];
+let _balls=[], _pegs=[], _bkts=[], _drops=false, _animId=null, _litBkt={}, _pegFlash={};
+
+function _geom(){
+  const cvs=document.getElementById('plinkoCvs'); if(!cvs) return null;
+  const W=cvs.width, H=cvs.height;
+  const pegs=[];
+  for(let r=0;r<PL_ROWS;r++){const n=r+2; for(let c=0;c<n;c++) pegs.push({x:W/2+(c-(n-1)/2)*PL_SX,y:PL_TOP+r*PL_SY});}
+  const bY=PL_TOP+PL_ROWS*PL_SY+10, bH=H-bY-4;
+  const bkts=PL_M.map((m,i)=>({x:W/2+(i-(PL_M.length-1)/2)*PL_SX,y:bY,w:PL_SX-3,h:bH,m,col:PL_BC[i]}));
+  return {W,H,pegs,bkts,bY};
+}
+
+function _draw(balls){
+  const cvs=document.getElementById('plinkoCvs'); if(!cvs) return;
+  const g=_geom(); if(!g) return;
+  const ctx=cvs.getContext('2d');
+  const {W,H,pegs,bkts,bY}=g;
+  ctx.fillStyle='#08091a'; ctx.fillRect(0,0,W,H);
+
+  // pegs — silver, flash white on hit
+  pegs.forEach((p,pi)=>{
+    const flash=(_pegFlash[pi]||0)>0;
+    if(flash){ctx.shadowColor='rgba(255,255,255,1)';ctx.shadowBlur=12;}
+    ctx.beginPath(); ctx.arc(p.x,p.y,PL_PR,0,Math.PI*2);
+    ctx.fillStyle=flash?'#fff':'rgba(200,210,230,0.8)'; ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.beginPath(); ctx.arc(p.x-1,p.y-1,1.1,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,0.95)'; ctx.fill();
+  });
+
+  // buckets — neon
+  bkts.forEach((b,i)=>{
+    const lit=(_litBkt[i]||0)>0;
+    const bx=b.x-b.w/2;
+    if(lit){ctx.shadowColor=b.col;ctx.shadowBlur=20;}
+    ctx.fillStyle=lit?b.col+'55':b.col+'20';
+    ctx.strokeStyle=b.col+(lit?'ff':'bb');
+    ctx.lineWidth=lit?2:1;
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(bx,b.y,b.w,b.h,[0,0,5,5]); else ctx.rect(bx,b.y,b.w,b.h);
+    ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+    const txt=b.m===0.5?'×½':'×'+b.m;
+    const fs=b.m>=100?8:b.m>=10?9:11;
+    ctx.font=`700 ${fs}px 'Segoe UI'`;
+    ctx.fillStyle=lit?'#fff':b.col;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    if(lit){ctx.shadowColor=b.col;ctx.shadowBlur=8;}
+    ctx.fillText(txt,b.x,b.y+b.h/2); ctx.shadowBlur=0;
+  });
+
+  // trails
+  balls.forEach(ball=>{
+    if(!ball.trail) return;
+    ball.trail.forEach((t,i)=>{
+      const a=(1-i/ball.trail.length)*0.4, r=PL_BR*(1-i/ball.trail.length)*0.6;
+      if(r<1||ball.y<-PL_BR*3) return;
+      ctx.beginPath(); ctx.arc(t.x,t.y,r,0,Math.PI*2);
+      ctx.fillStyle=ball.col+Math.round(a*255).toString(16).padStart(2,'0'); ctx.fill();
+    });
+  });
+
+  // balls
+  balls.forEach(ball=>{
+    if(ball.y<-PL_BR*2) return;
+    const gr=ctx.createRadialGradient(ball.x-2.5,ball.y-2.5,1,ball.x,ball.y,PL_BR*1.2);
+    gr.addColorStop(0,'rgba(255,255,255,0.9)');
+    gr.addColorStop(0.3,ball.col);
+    gr.addColorStop(1,ball.col+'66');
+    ctx.beginPath(); ctx.arc(ball.x,ball.y,PL_BR,0,Math.PI*2);
+    ctx.fillStyle=gr; ctx.fill();
+    ctx.beginPath(); ctx.arc(ball.x-2.5,ball.y-2.5,1.8,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.fill();
+  });
+}
+
+function plinkoDrawIdle(){const g=_geom();if(!g)return;_pegs=g.pegs;_bkts=g.bkts;_draw([]);}
+function adjPlinkoBet(m){const el=document.getElementById('plinkoBet');const cnt=Math.max(1,parseInt(document.getElementById('plinkoCount').value)||1);el.value=Math.min(Math.max(1,Math.floor((parseInt(el.value)||1)*m)),Math.max(1,Math.floor(casBalance/cnt)));}
+function maxPlinkoBet(){const cnt=Math.max(1,parseInt(document.getElementById('plinkoCount').value)||1);document.getElementById('plinkoBet').value=Math.max(1,Math.floor(casBalance/cnt));}
+function adjPlinkoCount(d){const el=document.getElementById('plinkoCount');el.value=Math.max(1,Math.min(20,(parseInt(el.value)||1)+d));}
+function setPlinkoMsg(t,c){const el=document.getElementById('plinkoMsg');if(el){el.innerText=t;el.style.color=c;}}
+
+function dropPlinko(){
+  if(_drops) return;
+  const bet=Math.max(1,parseInt(document.getElementById('plinkoBet').value)||1);
+  const cnt=Math.max(1,Math.min(20,parseInt(document.getElementById('plinkoCount').value)||1));
+  const total=bet*cnt;
+  if(total>casBalance){setPlinkoMsg('Не хватает $'+total,'var(--red)');return;}
+  casBalance-=total; updateCasBal();
+  setPlinkoMsg('',''); _drops=true; _litBkt={}; _pegFlash={};
+  document.getElementById('plinkoBtn').disabled=true;
+  const g=_geom(); _pegs=g.pegs; _bkts=g.bkts;
+  const {W,bY}=g;
+  _balls=[];
+  let won=0, done=0;
+  for(let i=0;i<cnt;i++){
+    _balls.push({x:W/2+(Math.random()-.5)*6,y:-PL_BR-i*30,vx:(Math.random()-.5)*0.6,vy:0.9,col:PL_BPAL[i%PL_BPAL.length],trail:[],done:false});
+  }
+  function tick(){
+    let allDone=true;
+    _balls.forEach(ball=>{
+      if(ball.done) return;
+      allDone=false;
+      ball.trail.unshift({x:ball.x,y:ball.y});
+      if(ball.trail.length>9) ball.trail.pop();
+      ball.vy+=PL_G; ball.vx*=PL_FRIC; ball.x+=ball.vx; ball.y+=ball.vy;
+      _pegs.forEach((p,pi)=>{
+        const dx=ball.x-p.x,dy=ball.y-p.y,d2=dx*dx+dy*dy,mn=PL_BR+PL_PR;
+        if(d2<mn*mn&&d2>0.01){
+          const d=Math.sqrt(d2),nx=dx/d,ny=dy/d;
+          ball.x+=nx*(mn-d+0.6); ball.y+=ny*(mn-d+0.6);
+          const dot=ball.vx*nx+ball.vy*ny;
+          ball.vx=(ball.vx-2*dot*nx)*PL_BNC+(Math.random()-.5)*2;
+          ball.vy=(ball.vy-2*dot*ny)*PL_BNC;
+          if(ball.vy<0.4) ball.vy=0.4;
+          ball.vx=Math.max(-5,Math.min(5,ball.vx));
+          _pegFlash[pi]=7;
+        }
+      });
+      if(ball.x<PL_BR+1){ball.x=PL_BR+1;ball.vx=Math.abs(ball.vx)*0.6;}
+      if(ball.x>W-PL_BR-1){ball.x=W-PL_BR-1;ball.vx=-Math.abs(ball.vx)*0.6;}
+      if(ball.y+PL_BR>=bY){
+        ball.done=true;
+        let bi=0,bd=Infinity;
+        _bkts.forEach((b,i)=>{const d=Math.abs(ball.x-b.x);if(d<bd){bd=d;bi=i;}});
+        won+=Math.round(bet*PL_M[bi]); // Math.round handles ×0.5 correctly
+        done++; _litBkt[bi]=35;
+        ball.y=bY+g.bkts[0].h*.5;
+      }
+    });
+    Object.keys(_litBkt).forEach(k=>{_litBkt[k]--;if(_litBkt[k]<=0)delete _litBkt[k];});
+    Object.keys(_pegFlash).forEach(k=>{_pegFlash[k]--;if(_pegFlash[k]<=0)delete _pegFlash[k];});
+    _draw(_balls);
+    if(!allDone||Object.keys(_litBkt).length>0){
+      _animId=requestAnimationFrame(tick);
+    } else {
+      _drops=false;
+      document.getElementById('plinkoBtn').disabled=false;
+      casBalance+=won; updateCasBal();
+      const p=won-total;
+      if(p>0){setPlinkoMsg('🎉 +$'+p+' (×'+(won/total).toFixed(2)+')','var(--green)');flashBal(true);if(p>total)spawnConfettiCasino(12);}
+      else if(p===0){setPlinkoMsg('💔 В ноль','var(--muted)');flashBal(false);}
+      else{setPlinkoMsg('💀 −$'+(-p)+' (×'+(won/total).toFixed(2)+')','var(--red)');flashBal(false);
+        if(casBalance<=0)setTimeout(()=>{setPlinkoMsg('💸 Вот $10 от заведения','var(--acc)');casBalance=10;updateCasBal();},1300);}
+      _draw([]);
+    }
+  }
+  _animId=requestAnimationFrame(tick);
+}
+
+function spawnConfettiCasino(n){
+  const wrap=document.getElementById('casinoWrap'); if(!wrap) return;
+  const em=['🎯','💰','⭐','🎉','✨','🍺'];
+  for(let i=0;i<n;i++){
+    const p=document.createElement('div'); p.className='cprt';
+    p.textContent=em[Math.floor(Math.random()*em.length)];
+    p.style.setProperty('--tx',(Math.random()-.5)*260+'px');
+    p.style.setProperty('--ty',Math.random()*80+'px');
+    p.style.setProperty('--rot',(Math.random()-.5)*360+'deg');
+    p.style.left=(15+Math.random()*70)+'%'; p.style.top='50%';
+    wrap.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
 }
 
 // ─── DRAG TITLE ────────────────────────────────────────
