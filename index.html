@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Beer Translate & Games</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root {
   --glass: rgba(255,255,255,0.07);
@@ -161,6 +162,221 @@ textarea::placeholder { color:var(--muted); }
 .fbtn:hover:not(:disabled) { background:var(--glass-h); border-color:var(--acc); transform:translateY(-2px); }
 .fbtn:disabled { cursor:default; }
 
+/* ===== WITHDRAWAL MODAL ===== */
+.wd-overlay {
+  display:none; position:fixed; inset:0; z-index:9000;
+  background:rgba(0,0,0,.85); backdrop-filter:blur(12px);
+  justify-content:center; align-items:center;
+}
+.wd-overlay.open { display:flex; }
+.wd-box {
+  background:linear-gradient(160deg,rgba(14,17,32,.98),rgba(8,10,20,.99));
+  border:1px solid rgba(255,255,255,.13); border-radius:20px;
+  width:400px; max-width:95%; max-height:92vh; overflow-y:auto;
+  padding:0; position:relative;
+  box-shadow:0 40px 100px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.1);
+  animation: wdIn .22s cubic-bezier(.34,1.2,.64,1);
+}
+@keyframes wdIn { from{opacity:0;transform:scale(.9)translateY(16px)} to{opacity:1;transform:none} }
+
+/* Header */
+.wd-hdr {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 20px 14px; border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03); border-radius:20px 20px 0 0;
+  position:sticky; top:0; z-index:10; backdrop-filter:blur(20px);
+}
+.wd-hdr-left { display:flex; flex-direction:column; gap:2px; }
+.wd-hdr-title { font-size:15px; font-weight:800; color:var(--txt); letter-spacing:.3px; }
+.wd-hdr-sub { font-size:11px; color:var(--muted); }
+.wd-steps-row { display:flex; align-items:center; gap:4px; }
+.wd-step-dot {
+  width:22px; height:22px; border-radius:50%; font-size:10px; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.08); color:var(--muted); border:1px solid rgba(255,255,255,.1);
+  transition:all .3s;
+}
+.wd-step-dot.done { background:var(--green); color:#111; border-color:var(--green); }
+.wd-step-dot.active { background:var(--acc); color:#111; border-color:var(--acc); box-shadow:0 0 10px rgba(245,166,35,.5); }
+.wd-step-line { width:14px; height:1px; background:rgba(255,255,255,.12); }
+.wd-close {
+  color:var(--muted); cursor:pointer; font-size:18px; width:28px; height:28px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%; transition:all .2s;
+}
+.wd-close:hover { color:var(--red); background:rgba(235,87,87,.15); }
+
+/* Body */
+.wd-body { padding:20px; display:flex; flex-direction:column; gap:14px; }
+
+/* Amount pill */
+.wd-amount-pill {
+  background:linear-gradient(135deg,rgba(111,207,151,.1),rgba(111,207,151,.05));
+  border:1px solid rgba(111,207,151,.25); border-radius:14px;
+  padding:12px 16px; display:flex; justify-content:space-between; align-items:center;
+}
+.wd-amount-info { display:flex; flex-direction:column; gap:2px; }
+.wd-amount-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; font-weight:700; }
+.wd-amount-num { font-size:26px; font-weight:900; color:var(--green); font-family:'Courier New',monospace; }
+.wd-amount-rate { font-size:10px; color:var(--muted); }
+.wd-ssl { display:flex; align-items:center; gap:5px; font-size:10px; color:rgba(111,207,151,.7); }
+
+/* Method picker */
+.wd-method-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.wd-method {
+  background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.1);
+  border-radius:12px; padding:12px 10px; cursor:pointer; transition:all .2s;
+  display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center;
+}
+.wd-method:hover { background:rgba(255,255,255,.09); border-color:rgba(245,166,35,.4); }
+.wd-method.sel { background:rgba(245,166,35,.1); border-color:var(--acc); box-shadow:0 0 14px rgba(245,166,35,.2); }
+.wd-method-icon { font-size:24px; }
+.wd-method-name { font-size:12px; font-weight:700; color:var(--txt); }
+.wd-method-time { font-size:10px; color:var(--muted); }
+
+/* Field */
+.wd-field { display:flex; flex-direction:column; gap:5px; }
+.wd-label {
+  font-size:11px; color:var(--muted); text-transform:uppercase;
+  letter-spacing:.8px; font-weight:700; display:flex; align-items:center; gap:5px;
+}
+.wd-label-req { color:var(--red); font-size:9px; }
+.wd-input {
+  background:rgba(0,0,0,.45); border:1.5px solid rgba(255,255,255,.1); border-radius:10px;
+  color:var(--txt); padding:11px 14px; font-size:14px; outline:none;
+  font-family:inherit; width:100%; transition:all .2s;
+}
+.wd-input:focus { border-color:var(--acc); background:rgba(0,0,0,.6); box-shadow:0 0 0 3px rgba(245,166,35,.1); }
+.wd-input.err { border-color:var(--red); box-shadow:0 0 0 3px rgba(235,87,87,.1); }
+.wd-input::placeholder { color:rgba(168,159,140,.5); }
+.wd-input-wrap { position:relative; }
+.wd-input-ico { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:14px; pointer-events:none; }
+.wd-row2 { display:flex; gap:10px; }
+
+/* SBP bank selector */
+.wd-bank-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+.wd-bank {
+  background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.08);
+  border-radius:10px; padding:8px 6px; cursor:pointer; transition:all .2s;
+  display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center;
+}
+.wd-bank:hover { border-color:rgba(126,184,247,.4); background:rgba(126,184,247,.07); }
+.wd-bank.sel { border-color:var(--blue); background:rgba(126,184,247,.12); box-shadow:0 0 10px rgba(126,184,247,.2); }
+.wd-bank-logo { font-size:18px; }
+.wd-bank-name { font-size:9px; font-weight:700; color:var(--muted); }
+
+/* SMS screen */
+.wd-sms-box {
+  background:rgba(126,184,247,.06); border:1px solid rgba(126,184,247,.2);
+  border-radius:14px; padding:16px; display:flex; flex-direction:column;
+  align-items:center; gap:10px; text-align:center;
+}
+.wd-sms-icon { font-size:36px; }
+.wd-sms-title { font-size:15px; font-weight:800; color:var(--txt); }
+.wd-sms-sub { font-size:12px; color:var(--muted); line-height:1.5; }
+.wd-sms-masked { font-weight:700; color:var(--blue); }
+.wd-code-row { display:flex; gap:8px; justify-content:center; }
+.wd-code-inp {
+  width:46px; height:52px; background:rgba(0,0,0,.5); border:1.5px solid rgba(255,255,255,.15);
+  border-radius:10px; color:var(--txt); font-size:22px; font-weight:900; text-align:center;
+  outline:none; font-family:'Courier New',monospace; transition:all .2s;
+}
+.wd-code-inp:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(126,184,247,.15); background:rgba(0,0,0,.7); }
+.wd-code-inp.filled { border-color:var(--acc); }
+.wd-resend { font-size:11px; color:var(--muted); cursor:pointer; transition:color .2s; }
+.wd-resend:hover { color:var(--blue); }
+.wd-countdown-txt { font-size:11px; color:var(--muted); }
+
+/* Processing screen */
+.wd-proc {
+  display:none; flex-direction:column; align-items:center; gap:14px;
+  padding:24px 0 10px; text-align:center;
+}
+.wd-proc-icon-wrap { position:relative; width:72px; height:72px; }
+.wd-proc-ring {
+  width:72px; height:72px; border-radius:50%;
+  border:3px solid rgba(245,166,35,.15); border-top-color:var(--acc);
+  animation:wdSpin .9s linear infinite; position:absolute;
+}
+.wd-proc-inner {
+  position:absolute; inset:8px; border-radius:50%;
+  border:2px solid rgba(245,166,35,.08); border-bottom-color:rgba(245,166,35,.4);
+  animation:wdSpin 1.4s linear infinite reverse;
+}
+.wd-proc-emoji { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:22px; }
+@keyframes wdSpin { to{transform:rotate(360deg)} }
+.wd-proc-title { font-size:16px; font-weight:800; color:var(--txt); }
+.wd-proc-sub { font-size:12px; color:var(--muted); min-height:16px; }
+.wd-proc-bar-wrap { width:100%; background:rgba(255,255,255,.06); border-radius:99px; height:5px; overflow:hidden; }
+.wd-proc-bar { height:100%; border-radius:99px; width:0%; transition:width .5s ease; background:linear-gradient(90deg,#f5a623,#6fcf97); box-shadow:0 0 8px rgba(245,166,35,.5); }
+.wd-proc-checklist { width:100%; display:flex; flex-direction:column; gap:7px; }
+.wd-check {
+  display:flex; align-items:center; gap:10px; padding:7px 12px;
+  border-radius:9px; background:rgba(255,255,255,.03); font-size:12px;
+  border:1px solid rgba(255,255,255,.05); transition:all .3s;
+}
+.wd-check.done { background:rgba(111,207,151,.08); border-color:rgba(111,207,151,.2); }
+.wd-check.active { background:rgba(245,166,35,.08); border-color:rgba(245,166,35,.2); }
+.wd-check-ico { width:18px; text-align:center; font-size:13px; }
+.wd-check-txt { color:var(--muted); flex:1; }
+.wd-check.done .wd-check-txt { color:var(--txt); }
+.wd-check.active .wd-check-txt { color:var(--acc); }
+
+/* Result screen */
+.wd-res { display:none; flex-direction:column; align-items:center; gap:12px; padding:20px 0 8px; text-align:center; }
+.wd-res-anim { font-size:56px; animation:wdResPop .4s cubic-bezier(.34,1.5,.64,1); }
+@keyframes wdResPop { from{transform:scale(0)} to{transform:scale(1)} }
+.wd-res-title { font-size:18px; font-weight:900; }
+.wd-res-ref { font-size:11px; color:var(--muted); font-family:'Courier New',monospace; }
+.wd-res-card {
+  width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  border-radius:12px; padding:12px 16px; display:flex; flex-direction:column; gap:6px;
+}
+.wd-res-row { display:flex; justify-content:space-between; font-size:12px; }
+.wd-res-key { color:var(--muted); }
+.wd-res-val { font-weight:700; color:var(--txt); font-family:'Courier New',monospace; }
+.wd-res-val.green { color:var(--green); }
+.wd-res-val.yellow { color:var(--acc); }
+.wd-res-twist {
+  background:rgba(245,166,35,.08); border:1px solid rgba(245,166,35,.2);
+  border-radius:12px; padding:12px 14px; font-size:12px; color:var(--muted);
+  line-height:1.6; text-align:left;
+}
+.wd-res-twist strong { color:var(--acc); }
+.wd-res-btns { display:flex; gap:8px; width:100%; }
+.wd-res-btn {
+  flex:1; padding:11px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+  color:var(--txt); border-radius:10px; cursor:pointer; font-size:13px;
+  font-weight:700; transition:all .2s; font-family:inherit;
+}
+.wd-res-btn:hover { background:rgba(255,255,255,.12); }
+.wd-res-btn.primary { background:linear-gradient(135deg,#f5a623,#e8833a); color:#111; border:none; }
+.wd-res-btn.primary:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(245,166,35,.4); }
+
+/* Submit button */
+.wd-submit {
+  padding:13px; background:linear-gradient(135deg,#f5a623,#e8833a); color:#111;
+  border:none; border-radius:12px; font-weight:900; font-size:15px; cursor:pointer;
+  transition:all .2s; letter-spacing:.3px; text-transform:uppercase;
+  box-shadow:0 4px 18px rgba(245,166,35,.35); width:100%; font-family:inherit;
+}
+.wd-submit:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 26px rgba(245,166,35,.55); }
+.wd-submit:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+.wd-back { background:none; border:none; color:var(--blue); cursor:pointer; font-size:12px;
+  font-family:inherit; font-weight:600; padding:4px; transition:opacity .2s; }
+.wd-back:hover { opacity:.7; }
+.wd-hint { font-size:11px; color:var(--muted); text-align:center; line-height:1.5; }
+.wd-divider { height:1px; background:rgba(255,255,255,.06); margin:2px 0; }
+
+/* Withdraw button near balance */
+.wd-btn {
+  padding:5px 12px; background:rgba(111,207,151,.1); border:1px solid rgba(111,207,151,.25);
+  color:var(--green); border-radius:7px; cursor:pointer; font-size:11px;
+  font-weight:700; transition:all .2s; letter-spacing:.3px; text-transform:uppercase;
+  margin-top:3px; align-self:flex-end;
+}
+.wd-btn:hover { background:rgba(111,207,151,.2); transform:translateY(-1px); }
+
 /* ===== CASINO ===== */
 .casino-wrap { position:absolute; inset:0; display:flex; flex-direction:column;
   background:radial-gradient(ellipse at 50% 30%,rgba(245,166,35,.09) 0%,transparent 65%); }
@@ -284,6 +500,85 @@ textarea::placeholder { color:var(--muted); }
   0%{transform:translate(-50%,0)scale(1);opacity:1}
   100%{transform:translate(calc(-50% + var(--tx)),calc(-100px + var(--ty)))scale(.3)rotate(var(--rot));opacity:0}
 }
+
+/* ===== ROCKET CRASH ===== */
+#cas-panel-rocket { padding: 8px 16px 12px; gap: 8px; }
+.rk-top { display:flex; flex-direction:column; align-items:center; gap:2px; }
+#rkMult {
+  font-size:58px; font-weight:900; font-family:'Courier New',monospace;
+  color:var(--acc); text-shadow:0 0 30px rgba(245,166,35,.6);
+  line-height:1; letter-spacing:-2px; transition:color .15s;
+}
+#rkMult.crashed { color:var(--red) !important; text-shadow:0 0 40px rgba(235,87,87,.8); }
+#rkMult.safe    { color:var(--green) !important; text-shadow:0 0 30px rgba(111,207,151,.6); }
+.rk-phase { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--muted); min-height:16px; }
+.rk-cvs-wrap {
+  position:relative; width:100%; max-width:500px; height:148px; flex-shrink:0;
+  border-radius:12px; overflow:hidden;
+  background: linear-gradient(180deg, #060818 0%, #0c0f22 100%);
+  border:1px solid rgba(126,184,247,.18);
+}
+#rkCvs { position:absolute; inset:0; width:100%; height:100%; display:block; }
+/* stars inside canvas wrapper */
+.rk-stars { position:absolute; inset:0; pointer-events:none; }
+.rk-star { position:absolute; border-radius:50%; background:#fff; animation:rkTwink 2s ease-in-out infinite alternate; }
+@keyframes rkTwink { 0%{opacity:.15} 100%{opacity:.85} }
+/* rocket emoji floating above canvas */
+#rkRocket {
+  position:absolute; font-size:28px; line-height:1;
+  pointer-events:none; z-index:5;
+  filter:drop-shadow(0 0 8px rgba(245,166,35,.9));
+  transition: left 80ms linear, bottom 80ms linear;
+  transform-origin: center center;
+}
+#rkExplosion {
+  position:absolute; font-size:56px; left:50%; top:50%;
+  transform:translate(-50%,-50%) scale(0);
+  opacity:0; pointer-events:none; z-index:10;
+  transition: transform .2s ease-out, opacity .35s ease-out;
+}
+#rkExplosion.boom { transform:translate(-50%,-50%) scale(1); opacity:1; }
+/* controls */
+.rk-controls { display:flex; flex-direction:column; align-items:center; gap:7px; width:100%; max-width:500px; }
+.rk-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
+#rkBet {
+  background:rgba(0,0,0,.5); border:1px solid var(--glass-b); border-radius:10px;
+  color:var(--txt); padding:9px 12px; font-size:18px; font-weight:700;
+  text-align:center; outline:none; width:100px; font-family:'Courier New',monospace;
+}
+#rkBet:focus { border-color:var(--acc); }
+#rkAutoVal {
+  background:rgba(0,0,0,.4); border:1px solid var(--glass-b); border-radius:8px;
+  color:var(--txt); padding:6px 8px; font-size:13px; text-align:center;
+  outline:none; width:68px; font-family:'Courier New',monospace;
+}
+#rkAutoVal:focus { border-color:var(--acc); }
+.rk-auto-lbl { font-size:12px; color:var(--muted); }
+.rk-place-btn {
+  padding:11px 32px; background:linear-gradient(135deg,#f5a623,#e8833a); color:#111;
+  border:none; border-radius:12px; font-weight:900; font-size:15px; cursor:pointer;
+  transition:all .2s; letter-spacing:.8px; text-transform:uppercase;
+  box-shadow:0 4px 18px rgba(245,166,35,.45);
+}
+.rk-place-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 26px rgba(245,166,35,.6); }
+.rk-place-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+.rk-cash-btn {
+  padding:11px 32px; background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff;
+  border:none; border-radius:12px; font-weight:900; font-size:15px; cursor:pointer;
+  transition:all .2s; letter-spacing:.8px; text-transform:uppercase; display:none;
+  box-shadow:0 4px 18px rgba(46,204,113,.4);
+  animation: rkPulse 1s ease-in-out infinite alternate;
+}
+@keyframes rkPulse { from{box-shadow:0 4px 18px rgba(46,204,113,.4)} to{box-shadow:0 6px 28px rgba(46,204,113,.85)} }
+.rk-cash-btn:hover { transform:translateY(-2px); }
+#rkMsg { min-height:20px; font-size:14px; font-weight:700; text-align:center; }
+/* history row */
+.rk-hist-row { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; max-width:500px; }
+.rk-hi { border-radius:6px; padding:3px 9px; font-size:12px; font-weight:700;
+  font-family:'Courier New',monospace; border:1px solid transparent; }
+.rk-hi.lo  { background:rgba(235,87,87,.15);   color:var(--red);   border-color:rgba(235,87,87,.3); }
+.rk-hi.mid { background:rgba(245,166,35,.15);   color:var(--acc);   border-color:rgba(245,166,35,.3); }
+.rk-hi.big { background:rgba(111,207,151,.15);  color:var(--green); border-color:rgba(111,207,151,.3); }
 
 /* ===== PLINKO ===== */
 .plinko-controls { display:flex; gap:20px; align-items:flex-end; flex-wrap:wrap; justify-content:center; }
@@ -430,6 +725,7 @@ textarea::placeholder { color:var(--muted); }
           <div class="cas-bal-block">
             <div class="cas-bal-lbl">Баланс</div>
             <div id="casbal">$10</div>
+            <button class="wd-btn" onclick="openWithdraw()">💸 Вывод</button>
           </div>
         </div>
 
@@ -437,6 +733,7 @@ textarea::placeholder { color:var(--muted); }
         <div class="cas-tabs">
           <div class="cas-tab active" id="ctab-slots" onclick="switchCasTab('slots')">🎰 Слоты</div>
           <div class="cas-tab" id="ctab-plinko" onclick="switchCasTab('plinko')">🎯 Плинко</div>
+          <div class="cas-tab" id="ctab-rocket" onclick="switchCasTab('rocket')">🚀 Ракета</div>
         </div>
 
         <!-- SLOTS PANEL -->
@@ -506,11 +803,264 @@ textarea::placeholder { color:var(--muted); }
           <div id="plinkoMsg"></div>
         </div>
 
+        <!-- ROCKET CRASH PANEL -->
+        <div id="cas-panel-rocket" class="cas-panel">
+          <div class="rk-top">
+            <div id="rkMult">1.00×</div>
+            <div class="rk-phase" id="rkPhase">Ожидание ставок</div>
+          </div>
+          <div class="rk-cvs-wrap">
+            <div class="rk-stars" id="rkStars"></div>
+            <canvas id="rkCvs"></canvas>
+            <div id="rkRocket" style="left:8%;bottom:10%;">🚀</div>
+            <div id="rkExplosion">💥</div>
+          </div>
+          <div class="rk-controls">
+            <div class="rk-row">
+              <button class="bbt" onclick="rkAdj(.5)">½</button>
+              <input type="number" id="rkBet" value="5" min="1">
+              <button class="bbt" onclick="rkAdj(2)">×2</button>
+              <button class="bbt" onclick="rkMax()">MAX</button>
+            </div>
+            <div class="rk-row">
+              <span class="rk-auto-lbl">Авто-кэшаут при</span>
+              <input type="number" id="rkAutoVal" placeholder="выкл" min="1.1" step="0.1">
+              <span class="rk-auto-lbl">×</span>
+            </div>
+            <div class="rk-row">
+              <button class="rk-place-btn" id="rkPlaceBtn" onclick="rkPlace()">🚀 СТАВКА</button>
+              <button class="rk-cash-btn"  id="rkCashBtn"  onclick="rkCash()">💰 КЭШАУТ</button>
+            </div>
+            <div id="rkMsg"></div>
+          </div>
+          <div class="rk-hist-row" id="rkHist"></div>
+        </div>
+
+      </div>
+    </div>
+</div><!-- /overlay -->
+
+<!-- WITHDRAWAL MODAL -->
+<div class="wd-overlay" id="wdOverlay">
+  <div class="wd-box" id="wdBox">
+
+    <!-- STICKY HEADER -->
+    <div class="wd-hdr">
+      <div class="wd-hdr-left">
+        <div class="wd-hdr-title" id="wdHdrTitle">💸 Вывод средств</div>
+        <div class="wd-hdr-sub" id="wdHdrSub">Шаг 1 из 4 — Способ вывода</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="wd-steps-row">
+          <div class="wd-step-dot active" id="wdDot1">1</div>
+          <div class="wd-step-line"></div>
+          <div class="wd-step-dot" id="wdDot2">2</div>
+          <div class="wd-step-line"></div>
+          <div class="wd-step-dot" id="wdDot3">3</div>
+          <div class="wd-step-line"></div>
+          <div class="wd-step-dot" id="wdDot4">4</div>
+        </div>
+        <div class="wd-close" onclick="closeWithdraw()">✕</div>
       </div>
     </div>
 
-  </div><!-- /gwin -->
-</div><!-- /overlay -->
+    <!-- STEP 1: METHOD -->
+    <div class="wd-body" id="wdStep1">
+      <div class="wd-amount-pill">
+        <div class="wd-amount-info">
+          <div class="wd-amount-lbl">Доступно к выводу</div>
+          <div class="wd-amount-num" id="wdAmountVal">$0</div>
+          <div class="wd-amount-rate" id="wdRateHint">≈ ₽0 по курсу 92.4</div>
+        </div>
+        <div class="wd-ssl">🔒 SSL</div>
+      </div>
+
+      <div class="wd-field">
+        <div class="wd-label">Выберите способ вывода</div>
+        <div class="wd-method-grid">
+          <div class="wd-method sel" id="wdM-card" onclick="wdSelMethod('card')">
+            <div class="wd-method-icon">💳</div>
+            <div class="wd-method-name">Карта</div>
+            <div class="wd-method-time">1–3 дня</div>
+          </div>
+          <div class="wd-method" id="wdM-sbp" onclick="wdSelMethod('sbp')">
+            <div class="wd-method-icon">⚡</div>
+            <div class="wd-method-name">СБП</div>
+            <div class="wd-method-time">Мгновенно</div>
+          </div>
+          <div class="wd-method" id="wdM-crypto" onclick="wdSelMethod('crypto')">
+            <div class="wd-method-icon">₿</div>
+            <div class="wd-method-name">Крипто</div>
+            <div class="wd-method-time">~30 мин</div>
+          </div>
+          <div class="wd-method" id="wdM-wallet" onclick="wdSelMethod('wallet')">
+            <div class="wd-method-icon">👛</div>
+            <div class="wd-method-name">ЮMoney</div>
+            <div class="wd-method-time">До 1 дня</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wd-field">
+        <div class="wd-label">Сумма вывода <span class="wd-label-req">*</span></div>
+        <div class="wd-input-wrap">
+          <input class="wd-input" id="wdWithdrawAmt" type="number" placeholder="0" min="1">
+          <div class="wd-input-ico">$</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px" id="wdAmtHint">Мин: $1 · Макс: $<span id="wdMaxHint">0</span> · Комиссия: 0%</div>
+      </div>
+
+      <div class="wd-field">
+        <div class="wd-label">Email для получения кода и выписки <span class="wd-label-req">*</span></div>
+        <div class="wd-input-wrap">
+          <input class="wd-input" id="wdEmail" type="email" placeholder="your@email.com">
+          <div class="wd-input-ico">📧</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">На этот адрес придёт код верификации и выписка о транзакции</div>
+      </div>
+
+      <button class="wd-submit" onclick="wdGoStep2()">Продолжить →</button>
+      <div class="wd-hint">🔒 Защищено 256-bit TLS · Лицензия ЦБ РФ #3498 · Ваши данные не хранятся</div>
+    </div>
+
+    <!-- STEP 2: DETAILS -->
+    <div class="wd-body" id="wdStep2" style="display:none">
+
+      <!-- Card fields -->
+      <div id="wdFieldsCard">
+        <div class="wd-field">
+          <div class="wd-label">Имя держателя <span class="wd-label-req">*</span></div>
+          <input class="wd-input" id="wdCardName" placeholder="IVAN IVANOV" style="text-transform:uppercase" maxlength="26">
+        </div>
+        <div class="wd-field" style="margin-top:10px">
+          <div class="wd-label">Номер карты <span class="wd-label-req">*</span></div>
+          <div class="wd-input-wrap">
+            <input class="wd-input" id="wdCardNum" placeholder="0000 0000 0000 0000" maxlength="19" oninput="wdFmtCard(this)">
+            <div class="wd-input-ico" id="wdCardTypeIco">💳</div>
+          </div>
+        </div>
+        <div class="wd-row2" style="margin-top:10px">
+          <div class="wd-field" style="flex:1">
+            <div class="wd-label">Срок <span class="wd-label-req">*</span></div>
+            <input class="wd-input" id="wdCardExp" placeholder="MM/YY" maxlength="5" oninput="wdFmtExp(this)">
+          </div>
+          <div class="wd-field" style="flex:1">
+            <div class="wd-label">CVV <span class="wd-label-req">*</span></div>
+            <input class="wd-input" id="wdCardCvv" placeholder="•••" maxlength="3" type="password">
+          </div>
+        </div>
+      </div>
+
+      <!-- SBP fields -->
+      <div id="wdFieldsSbp" style="display:none">
+        <div class="wd-field">
+          <div class="wd-label">Номер телефона <span class="wd-label-req">*</span></div>
+          <div class="wd-input-wrap">
+            <input class="wd-input" id="wdSbpPhone" placeholder="+7 (900) 000-00-00" maxlength="18" oninput="wdFmtPhone(this)">
+            <div class="wd-input-ico">📱</div>
+          </div>
+        </div>
+        <div class="wd-field" style="margin-top:10px">
+          <div class="wd-label">Ваш банк</div>
+          <div class="wd-bank-grid" id="wdBankGrid">
+            <div class="wd-bank sel" data-bank="sber" onclick="wdSelBank(this)"><div class="wd-bank-logo">🟢</div><div class="wd-bank-name">Сбер</div></div>
+            <div class="wd-bank" data-bank="tinkoff" onclick="wdSelBank(this)"><div class="wd-bank-logo">🟡</div><div class="wd-bank-name">Т-Банк</div></div>
+            <div class="wd-bank" data-bank="vtb" onclick="wdSelBank(this)"><div class="wd-bank-logo">🔵</div><div class="wd-bank-name">ВТБ</div></div>
+            <div class="wd-bank" data-bank="alfa" onclick="wdSelBank(this)"><div class="wd-bank-logo">🔴</div><div class="wd-bank-name">Альфа</div></div>
+            <div class="wd-bank" data-bank="raif" onclick="wdSelBank(this)"><div class="wd-bank-logo">🟠</div><div class="wd-bank-name">Райфф.</div></div>
+            <div class="wd-bank" data-bank="other" onclick="wdSelBank(this)"><div class="wd-bank-logo">🏦</div><div class="wd-bank-name">Другой</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Crypto fields -->
+      <div id="wdFieldsCrypto" style="display:none">
+        <div class="wd-field">
+          <div class="wd-label">Криптовалюта</div>
+          <select class="wd-input" id="wdCryptoCoin" style="cursor:pointer">
+            <option value="btc">₿ Bitcoin (BTC)</option>
+            <option value="eth">Ξ Ethereum (ETH)</option>
+            <option value="usdt">₮ Tether (USDT TRC-20)</option>
+            <option value="ton">💎 TON</option>
+          </select>
+        </div>
+        <div class="wd-field" style="margin-top:10px">
+          <div class="wd-label">Адрес кошелька <span class="wd-label-req">*</span></div>
+          <input class="wd-input" id="wdCryptoAddr" placeholder="bc1q..." style="font-family:'Courier New',monospace;font-size:12px">
+        </div>
+      </div>
+
+      <!-- Wallet fields -->
+      <div id="wdFieldsWallet" style="display:none">
+        <div class="wd-field">
+          <div class="wd-label">Номер кошелька / телефон <span class="wd-label-req">*</span></div>
+          <div class="wd-input-wrap">
+            <input class="wd-input" id="wdWalletNum" placeholder="+7 (900) 000-00-00" maxlength="18" oninput="wdFmtPhone(this)">
+            <div class="wd-input-ico">👛</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="wd-back" onclick="wdGoStep1()">← Назад</button>
+        <button class="wd-submit" onclick="wdGoStep3()" style="flex:1">Далее — Верификация →</button>
+      </div>
+      <div class="wd-hint">Данные передаются в зашифрованном виде и не сохраняются</div>
+    </div>
+
+    <!-- STEP 3: SMS -->
+    <div class="wd-body" id="wdStep3" style="display:none">
+      <div class="wd-sms-box">
+        <div class="wd-sms-icon">📧</div>
+        <div class="wd-sms-title" id="wdSmsTitle">Подтверждение по Email</div>
+        <div class="wd-sms-sub" id="wdSmsSub">Мы отправили 4-значный код на адрес<br><span class="wd-sms-masked" id="wdSmsMasked">...</span></div>
+        <div class="wd-code-row" id="wdCodeRow">
+          <input class="wd-code-inp" maxlength="1" type="tel" oninput="wdCodeNext(this,0)">
+          <input class="wd-code-inp" maxlength="1" type="tel" oninput="wdCodeNext(this,1)">
+          <input class="wd-code-inp" maxlength="1" type="tel" oninput="wdCodeNext(this,2)">
+          <input class="wd-code-inp" maxlength="1" type="tel" oninput="wdCodeNext(this,3)">
+        </div>
+        <div id="wdSmsErr" style="font-size:12px;color:var(--red);min-height:16px;"></div>
+        <div class="wd-countdown-txt" id="wdCdTxt">Повторная отправка через <span id="wdCdSec">60</span> сек</div>
+        <div class="wd-resend" id="wdResendBtn" style="display:none" onclick="wdResendSms()">Отправить повторно</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="wd-back" onclick="wdGoStep2()">← Назад</button>
+        <button class="wd-submit" id="wdSmsSubmit" onclick="wdVerifySms()">Подтвердить →</button>
+      </div>
+      <div class="wd-hint">Код действителен 10 минут · Не передавайте код никому</div>
+    </div>
+
+    <!-- STEP 4: PROCESSING -->
+    <div class="wd-body" id="wdStep4" style="display:none">
+      <div class="wd-proc" id="wdProc" style="display:flex">
+        <div class="wd-proc-icon-wrap">
+          <div class="wd-proc-ring"></div>
+          <div class="wd-proc-inner"></div>
+          <div class="wd-proc-emoji" id="wdProcEmoji">🏦</div>
+        </div>
+        <div class="wd-proc-title" id="wdProcTitle">Подключение к платёжной системе...</div>
+        <div class="wd-proc-sub" id="wdProcSub">Пожалуйста, не закрывайте страницу</div>
+        <div class="wd-proc-bar-wrap"><div class="wd-proc-bar" id="wdProcBar"></div></div>
+        <div class="wd-proc-checklist" id="wdCheckList"></div>
+      </div>
+
+      <!-- Result -->
+      <div class="wd-res" id="wdRes">
+        <div class="wd-res-anim" id="wdResAnim">✅</div>
+        <div class="wd-res-title" id="wdResTitle">Заявка принята!</div>
+        <div class="wd-res-ref" id="wdResRef">REF: #BEER-000000</div>
+        <div class="wd-res-card" id="wdResCard"></div>
+        <div class="wd-res-twist" id="wdResTwist"></div>
+        <div class="wd-res-btns">
+          <button class="wd-res-btn primary" onclick="closeWithdraw()">Понятно</button>
+          <button class="wd-res-btn" onclick="wdPlayAgain()">🎰 Играть дальше</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script>
 // ─── TRANSLATION ───────────────────────────────────────
@@ -558,7 +1108,7 @@ function backMenu(){
   });
   document.onkeydown=null;
 }
-function killAll(){ activeInts.forEach(clearInterval); activeInts=[]; document.onkeydown=null; }
+function killAll(){ activeInts.forEach(clearInterval); activeInts=[]; rkKill(); document.onkeydown=null; }
 function showGame(id, title){
   gmenu.style.display='none';
   document.getElementById('gtitle').innerText=title;
@@ -869,11 +1419,12 @@ function showIdleStrip(id) {
 }
 
 function switchCasTab(tab) {
-  ['slots','plinko'].forEach(t => {
+  ['slots','plinko','rocket'].forEach(t => {
     document.getElementById('ctab-'+t).classList.toggle('active', t===tab);
     document.getElementById('cas-panel-'+t).classList.toggle('visible', t===tab);
   });
   if (tab==='plinko') { setTimeout(plinkoDrawIdle, 30); }
+  if (tab==='rocket') { setTimeout(rkInit, 30); }
 }
 
 function openCasino() {
@@ -1176,6 +1727,936 @@ function spawnConfettiCasino(n){
     p.style.left=(15+Math.random()*70)+'%'; p.style.top='50%';
     wrap.appendChild(p); setTimeout(()=>p.remove(),1500);
   }
+}
+
+// ─── WITHDRAWAL ────────────────────────────────────────
+
+// ╔══════════════════════════════════════════════════════╗
+// ║         EMAILJS НАСТРОЙКИ — ВСТАВЬ СВОИ КЛЮЧИ       ║
+// ║  1. Зарегистрируйся на https://emailjs.com          ║
+// ║  2. Создай Email Service (Gmail/Outlook/etc)        ║
+// ║  3. Создай 2 шаблона (см. ниже)                    ║
+// ║  4. Вставь свои ID сюда:                           ║
+// ╚══════════════════════════════════════════════════════╝
+const EMAILJS_PUBLIC_KEY   = 'OUhlp6cTpgpDziCG_';     // Account → API Keys
+const EMAILJS_SERVICE_ID   = 'service_d34nt4g';     // Email Services → Service ID
+const EMAILJS_TMPL_CODE    = 'template_odruxra';  // шаблон с кодом
+const EMAILJS_TMPL_RECEIPT = 'template_kkjla0t'; // шаблон с выпиской
+
+// Шаблон CODE (переменные: {{to_email}}, {{code}}, {{amount}}, {{method}})
+// Шаблон RECEIPT (переменные: {{to_email}}, {{amount}}, {{amount_rub}}, {{method}},
+//                              {{ref}}, {{date}}, {{status}}, {{balance_after}})
+
+(function() {
+  if (EMAILJS_PUBLIC_KEY !== 'ВСТАВЬ_СЮДА_PUBLIC_KEY') {
+    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  }
+})();
+
+const WD = {
+  method: 'card',
+  amount: 0,
+  email: '',
+  phone: '',
+  cdInt: null,
+  smsCode: '',
+  ref: '',
+};
+
+const WD_RATE = 92.4;
+
+function openWithdraw() {
+  if (casBalance <= 0) { alert('💸 Нечего выводить!'); return; }
+  WD.method = 'card';
+  WD.amount = casBalance;
+  document.getElementById('wdAmountVal').textContent = '$' + casBalance;
+  document.getElementById('wdRateHint').textContent = '≈ ₽' + Math.round(casBalance * WD_RATE).toLocaleString('ru') + ' по курсу ' + WD_RATE;
+  document.getElementById('wdMaxHint').textContent = casBalance;
+  document.getElementById('wdWithdrawAmt').value = casBalance;
+  document.getElementById('wdWithdrawAmt').max = casBalance;
+  document.getElementById('wdEmail').value = '';
+  wdGoStep1(true);
+  document.getElementById('wdOverlay').classList.add('open');
+}
+
+function closeWithdraw() {
+  document.getElementById('wdOverlay').classList.remove('open');
+  clearInterval(WD.cdInt);
+}
+
+function wdSetStep(n) {
+  [1,2,3,4].forEach(i => {
+    const dot = document.getElementById('wdDot'+i);
+    dot.className = 'wd-step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+    dot.textContent = i < n ? '✓' : i;
+  });
+  const subs = ['Шаг 1 из 4 — Способ вывода','Шаг 2 из 4 — Реквизиты','Шаг 3 из 4 — Верификация по Email','Шаг 4 из 4 — Обработка'];
+  document.getElementById('wdHdrSub').textContent = subs[n-1];
+  ['wdStep1','wdStep2','wdStep3','wdStep4'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.style.display = (i === n-1) ? 'flex' : 'none';
+    if (i === n-1) el.style.flexDirection = 'column';
+  });
+}
+
+function wdGoStep1(init) {
+  if (!init) wdSetStep(1);
+  else {
+    ['wdStep1','wdStep2','wdStep3','wdStep4'].forEach(id => { document.getElementById(id).style.display='none'; });
+    document.getElementById('wdStep1').style.display = 'flex';
+    document.getElementById('wdStep1').style.flexDirection = 'column';
+    [1,2,3,4].forEach(i => {
+      const d = document.getElementById('wdDot'+i);
+      d.className = 'wd-step-dot' + (i === 1 ? ' active' : '');
+      d.textContent = i;
+    });
+    document.getElementById('wdHdrSub').textContent = 'Шаг 1 из 4 — Способ вывода';
+  }
+  ['card','sbp','crypto','wallet'].forEach(m =>
+    document.getElementById('wdM-'+m).classList.toggle('sel', m === WD.method)
+  );
+}
+
+function wdSelMethod(m) {
+  WD.method = m;
+  ['card','sbp','crypto','wallet'].forEach(x =>
+    document.getElementById('wdM-'+x).classList.toggle('sel', x === m)
+  );
+}
+
+function wdGoStep2() {
+  const amt = parseInt(document.getElementById('wdWithdrawAmt').value) || 0;
+  const email = document.getElementById('wdEmail').value.trim();
+  if (amt <= 0 || amt > casBalance) { alert('Введите корректную сумму!'); return; }
+  if (!email || !email.includes('@') || !email.includes('.')) { alert('Введите корректный email!'); return; }
+  WD.amount = amt;
+  WD.email = email;
+  ['Card','Sbp','Crypto','Wallet'].forEach(x =>
+    document.getElementById('wdFields'+x).style.display = (x.toLowerCase() === WD.method ? 'block' : 'none')
+  );
+  wdSetStep(2);
+}
+
+function wdGoStep3() {
+  if (WD.method === 'card') {
+    const n = document.getElementById('wdCardNum').value.replace(/\s/g,'');
+    const e = document.getElementById('wdCardExp').value;
+    const c = document.getElementById('wdCardCvv').value;
+    const h = document.getElementById('wdCardName').value.trim();
+    if (!h) { alert('Введите имя держателя!'); return; }
+    if (n.length < 16) { alert('Введите полный номер карты!'); return; }
+    if (e.length < 5) { alert('Введите срок действия!'); return; }
+    if (c.length < 3) { alert('Введите CVV!'); return; }
+  } else if (WD.method === 'sbp' || WD.method === 'wallet') {
+    const ph = (document.getElementById(WD.method==='sbp'?'wdSbpPhone':'wdWalletNum').value||'').replace(/\D/g,'');
+    if (ph.length < 10) { alert('Введите корректный номер телефона!'); return; }
+    WD.phone = ph;
+  } else if (WD.method === 'crypto') {
+    const addr = document.getElementById('wdCryptoAddr').value.trim();
+    if (addr.length < 10) { alert('Введите адрес кошелька!'); return; }
+  }
+
+  // Generate code & ref
+  WD.smsCode = String(Math.floor(1000 + Math.random() * 9000));
+  WD.ref = 'BEER-' + Math.random().toString(36).slice(2,8).toUpperCase();
+
+  // Update SMS screen to show email
+  document.getElementById('wdSmsMasked').textContent = WD.email;
+  document.getElementById('wdSmsTitle').textContent = 'Подтверждение по Email';
+  document.getElementById('wdSmsSub').innerHTML =
+    'Мы отправили 4-значный код на адрес<br><span class="wd-sms-masked">' + WD.email + '</span>';
+
+  // Reset code inputs
+  document.querySelectorAll('.wd-code-inp').forEach(el => { el.value = ''; el.className = 'wd-code-inp'; });
+  document.getElementById('wdSmsErr').textContent = '';
+
+  // Show sending indicator
+  wdSetStep(3);
+  document.getElementById('wdSmsErr').style.color = 'var(--acc)';
+  document.getElementById('wdSmsErr').textContent = '📨 Отправляем код...';
+
+  // Send real email with code
+  wdSendCodeEmail().then(() => {
+    document.getElementById('wdSmsErr').style.color = 'var(--green)';
+    document.getElementById('wdSmsErr').textContent = '✅ Код отправлен! Проверьте почту (и папку Спам)';
+    setTimeout(() => { document.getElementById('wdSmsErr').textContent = ''; }, 4000);
+  }).catch(err => {
+    console.warn('EmailJS error:', err);
+    document.getElementById('wdSmsErr').style.color = 'var(--muted)';
+    document.getElementById('wdSmsErr').textContent = '⚠️ Email не отправлен (EmailJS не настроен) — для теста введите любой 4-значный код';
+  });
+
+  // Countdown
+  clearInterval(WD.cdInt);
+  let secs = 60;
+  document.getElementById('wdCdTxt').style.display = '';
+  document.getElementById('wdResendBtn').style.display = 'none';
+  document.getElementById('wdCdSec').textContent = secs;
+  WD.cdInt = setInterval(() => {
+    secs--;
+    document.getElementById('wdCdSec').textContent = secs;
+    if (secs <= 0) {
+      clearInterval(WD.cdInt);
+      document.getElementById('wdCdTxt').style.display = 'none';
+      document.getElementById('wdResendBtn').style.display = '';
+    }
+  }, 1000);
+
+  setTimeout(() => document.querySelectorAll('.wd-code-inp')[0].focus(), 200);
+}
+
+async function wdSendCodeEmail() {
+  if (EMAILJS_PUBLIC_KEY === 'ВСТАВЬ_СЮДА_PUBLIC_KEY') throw new Error('not configured');
+  const methodNames = {card:'Банковская карта',sbp:'СБП',crypto:'Криптовалюта',wallet:'ЮMoney'};
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TMPL_CODE, {
+    to_email: WD.email,
+    passcode: WD.smsCode,
+    amount: '$' + WD.amount,
+    method: methodNames[WD.method],
+    site_name: 'Beer Casino 🍺',
+  });
+}
+
+async function wdSendReceiptEmail() {
+  if (EMAILJS_PUBLIC_KEY === 'ВСТАВЬ_СЮДА_PUBLIC_KEY') return;
+  const methodNames = {card:'Банковская карта',sbp:'СБП',crypto:'Криптовалюта',wallet:'ЮMoney'};
+  const methodTimes = {card:'1–3 рабочих дня',sbp:'Мгновенно',crypto:'~30 минут',wallet:'До 24 часов'};
+  const rub = Math.round(WD.amount * WD_RATE);
+  const now = new Date();
+  const dateStr = now.toLocaleString('ru-RU');
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TMPL_RECEIPT, {
+    to_email: WD.email,
+    ref: WD.ref,
+    amount: '$' + WD.amount,
+    amount_rub: '₽' + rub.toLocaleString('ru'),
+    method: methodNames[WD.method],
+    timing: methodTimes[WD.method],
+    date: dateStr,
+    status: 'Принята в обработку',
+    balance_after: '$' + casBalance,
+    site_name: 'Beer Casino 🍺',
+  });
+}
+
+function wdCodeNext(el, idx) {
+  el.value = el.value.replace(/\D/g,'').slice(-1);
+  el.classList.toggle('filled', el.value !== '');
+  if (el.value && idx < 3) document.querySelectorAll('.wd-code-inp')[idx+1].focus();
+  const all = [...document.querySelectorAll('.wd-code-inp')];
+  if (all.every(x => x.value)) wdVerifySms();
+}
+
+function wdResendSms() {
+  WD.smsCode = String(Math.floor(1000 + Math.random() * 9000));
+  document.getElementById('wdResendBtn').style.display = 'none';
+  document.getElementById('wdCdTxt').style.display = '';
+  document.getElementById('wdSmsErr').style.color = 'var(--acc)';
+  document.getElementById('wdSmsErr').textContent = '📨 Отправляем код...';
+
+  wdSendCodeEmail().then(() => {
+    document.getElementById('wdSmsErr').style.color = 'var(--green)';
+    document.getElementById('wdSmsErr').textContent = '✅ Новый код отправлен!';
+    setTimeout(() => { document.getElementById('wdSmsErr').textContent = ''; }, 3000);
+  }).catch(() => {
+    document.getElementById('wdSmsErr').style.color = 'var(--muted)';
+    document.getElementById('wdSmsErr').textContent = '⚠️ EmailJS не настроен — введите любой 4-значный код';
+  });
+
+  let secs = 60;
+  document.getElementById('wdCdSec').textContent = secs;
+  WD.cdInt = setInterval(() => {
+    secs--;
+    document.getElementById('wdCdSec').textContent = secs;
+    if (secs <= 0) {
+      clearInterval(WD.cdInt);
+      document.getElementById('wdCdTxt').style.display = 'none';
+      document.getElementById('wdResendBtn').style.display = '';
+    }
+  }, 1000);
+  document.querySelectorAll('.wd-code-inp').forEach(el => { el.value = ''; el.className = 'wd-code-inp'; });
+}
+
+function wdVerifySms() {
+  const entered = [...document.querySelectorAll('.wd-code-inp')].map(x => x.value).join('');
+  if (entered.length < 4) return;
+
+  // If EmailJS configured — check exact code; if not — accept anything
+  const configured = EMAILJS_PUBLIC_KEY !== 'ВСТАВЬ_СЮДА_PUBLIC_KEY';
+  if (configured && entered !== WD.smsCode) {
+    document.getElementById('wdSmsErr').style.color = 'var(--red)';
+    document.getElementById('wdSmsErr').textContent = '❌ Неверный код! Попробуйте ещё раз';
+    document.querySelectorAll('.wd-code-inp').forEach(el => {
+      el.value = ''; el.className = 'wd-code-inp wd-code-err';
+      setTimeout(() => el.classList.remove('wd-code-err'), 600);
+    });
+    document.querySelectorAll('.wd-code-inp')[0].focus();
+    return;
+  }
+
+  clearInterval(WD.cdInt);
+  wdSetStep(4);
+  wdRunProcessing();
+}
+
+const WD_CHECKS = [
+  { emoji:'🔐', txt:'Аутентификация пользователя' },
+  { emoji:'🌐', txt:'Подключение к платёжному шлюзу' },
+  { emoji:'🔎', txt:'Проверка реквизитов' },
+  { emoji:'💼', txt:'Резервирование средств' },
+  { emoji:'📡', txt:'Запрос в банк-эквайер' },
+  { emoji:'✅', txt:'Формирование платёжного поручения' },
+];
+
+function wdRunProcessing() {
+  document.getElementById('wdProc').style.display = 'flex';
+  document.getElementById('wdRes').style.display = 'none';
+  const list = document.getElementById('wdCheckList');
+  list.innerHTML = '';
+  WD_CHECKS.forEach((c,i) => {
+    const d = document.createElement('div');
+    d.className = 'wd-check'; d.id = 'wdCk'+i;
+    d.innerHTML = `<div class="wd-check-ico">${c.emoji}</div><div class="wd-check-txt">${c.txt}</div><div style="font-size:11px;color:var(--muted)" id="wdCkS${i}">ожидание</div>`;
+    list.appendChild(d);
+  });
+
+  let step = 0;
+  document.getElementById('wdProcBar').style.width = '0%';
+  const stepDur = 7500 / WD_CHECKS.length;
+
+  const runStep = () => {
+    if (step >= WD_CHECKS.length) {
+      document.getElementById('wdProcBar').style.width = '100%';
+      // Send receipt email in background
+      wdSendReceiptEmail().catch(()=>{});
+      setTimeout(wdShowResult, 700);
+      return;
+    }
+    if (step > 0) {
+      const prev = document.getElementById('wdCk'+(step-1));
+      prev.className = 'wd-check done';
+      document.getElementById('wdCkS'+(step-1)).textContent = '✓';
+      document.getElementById('wdCkS'+(step-1)).style.color = 'var(--green)';
+    }
+    const cur = document.getElementById('wdCk'+step);
+    cur.className = 'wd-check active';
+    document.getElementById('wdCkS'+step).textContent = '...';
+    document.getElementById('wdProcBar').style.width = Math.round(((step+1)/WD_CHECKS.length)*95) + '%';
+    document.getElementById('wdProcTitle').textContent = WD_CHECKS[step].emoji + ' ' + WD_CHECKS[step].txt + '...';
+    document.getElementById('wdProcEmoji').textContent = WD_CHECKS[step].emoji;
+    step++;
+    setTimeout(runStep, stepDur + (Math.random()-0.5)*400);
+  };
+  setTimeout(runStep, 400);
+}
+
+function wdShowResult() {
+  document.getElementById('wdProc').style.display = 'none';
+  const res = document.getElementById('wdRes');
+  res.style.display = 'flex'; res.style.flexDirection = 'column'; res.style.alignItems = 'center';
+
+  const rub = Math.round(WD.amount * WD_RATE);
+  const methodNames = {card:'Банковская карта',sbp:'СБП',crypto:'Криптовалюта',wallet:'ЮMoney'};
+  const methodTimes = {card:'1–3 рабочих дня',sbp:'Мгновенно',crypto:'~30 минут',wallet:'До 24 часов'};
+  const now = new Date().toLocaleString('ru-RU');
+  const configured = EMAILJS_PUBLIC_KEY !== 'ВСТАВЬ_СЮДА_PUBLIC_KEY';
+
+  document.getElementById('wdResAnim').textContent = '✅';
+  document.getElementById('wdResTitle').textContent = 'Заявка принята!';
+  document.getElementById('wdResRef').textContent = 'REF: #' + WD.ref + ' · ' + now;
+
+  document.getElementById('wdResCard').innerHTML = `
+    <div class="wd-res-row"><span class="wd-res-key">Сумма</span><span class="wd-res-val green">$${WD.amount} ≈ ₽${rub.toLocaleString('ru')}</span></div>
+    <div class="wd-res-row"><span class="wd-res-key">Способ</span><span class="wd-res-val">${methodNames[WD.method]}</span></div>
+    <div class="wd-res-row"><span class="wd-res-key">Email</span><span class="wd-res-val">${WD.email}</span></div>
+    <div class="wd-res-row"><span class="wd-res-key">Срок</span><span class="wd-res-val yellow">${methodTimes[WD.method]}</span></div>
+    <div class="wd-res-row"><span class="wd-res-key">Статус</span><span class="wd-res-val" style="color:var(--acc)">⏳ В обработке</span></div>
+    <div class="wd-res-row"><span class="wd-res-key">Комиссия</span><span class="wd-res-val">₽0.00</span></div>`;
+
+  const emailNote = configured
+    ? `📧 Выписка отправлена на <strong>${WD.email}</strong>`
+    : `📧 Выписка была бы отправлена на <strong>${WD.email}</strong> (EmailJS не настроен)`;
+
+  document.getElementById('wdResTwist').innerHTML =
+    `<strong>🏦 Уважаемый клиент!</strong><br><br>
+    Ваша заявка <strong>#${WD.ref}</strong> зарегистрирована и поставлена в очередь.<br><br>
+    ${emailNote}<br><br>
+    <strong style="color:var(--red)">⚠️ Важное сообщение от администрации:</strong><br>
+    В связи с тем, что курс <strong>Пивного Доллара (PVD/₽)</strong> составляет <strong>₽0.00</strong>, 
+    а сам Beer Casino признан <strong>банкротом</strong> решением Арбитражного суда №А40-🍺-2024, 
+    выплата средств временно приостановлена.<br><br>
+    Ваш баланс <strong>$${WD.amount}</strong> сохранён. Продолжайте играть! 🎰`;
+
+  spawnConfettiCasino(8);
+}
+
+function wdPlayAgain() { closeWithdraw(); switchCasTab('slots'); }
+
+function wdSelBank(el) {
+  document.querySelectorAll('.wd-bank').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function wdFmtCard(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+  const ico = document.getElementById('wdCardTypeIco');
+  ico.textContent = v.startsWith('4')?'💙':v.startsWith('5')?'🟠':v.startsWith('2')?'🇷🇺':'💳';
+}
+function wdFmtExp(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,4);
+  if (v.length >= 3) v = v.substring(0,2)+'/'+v.substring(2);
+  el.value = v;
+}
+function wdFmtPhone(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.startsWith('8')) v='7'+v.slice(1);
+  if (!v.startsWith('7')) v='7'+v;
+  v=v.substring(0,11);
+  if(v.length<=1)el.value='+7';
+  else if(v.length<=4)el.value='+7 ('+v.slice(1);
+  else if(v.length<=7)el.value='+7 ('+v.slice(1,4)+') '+v.slice(4);
+  else if(v.length<=9)el.value='+7 ('+v.slice(1,4)+') '+v.slice(4,7)+'-'+v.slice(7);
+  else el.value='+7 ('+v.slice(1,4)+') '+v.slice(4,7)+'-'+v.slice(7,9)+'-'+v.slice(9);
+}
+document.getElementById('wdOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('wdOverlay')) closeWithdraw();
+});
+
+// ─── ROCKET CRASH ──────────────────────────────────────
+
+function openWithdraw() {
+  if (casBalance <= 0) { alert('💸 Нечего выводить!'); return; }
+  WD.method = 'card';
+  WD.amount = casBalance;
+  document.getElementById('wdAmountVal').textContent = '$' + casBalance;
+  document.getElementById('wdRateHint').textContent = '≈ ₽' + Math.round(casBalance * WD_RATE).toLocaleString('ru') + ' по курсу ' + WD_RATE;
+  document.getElementById('wdMaxHint').textContent = casBalance;
+  document.getElementById('wdWithdrawAmt').value = casBalance;
+  document.getElementById('wdWithdrawAmt').max = casBalance;
+  wdGoStep1(true);
+  document.getElementById('wdOverlay').classList.add('open');
+}
+
+function closeWithdraw() {
+  document.getElementById('wdOverlay').classList.remove('open');
+  clearInterval(WD.cdInt);
+}
+
+function wdSetStep(n) {
+  [1,2,3,4].forEach(i => {
+    const dot = document.getElementById('wdDot'+i);
+    dot.className = 'wd-step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+    dot.textContent = i < n ? '✓' : i;
+  });
+  const subs = ['Шаг 1 из 4 — Способ вывода','Шаг 2 из 4 — Реквизиты','Шаг 3 из 4 — Верификация','Шаг 4 из 4 — Обработка'];
+  document.getElementById('wdHdrSub').textContent = subs[n-1];
+  ['wdStep1','wdStep2','wdStep3','wdStep4'].forEach((id,i) => {
+    document.getElementById(id).style.display = (i === n-1) ? 'flex' : 'none';
+    if (i === n-1) document.getElementById(id).style.flexDirection = 'column';
+  });
+}
+
+function wdGoStep1(init) {
+  if (!init) wdSetStep(1);
+  else {
+    ['wdStep1','wdStep2','wdStep3','wdStep4'].forEach(id => { document.getElementById(id).style.display='none'; });
+    document.getElementById('wdStep1').style.display = 'flex';
+    document.getElementById('wdStep1').style.flexDirection = 'column';
+    [1,2,3,4].forEach(i => {
+      const d = document.getElementById('wdDot'+i);
+      d.className = 'wd-step-dot' + (i === 1 ? ' active' : '');
+      d.textContent = i;
+    });
+    document.getElementById('wdHdrSub').textContent = 'Шаг 1 из 4 — Способ вывода';
+  }
+  ['card','sbp','crypto','wallet'].forEach(m =>
+    document.getElementById('wdM-'+m).classList.toggle('sel', m === WD.method)
+  );
+}
+
+function wdSelMethod(m) {
+  WD.method = m;
+  ['card','sbp','crypto','wallet'].forEach(x =>
+    document.getElementById('wdM-'+x).classList.toggle('sel', x === m)
+  );
+}
+
+function wdGoStep2() {
+  const amt = parseInt(document.getElementById('wdWithdrawAmt').value) || 0;
+  if (amt <= 0 || amt > casBalance) { alert('Введите корректную сумму!'); return; }
+  WD.amount = amt;
+  ['Card','Sbp','Crypto','Wallet'].forEach(x =>
+    document.getElementById('wdFields'+x).style.display = (x.toLowerCase() === WD.method ? 'block' : 'none')
+  );
+  wdSetStep(2);
+}
+
+function wdGoStep3() {
+  // Validate
+  if (WD.method === 'card') {
+    const n = document.getElementById('wdCardNum').value.replace(/\s/g,'');
+    const e = document.getElementById('wdCardExp').value;
+    const c = document.getElementById('wdCardCvv').value;
+    const h = document.getElementById('wdCardName').value.trim();
+    if (!h) { alert('Введите имя держателя!'); return; }
+    if (n.length < 16) { alert('Введите полный номер карты!'); return; }
+    if (e.length < 5) { alert('Введите срок действия!'); return; }
+    if (c.length < 3) { alert('Введите CVV!'); return; }
+  } else if (WD.method === 'sbp' || WD.method === 'wallet') {
+    const ph = (document.getElementById(WD.method==='sbp'?'wdSbpPhone':'wdWalletNum').value||'').replace(/\D/g,'');
+    if (ph.length < 10) { alert('Введите корректный номер телефона!'); return; }
+    WD.phone = ph;
+  } else if (WD.method === 'crypto') {
+    const addr = document.getElementById('wdCryptoAddr').value.trim();
+    if (addr.length < 10) { alert('Введите адрес кошелька!'); return; }
+  }
+
+  // Generate SMS masked number and code
+  WD.smsCode = String(Math.floor(1000 + Math.random() * 9000));
+  const ph = WD.phone || '79' + String(Math.floor(Math.random()*1e9)).padStart(9,'0');
+  document.getElementById('wdSmsMasked').textContent =
+    '+7 (***) ***-' + ph.slice(-4,-2) + '-' + ph.slice(-2);
+
+  // Reset code inputs
+  document.querySelectorAll('.wd-code-inp').forEach(el => { el.value = ''; el.className = 'wd-code-inp'; });
+  document.getElementById('wdSmsErr').textContent = '';
+
+  // Countdown
+  clearInterval(WD.cdInt);
+  let secs = 60;
+  document.getElementById('wdCdTxt').style.display = '';
+  document.getElementById('wdResendBtn').style.display = 'none';
+  document.getElementById('wdCdSec').textContent = secs;
+  WD.cdInt = setInterval(() => {
+    secs--;
+    document.getElementById('wdCdSec').textContent = secs;
+    if (secs <= 0) {
+      clearInterval(WD.cdInt);
+      document.getElementById('wdCdTxt').style.display = 'none';
+      document.getElementById('wdResendBtn').style.display = '';
+    }
+  }, 1000);
+
+  wdSetStep(3);
+  setTimeout(() => document.querySelectorAll('.wd-code-inp')[0].focus(), 200);
+}
+
+function wdCodeNext(el, idx) {
+  el.value = el.value.replace(/\D/g,'').slice(-1);
+  el.classList.toggle('filled', el.value !== '');
+  if (el.value && idx < 3) {
+    document.querySelectorAll('.wd-code-inp')[idx+1].focus();
+  }
+  // Auto-submit when all filled
+  const all = [...document.querySelectorAll('.wd-code-inp')];
+  if (all.every(x => x.value)) wdVerifySms();
+}
+
+function wdResendSms() {
+  document.getElementById('wdResendBtn').style.display = 'none';
+  document.getElementById('wdCdTxt').style.display = '';
+  WD.smsCode = String(Math.floor(1000 + Math.random() * 9000));
+  let secs = 60;
+  document.getElementById('wdCdSec').textContent = secs;
+  WD.cdInt = setInterval(() => {
+    secs--;
+    document.getElementById('wdCdSec').textContent = secs;
+    if (secs <= 0) {
+      clearInterval(WD.cdInt);
+      document.getElementById('wdCdTxt').style.display = 'none';
+      document.getElementById('wdResendBtn').style.display = '';
+    }
+  }, 1000);
+  document.querySelectorAll('.wd-code-inp').forEach(el => { el.value = ''; el.className = 'wd-code-inp'; });
+  document.getElementById('wdSmsErr').textContent = '';
+}
+
+function wdVerifySms() {
+  const entered = [...document.querySelectorAll('.wd-code-inp')].map(x => x.value).join('');
+  if (entered.length < 4) return;
+  // Accept any 4-digit code — it's all fake anyway
+  clearInterval(WD.cdInt);
+  wdSetStep(4);
+  wdRunProcessing();
+}
+
+const WD_CHECKS = [
+  { emoji:'🔐', txt:'Аутентификация пользователя' },
+  { emoji:'🌐', txt:'Подключение к платёжному шлюзу' },
+  { emoji:'🔎', txt:'Проверка реквизитов' },
+  { emoji:'💼', txt:'Резервирование средств' },
+  { emoji:'📡', txt:'Запрос в банк-эквайер' },
+  { emoji:'✅', txt:'Формирование платёжного поручения' },
+];
+
+function wdRunProcessing() {
+  document.getElementById('wdProc').style.display = 'flex';
+  document.getElementById('wdRes').style.display = 'none';
+
+  const list = document.getElementById('wdCheckList');
+  list.innerHTML = '';
+  WD_CHECKS.forEach((c, i) => {
+    const d = document.createElement('div');
+    d.className = 'wd-check';
+    d.id = 'wdCk' + i;
+    d.innerHTML = `<div class="wd-check-ico">${c.emoji}</div><div class="wd-check-txt">${c.txt}</div><div style="font-size:11px;color:var(--muted)" id="wdCkS${i}">ожидание</div>`;
+    list.appendChild(d);
+  });
+
+  let step = 0;
+  const totalDur = 7500;
+  const stepDur = totalDur / WD_CHECKS.length;
+  document.getElementById('wdProcBar').style.width = '0%';
+
+  const runStep = () => {
+    if (step >= WD_CHECKS.length) {
+      document.getElementById('wdProcBar').style.width = '100%';
+      setTimeout(wdShowResult, 600);
+      return;
+    }
+    // Mark previous done
+    if (step > 0) {
+      const prev = document.getElementById('wdCk'+(step-1));
+      prev.className = 'wd-check done';
+      document.getElementById('wdCkS'+(step-1)).textContent = '✓';
+      document.getElementById('wdCkS'+(step-1)).style.color = 'var(--green)';
+    }
+    // Mark current active
+    const cur = document.getElementById('wdCk'+step);
+    cur.className = 'wd-check active';
+    document.getElementById('wdCkS'+step).textContent = '...';
+
+    const pct = Math.round(((step+1)/WD_CHECKS.length)*95);
+    document.getElementById('wdProcBar').style.width = pct + '%';
+
+    const titles = [
+      '🔐 Аутентификация...','🌐 Подключение...','🔎 Верификация данных...','💼 Резервирование...','📡 Запрос в банк...','✅ Финальная проверка...'
+    ];
+    document.getElementById('wdProcTitle').textContent = titles[step] || 'Обработка...';
+    document.getElementById('wdProcEmoji').textContent = WD_CHECKS[step].emoji;
+
+    step++;
+    setTimeout(runStep, stepDur + (Math.random()-0.5)*400);
+  };
+  setTimeout(runStep, 400);
+}
+
+function wdShowResult() {
+  document.getElementById('wdProc').style.display = 'none';
+  const res = document.getElementById('wdRes');
+  res.style.display = 'flex';
+  res.style.flexDirection = 'column';
+  res.style.alignItems = 'center';
+
+  const ref = 'BEER-' + Math.random().toString(36).slice(2,8).toUpperCase();
+  const rub = Math.round(WD.amount * WD_RATE);
+  const methodNames = {card:'Банковская карта',sbp:'СБП',crypto:'Криптовалюта',wallet:'ЮMoney'};
+  const methodTimes = {card:'1–3 рабочих дня',sbp:'Мгновенно',crypto:'~30 минут',wallet:'До 24 часов'};
+
+  document.getElementById('wdResAnim').textContent = '✅';
+  document.getElementById('wdResTitle').textContent = 'Заявка на вывод принята!';
+  document.getElementById('wdResRef').textContent = 'REF: #' + ref;
+
+  document.getElementById('wdResCard').innerHTML = `
+    <div class="wd-res-row"><span class="wd-res-key">Сумма</span><span class="wd-res-val green">$${WD.amount} ≈ ₽${rub.toLocaleString('ru')}</span></div>
+    <div class="wd-res-row"><span class="wd-res-key">Способ</span><span class="wd-res-val">${methodNames[WD.method]}</span></div>
+    <div class="wd-res-row"><span class="wd-res-key">Срок обработки</span><span class="wd-res-val yellow">${methodTimes[WD.method]}</span></div>
+    <div class="wd-res-row"><span class="wd-res-key">Статус</span><span class="wd-res-val" style="color:var(--acc)">⏳ В обработке</span></div>
+    <div class="wd-res-row"><span class="wd-res-key">Комиссия</span><span class="wd-res-val">₽0.00</span></div>`;
+
+  document.getElementById('wdResTwist').innerHTML =
+    `<strong>🍺 Важная информация!</strong><br><br>
+    Ваша заявка успешно зарегистрирована в нашей системе и поставлена в очередь на обработку.<br><br>
+    Однако, поскольку валюта <strong>«Пивной доллар» (PVD)</strong> не признана ни одним центральным банком мира, конвертация в рубли технически невозможна.<br><br>
+    Ваш баланс <strong>$${WD.amount}</strong> сохранён и ждёт вас за следующим спином 🎰`;
+}
+
+function wdPlayAgain() {
+  closeWithdraw();
+  // Switch back to slots tab
+  switchCasTab('slots');
+}
+
+function wdSelBank(el) {
+  document.querySelectorAll('.wd-bank').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function wdFmtCard(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+  // Detect card type
+  const ico = document.getElementById('wdCardTypeIco');
+  if (v.startsWith('4')) ico.textContent = '💙'; // Visa blue
+  else if (v.startsWith('5')) ico.textContent = '🟠'; // MC orange
+  else if (v.startsWith('2')) ico.textContent = '🇷🇺'; // Mir
+  else ico.textContent = '💳';
+}
+
+function wdFmtExp(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,4);
+  if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+  el.value = v;
+}
+
+function wdFmtPhone(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.startsWith('8')) v = '7' + v.slice(1);
+  if (!v.startsWith('7')) v = '7' + v;
+  v = v.substring(0,11);
+  if (v.length <= 1) el.value = '+7';
+  else if (v.length <= 4) el.value = '+7 (' + v.slice(1);
+  else if (v.length <= 7) el.value = '+7 (' + v.slice(1,4) + ') ' + v.slice(4);
+  else if (v.length <= 9) el.value = '+7 (' + v.slice(1,4) + ') ' + v.slice(4,7) + '-' + v.slice(7);
+  else el.value = '+7 (' + v.slice(1,4) + ') ' + v.slice(4,7) + '-' + v.slice(7,9) + '-' + v.slice(9);
+}
+
+document.getElementById('wdOverlay').addEventListener('click', e => { if (e.target === document.getElementById('wdOverlay')) closeWithdraw(); });
+
+// ─── ROCKET CRASH ──────────────────────────────────────
+const RK = {
+  phase:'idle', // idle | betting | countdown | flying | crashed
+  bet:0, placed:false, cashedOut:false, cashMult:0,
+  mult:1, crashAt:1, autoVal:null,
+  pts:[], hist:[],
+  animId:null,
+  _cd:null, _bet:null, _next:null,
+  initialized:false
+};
+
+function rkGenCrash(){
+  const r=Math.random();
+  if(r<0.70) return +(0.5 +Math.random()*2.5).toFixed(2);
+  if(r<0.95) return +(4   +Math.random()*16).toFixed(2);
+  return           +(21  +Math.random()*79).toFixed(2);
+}
+
+function rkInit(){
+  // Build stars once
+  if(!RK.initialized){
+    RK.initialized=true;
+    const s=document.getElementById('rkStars'); s.innerHTML='';
+    for(let i=0;i<50;i++){
+      const d=document.createElement('div'); d.className='rk-star';
+      const sz=Math.random()*2+.4;
+      d.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1.5+Math.random()*2}s`;
+      s.appendChild(d);
+    }
+    // planets
+    [['🪐',22,75,15],['🌙',16,12,65]].forEach(([e,fs,l,t])=>{
+      const d=document.createElement('div');
+      d.style.cssText=`position:absolute;font-size:${fs}px;left:${l}%;top:${t}%;opacity:.45;pointer-events:none`;
+      d.textContent=e; s.appendChild(d);
+    });
+  }
+  rkSizeCvs();
+  if(RK.phase==='idle') rkStartBetting();
+}
+
+function rkSizeCvs(){
+  const wrap=document.querySelector('.rk-cvs-wrap');
+  const cvs=document.getElementById('rkCvs');
+  if(!wrap||!cvs) return;
+  cvs.width=wrap.clientWidth||500;
+  cvs.height=wrap.clientHeight||148;
+}
+
+function rkSetMult(v,cls=''){
+  const el=document.getElementById('rkMult');
+  if(!el) return;
+  el.textContent=(typeof v==='string'?v:v.toFixed(2)+'×');
+  el.className=cls;
+}
+function rkSetPhase(t){ const el=document.getElementById('rkPhase'); if(el) el.textContent=t; }
+function rkSetMsg(t,c='var(--muted)'){ const el=document.getElementById('rkMsg'); if(el){el.textContent=t;el.style.color=c;} }
+
+function rkStartBetting(){
+  RK.phase='betting';
+  RK.placed=false; RK.cashedOut=false; RK.bet=0; RK.cashMult=0;
+  RK.pts=[]; RK.crashAt=rkGenCrash();
+  rkSetMult('1.00×');
+  rkSetMsg('');
+  document.getElementById('rkRocket').style.cssText='left:8%;bottom:10%;display:block;transform:rotate(-45deg)';
+  document.getElementById('rkExplosion').className='';
+  document.getElementById('rkPlaceBtn').disabled=false;
+  document.getElementById('rkPlaceBtn').style.display='';
+  document.getElementById('rkCashBtn').style.display='none';
+  rkDrawTrail();
+
+  let secs=10;
+  const tick=()=>{
+    rkSetPhase(`Ставки открыты — ${secs} сек`);
+    if(secs<=0){ rkCountdown(); return; }
+    secs--;
+    RK._bet=setTimeout(tick,1000);
+  };
+  tick();
+}
+
+function rkPlace(){
+  if(RK.phase!=='betting'){ rkSetMsg('Ставки закрыты!','var(--red)'); return; }
+  const b=parseInt(document.getElementById('rkBet').value)||0;
+  if(b<=0){ rkSetMsg('Введите ставку!','var(--muted)'); return; }
+  if(b>casBalance){ rkSetMsg('Не хватает денег!','var(--red)'); return; }
+  const av=parseFloat(document.getElementById('rkAutoVal').value);
+  RK.autoVal=(!isNaN(av)&&av>1.0)?av:null;
+  RK.bet=b; RK.placed=true;
+  casBalance-=b; updateCasBal(); flashBal(false);
+  document.getElementById('rkPlaceBtn').disabled=true;
+  rkSetMsg(`✅ Ставка $${b} принята!`,'var(--green)');
+}
+
+function rkMax(){ document.getElementById('rkBet').value=casBalance; }
+function rkAdj(m){ const el=document.getElementById('rkBet'); el.value=Math.max(1,Math.min(Math.floor((parseInt(el.value)||5)*m),casBalance)); }
+
+function rkCountdown(){
+  clearTimeout(RK._bet);
+  RK.phase='countdown';
+  document.getElementById('rkPlaceBtn').disabled=true;
+  let n=3;
+  const tick=()=>{
+    rkSetPhase('Запуск!');
+    rkSetMult(n+'...');
+    if(n<=0){ rkSetMult('1.00×'); rkFly(); return; }
+    n--;
+    RK._cd=setTimeout(tick,800);
+  };
+  tick();
+}
+
+function rkFly(){
+  RK.phase='flying';
+  RK.mult=1.0;
+  RK.pts=[];
+  if(RK.placed){
+    document.getElementById('rkCashBtn').style.display='inline-block';
+    document.getElementById('rkPlaceBtn').style.display='none';
+  }
+  rkSetMsg('');
+  rkSetPhase('🚀 Полёт!');
+  rkSizeCvs();
+
+  let start=null;
+  const loop=(ts)=>{
+    if(!start) start=ts;
+    const t=(ts-start)/1000;
+
+    // Multiplier formula
+    RK.mult=Math.round(Math.pow(1+t*0.2,1.9)*100)/100;
+    rkSetMult(RK.mult);
+
+    // Trajectory on canvas
+    const cvs=document.getElementById('rkCvs');
+    const W=cvs?cvs.width:500, H=cvs?cvs.height:148;
+    const prog=Math.min(t/10,1);
+    const px=0.08*W + prog*W*0.84;
+    const py=H-( H*0.1 + Math.pow(prog,1.3)*H*0.8 );
+    RK.pts.push({x:px,y:py});
+    rkDrawTrail();
+
+    // Move rocket emoji
+    const rk=document.getElementById('rkRocket');
+    if(rk && RK.pts.length>=2){
+      const prev=RK.pts[RK.pts.length-2], cur=RK.pts[RK.pts.length-1];
+      const ang=Math.atan2(cur.y-prev.y, cur.x-prev.x)*180/Math.PI-45;
+      rk.style.left=`calc(${(px/W*100).toFixed(1)}% - 14px)`;
+      rk.style.bottom=`calc(${((H-py)/H*100).toFixed(1)}% - 14px)`;
+      rk.style.transform=`rotate(${ang}deg)`;
+    }
+
+    // Auto cashout
+    if(RK.placed && !RK.cashedOut && RK.autoVal && RK.mult>=RK.autoVal){
+      rkCash(); return;
+    }
+    // Crash check
+    if(RK.mult>=RK.crashAt){ rkCrash(); return; }
+
+    RK.animId=requestAnimationFrame(loop);
+  };
+  RK.animId=requestAnimationFrame(loop);
+}
+
+function rkCash(){
+  if(!RK.placed||RK.cashedOut||RK.phase!=='flying') return;
+  RK.cashedOut=true; RK.cashMult=RK.mult;
+  const win=Math.floor(RK.bet*RK.cashMult);
+  casBalance+=win; updateCasBal(); flashBal(true);
+  rkSetMsg(`💰 Кэшаут ×${RK.cashMult.toFixed(2)}! +$${win}`,'var(--green)');
+  document.getElementById('rkCashBtn').style.display='none';
+  document.getElementById('rkMult').className='safe';
+  if(win>=RK.bet*3) spawnConfettiCasino(10);
+}
+
+function rkCrash(){
+  if(RK.animId){ cancelAnimationFrame(RK.animId); RK.animId=null; }
+  RK.phase='crashed';
+  rkSetMult(RK.crashAt.toFixed(2)+'×','crashed');
+  rkSetPhase('💥 Взрыв!');
+  rkDrawTrail();
+  document.getElementById('rkRocket').style.display='none';
+  const ex=document.getElementById('rkExplosion');
+  if(ex){ ex.className='boom'; setTimeout(()=>{ ex.style.opacity='0'; },600); }
+  document.getElementById('rkCashBtn').style.display='none';
+
+  if(RK.placed && !RK.cashedOut){
+    rkSetMsg(`💸 Упало! −$${RK.bet}`,'var(--red)');
+    if(casBalance<=0) setTimeout(()=>{ rkSetMsg('🍺 Вот $10 от заведения','var(--acc)'); casBalance=10; updateCasBal(); },1400);
+  } else if(!RK.placed){
+    rkSetMsg(`Упало на ×${RK.crashAt.toFixed(2)}`,'var(--muted)');
+  }
+
+  rkAddHist(RK.crashAt);
+  RK.phase='idle';
+  RK._next=setTimeout(rkStartBetting,4000);
+}
+
+function rkDrawTrail(){
+  const cvs=document.getElementById('rkCvs'); if(!cvs) return;
+  const ctx=cvs.getContext('2d');
+  const W=cvs.width, H=cvs.height;
+  ctx.clearRect(0,0,W,H);
+  if(RK.pts.length<2) return;
+  const crashed=RK.phase==='crashed';
+  const col=crashed?'rgba(235,87,87,.75)':'rgba(245,166,35,.75)';
+  const colFill=crashed?'rgba(235,87,87,':'rgba(245,166,35,';
+
+  ctx.save();
+  ctx.shadowColor=crashed?'rgba(235,87,87,.8)':'rgba(245,166,35,.8)';
+  ctx.shadowBlur=10;
+  ctx.strokeStyle=col; ctx.lineWidth=2.5;
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.beginPath();
+  ctx.moveTo(RK.pts[0].x,RK.pts[0].y);
+  for(let i=1;i<RK.pts.length;i++) ctx.lineTo(RK.pts[i].x,RK.pts[i].y);
+  ctx.stroke(); ctx.restore();
+
+  // fill
+  ctx.save();
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,colFill+'0.12)'); g.addColorStop(1,colFill+'0)');
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.moveTo(RK.pts[0].x,H);
+  RK.pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(RK.pts[RK.pts.length-1].x,H);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+function rkAddHist(m){
+  RK.hist.unshift(m); if(RK.hist.length>15) RK.hist.pop();
+  const c=document.getElementById('rkHist'); if(!c) return;
+  c.innerHTML='';
+  RK.hist.forEach(v=>{
+    const d=document.createElement('div');
+    d.className='rk-hi '+(v<2?'lo':v<10?'mid':'big');
+    d.textContent=v.toFixed(2)+'×';
+    c.appendChild(d);
+  });
+}
+
+function rkKill(){
+  if(RK.animId){ cancelAnimationFrame(RK.animId); RK.animId=null; }
+  clearTimeout(RK._cd); clearTimeout(RK._bet); clearTimeout(RK._next);
+  RK.phase='idle'; RK.initialized=false;
 }
 
 // ─── DRAG TITLE ────────────────────────────────────────
