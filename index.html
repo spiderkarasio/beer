@@ -780,7 +780,7 @@ textarea::placeholder { color:var(--muted); }
 <div class="title-row" id="titleDrag">
   <h1>
     <a href="https://www.roblox.com/games/111530421351096/You-VS-Homer#!/game-instances" class="slink">B</a>ee<a href="https://beerlanguage.ru/rat" class="slink">r</a>
-    Tran<a href="https://beerlanguage.ru/Caesar" class="slink">s</a>late &amp; Games
+    Tran<a href="https://beerlanguage.ru/Caesar" class="slink">s</a>late & Games
   </h1>
   <span class="atag">Ultimate Edition</span>
 </div>
@@ -809,7 +809,6 @@ textarea::placeholder { color:var(--muted); }
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="overlay" id="modal">
   <div class="gwin">
     <div class="ghdr">
@@ -825,14 +824,12 @@ textarea::placeholder { color:var(--muted); }
       <div class="gcard" onclick="openCasino()"><div class="ic">🎰</div><div class="nm">Пивное Казино</div><div class="ds">Слоты, Ракета и другое!</div></div>
     </div>
 
-    <!-- GAMEMODE LOCK OVERLAY (inside gwin) -->
     <div class="gamemode-lock" id="gamemodeLock">
       <div class="gml-icon">🔒</div>
       <div class="gml-title">Игры заблокированы</div>
       <div class="gml-sub">Администратор закрыл все игры.<br>Попробуй позже.</div>
     </div>
 
-    <!-- CLICKER -->
     <div id="gClicker" class="gcont">
       <div class="back" onclick="backMenu(); saveClicker()">← Сохранить и выйти</div>
       <div class="cl-layout">
@@ -844,7 +841,6 @@ textarea::placeholder { color:var(--muted); }
       </div>
     </div>
 
-    <!-- MINESWEEPER -->
     <div id="gMines" class="gcont">
       <div class="back" onclick="backMenu()">← Назад</div>
       <div class="mines-wrap">
@@ -858,7 +854,6 @@ textarea::placeholder { color:var(--muted); }
       </div>
     </div>
 
-    <!-- SNAKE -->
     <div id="gSnake" class="gcont">
       <div class="back" onclick="backMenu()">← Назад</div>
       <div class="sk-wrap">
@@ -886,7 +881,6 @@ textarea::placeholder { color:var(--muted); }
       </div>
     </div>
 
-    <!-- FLAGS -->
     <div id="gFlags" class="gcont">
       <div class="back" onclick="backMenu()">← Назад</div>
       <div class="flags-wrap">
@@ -896,12 +890,10 @@ textarea::placeholder { color:var(--muted); }
       </div>
     </div>
 
-    <!-- CASINO (slots + plinko tabs) -->
     <div id="gCasino" class="gcont">
       <div class="back" onclick="backMenu()">← Назад</div>
       <div class="casino-wrap" id="casinoWrap">
 
-        <!-- Shared header: title + balance -->
         <div class="cas-header">
           <div class="cas-title">🍺 Пивное Казино 🍺</div>
           <div class="cas-bal-block">
@@ -911,14 +903,12 @@ textarea::placeholder { color:var(--muted); }
           </div>
         </div>
 
-        <!-- Sub-tabs -->
         <div class="cas-tabs">
           <div class="cas-tab active" id="ctab-slots" onclick="switchCasTab('slots')">🎰 Слоты</div>
           <div class="cas-tab" id="ctab-rocket" onclick="switchCasTab('rocket')">🚀 Ракета</div>
           <div class="cas-tab" id="ctab-plinko" onclick="tryUnlockCasino('plinko',100)" style="color:var(--muted)">🎯 Плинко 🔒 $100</div>
         </div>
 
-        <!-- SLOTS PANEL -->
         <div id="cas-panel-slots" class="cas-panel visible">
           <div class="reels-machine">
             <div class="reels-frame" id="reelsFrame">
@@ -955,7 +945,6 @@ textarea::placeholder { color:var(--muted); }
           </div>
         </div>
 
-        <!-- PLINKO PANEL -->
         <div id="cas-panel-plinko" class="cas-panel">
           <canvas id="plinkoCvs" width="480" height="308"></canvas>
           <div class="plinko-controls">
@@ -985,7 +974,6 @@ textarea::placeholder { color:var(--muted); }
           <div id="plinkoMsg"></div>
         </div>
 
-        <!-- ROCKET CRASH PANEL -->
         <div id="cas-panel-rocket" class="cas-panel">
           <div class="rk-top">
             <div id="rkMult">1.00×</div>
@@ -1020,10 +1008,7 @@ textarea::placeholder { color:var(--muted); }
 
       </div>
     </div>
-</div><!-- /overlay -->
-
-<!-- SPOTIFY WIDGET -->
-<div id="spotifyWidget" class="collapsed">
+</div><div id="spotifyWidget" class="collapsed">
   <div class="sp-box">
     <div class="sp-hdr">
       <span class="sp-logo">🎵</span>
@@ -1036,13 +1021,10 @@ textarea::placeholder { color:var(--muted); }
   <button class="sp-toggle" onclick="toggleSpotify()" id="spToggleBtn">🎵</button>
 </div>
 
-<!-- CF Worker status dot -->
 <div id="cfStatus"><div id="cfDot" class="wait"></div><span id="cfStatusTxt">Worker...</span></div>
 
-<!-- ADMIN ABUSES PANEL -->
 <div id="admBtn" onclick="toggleAdmin()" title="Admin Panel [Ctrl+Shift+A]">👑</div>
 <div id="adminPanel">
-  <!-- AUTH -->
   <div id="admAuth" style="padding:28px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;">
     <div style="font-size:44px">👑</div>
     <div style="font-size:15px;font-weight:900;color:#ff6b6b;letter-spacing:1.5px">ADMIN PANEL</div>
@@ -1053,7 +1035,6 @@ textarea::placeholder { color:var(--muted); }
     <button onclick="checkAdmPass()" style="padding:11px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.4);color:#ff6b6b;border-radius:10px;font-weight:900;cursor:pointer;font-size:14px;font-family:inherit;width:100%;">ВОЙТИ</button>
     <div id="admAuthErr" style="font-size:11px;color:var(--red);display:none;">❌ Неверный пароль</div>
   </div>
-  <!-- MAIN (скрыт до авторизации) -->
   <div id="admMain" style="display:none;flex-direction:column;max-height:88vh;overflow-y:auto;">
     <div class="adm-hdr">
       <span class="adm-icon">👑</span>
@@ -1062,7 +1043,6 @@ textarea::placeholder { color:var(--muted); }
       <span class="adm-xcl" onclick="toggleAdmin()">✕</span>
     </div>
 
-    <!-- CF WORKER CONFIG -->
     <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(245,166,35,.03);">
       <div style="font-size:10px;color:var(--acc);font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">⚡ Cloudflare Worker</div>
       <div class="cf-row">
@@ -1074,7 +1054,6 @@ textarea::placeholder { color:var(--muted); }
       </div>
     </div>
 
-    <!-- SPOTIFY -->
     <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(29,185,84,.04);">
       <div style="font-size:10px;color:#1DB954;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">🎵 Spotify — играет у всех</div>
       <div style="display:flex;gap:6px;margin-bottom:6px;">
@@ -1091,19 +1070,16 @@ textarea::placeholder { color:var(--muted); }
       </div>
     </div>
 
-    <!-- LOG -->
     <div class="adm-log" id="admLog">
       <div class="adm-log-entry"><span class="ts">[SYS]</span><span class="sys">Beer Admin v2. Подключи CF Worker для глобального вещания.</span></div>
     </div>
 
-    <!-- INPUT -->
     <div class="adm-input-row">
-      <span class="adm-prompt">:&gt;</span>
+      <span class="adm-prompt">:></span>
       <input id="admInput" placeholder="Введи команду... (:help)" autocomplete="off" onkeydown="admKeydown(event)">
       <button class="adm-enter" onclick="runAdmCmd()">RUN</button>
     </div>
 
-    <!-- CHIPS -->
     <div class="adm-cmds">
       <div class="adm-cmds-title">Команды (распространяются на всех через Worker)</div>
       <div class="adm-cmds-grid">
@@ -1125,14 +1101,11 @@ textarea::placeholder { color:var(--muted); }
   </div>
 </div>
 
-<!-- Admin effect layers -->
 <div id="admRainbow"></div>
 
-<!-- WITHDRAWAL MODAL -->
 <div class="wd-overlay" id="wdOverlay">
   <div class="wd-box" id="wdBox">
 
-    <!-- STICKY HEADER -->
     <div class="wd-hdr">
       <div class="wd-hdr-left">
         <div class="wd-hdr-title" id="wdHdrTitle">💸 Вывод средств</div>
@@ -1152,7 +1125,6 @@ textarea::placeholder { color:var(--muted); }
       </div>
     </div>
 
-    <!-- STEP 1: METHOD -->
     <div class="wd-body" id="wdStep1">
       <div class="wd-amount-pill">
         <div class="wd-amount-info">
@@ -1211,10 +1183,8 @@ textarea::placeholder { color:var(--muted); }
       <div class="wd-hint">🔒 Защищено 256-bit TLS · Лицензия ЦБ РФ #3498 · Ваши данные не хранятся</div>
     </div>
 
-    <!-- STEP 2: DETAILS -->
     <div class="wd-body" id="wdStep2" style="display:none">
 
-      <!-- Card fields -->
       <div id="wdFieldsCard">
         <div class="wd-field">
           <div class="wd-label">Имя держателя <span class="wd-label-req">*</span></div>
@@ -1239,7 +1209,6 @@ textarea::placeholder { color:var(--muted); }
         </div>
       </div>
 
-      <!-- SBP fields -->
       <div id="wdFieldsSbp" style="display:none">
         <div class="wd-field">
           <div class="wd-label">Номер телефона <span class="wd-label-req">*</span></div>
@@ -1261,7 +1230,6 @@ textarea::placeholder { color:var(--muted); }
         </div>
       </div>
 
-      <!-- Crypto fields -->
       <div id="wdFieldsCrypto" style="display:none">
         <div class="wd-field">
           <div class="wd-label">Криптовалюта</div>
@@ -1278,7 +1246,6 @@ textarea::placeholder { color:var(--muted); }
         </div>
       </div>
 
-      <!-- Wallet fields -->
       <div id="wdFieldsWallet" style="display:none">
         <div class="wd-field">
           <div class="wd-label">Номер кошелька / телефон <span class="wd-label-req">*</span></div>
@@ -1296,7 +1263,6 @@ textarea::placeholder { color:var(--muted); }
       <div class="wd-hint">Данные передаются в зашифрованном виде и не сохраняются</div>
     </div>
 
-    <!-- STEP 3: SMS -->
     <div class="wd-body" id="wdStep3" style="display:none">
       <div class="wd-sms-box">
         <div class="wd-sms-icon">📧</div>
@@ -1319,7 +1285,6 @@ textarea::placeholder { color:var(--muted); }
       <div class="wd-hint">Код действителен 10 минут · Не передавайте код никому</div>
     </div>
 
-    <!-- STEP 4: PROCESSING -->
     <div class="wd-body" id="wdStep4" style="display:none">
       <div class="wd-proc" id="wdProc" style="display:flex">
         <div class="wd-proc-icon-wrap">
@@ -1333,7 +1298,6 @@ textarea::placeholder { color:var(--muted); }
         <div class="wd-proc-checklist" id="wdCheckList"></div>
       </div>
 
-      <!-- Result -->
       <div class="wd-res" id="wdRes">
         <div class="wd-res-anim" id="wdResAnim">✅</div>
         <div class="wd-res-title" id="wdResTitle">Заявка принята!</div>
@@ -2761,7 +2725,7 @@ function rkKill(){
 const ADMIN_SECRET = 'beerAdmin2025_changeme'; // ← ТАКОЙ ЖЕ КАК В ВОРКЕРЕ!
 let cfWorkerUrl = localStorage.getItem('beer_cf_url') || '';
 let cfConnected = false;
-let cfLastTs = 0;
+let cfLastTs = 0; // ИСПРАВЛЕНИЕ: Начинаем с 0, чтобы вытянуть из базы последнюю команду!
 let cfPollInterval = null;
 
 function setCfStatus(state, text) {
@@ -2788,7 +2752,7 @@ async function cfConnect() {
     localStorage.setItem('beer_cf_url', url);
     setCfStatus('ok', 'Worker ✓');
     admLog('ok', '✅ CF Worker подключён! Задержка ~2 сек.');
-    startPolling();
+    startPolling(); 
   } catch(e) {
     setCfStatus('err', 'ошибка');
     admLog('err', 'Не могу: ' + e.message);
@@ -2805,12 +2769,16 @@ async function cfSend(type, payload) {
       body: JSON.stringify({ type, payload })
     });
     return r.ok;
-  } catch(e) { setCfStatus('err', 'ошибка отправки'); return false; }
+  } catch(e) { 
+    setCfStatus('err', 'ошибка отправки'); 
+    console.error("Ошибка отправки в воркер:", e);
+    return false; 
+  }
 }
 
 function startPolling() {
   if(cfPollInterval) clearInterval(cfPollInterval);
-  cfLastTs = Date.now();
+  // ИСПРАВЛЕНИЕ: Убрали cfLastTs = Date.now(), чтобы не убивать историю
   cfPollInterval = setInterval(pollCmd, 2000);
 }
 
@@ -2820,11 +2788,14 @@ async function pollCmd() {
     const r = await fetch(cfWorkerUrl + '/cmd?since=' + cfLastTs);
     if(!r.ok) return;
     const data = await r.json();
-    if(data.cmd && data.cmd.ts > cfLastTs) {
+    // Проверка на то, что команда существует и она новее последней
+    if(data && data.cmd && data.cmd.ts > cfLastTs) {
       cfLastTs = data.cmd.ts;
       handleBroadcast(data.cmd);
     }
-  } catch(e) { /* тихо */ }
+  } catch(e) { 
+    // Тихий перехват, чтобы консоль не спамило красным при обрыве сети
+  }
 }
 
 // Отправить команду всем (через CF Worker или локально)
@@ -2870,7 +2841,7 @@ window.addEventListener('load', () => {
     cfWorkerUrl = saved;
     const inp = document.getElementById('cfWorkerUrl');
     if(inp) inp.value = saved;
-    cfLastTs = Date.now() - 5000;
+    // ИСПРАВЛЕНИЕ: Убрали костыль cfLastTs = Date.now() - 5000;
     startPolling();
     fetch(saved + '/status')
       .then(r => r.json())
@@ -2972,7 +2943,7 @@ function admLog(type, msg) {
   log.appendChild(div); log.scrollTop = log.scrollHeight;
 }
 
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(s) { return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>'); }
 
 function admKeydown(e) {
   if(e.key === 'Enter') { runAdmCmd(); return; }
