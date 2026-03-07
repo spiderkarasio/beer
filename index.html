@@ -725,7 +725,37 @@ textarea::placeholder { color:var(--muted); }
 .adm-ban-reason { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
 .adm-ban-close { padding: 10px 28px; background: var(--red); color: #fff; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; }
 
-/* Admin toggle button */
+/* CF Worker status */
+#cfStatus {
+  position: fixed; top: 14px; right: 72px; z-index: 8001;
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 99px;
+  background: rgba(0,0,0,.75); border: 1px solid rgba(255,255,255,.1);
+  font-size: 10px; color: var(--muted); font-weight: 700;
+  backdrop-filter: blur(10px); pointer-events: none;
+}
+#cfDot { width: 7px; height: 7px; border-radius: 50%; background: #444; transition: background .4s; flex-shrink: 0; }
+#cfDot.ok   { background: #1DB954; box-shadow: 0 0 6px #1DB954; }
+#cfDot.err  { background: var(--red); box-shadow: 0 0 6px var(--red); }
+#cfDot.wait { background: var(--acc); animation: cfPulse .8s ease-in-out infinite alternate; }
+@keyframes cfPulse { from{opacity:.3} to{opacity:1} }
+.cf-row { display:flex; gap:6px; }
+.cf-url-inp {
+  flex:1; background:rgba(0,0,0,.5); border:1px solid rgba(245,166,35,.2);
+  border-radius:8px; color:var(--txt); font-size:10px; padding:7px 10px;
+  outline:none; font-family:'Courier New',monospace; transition:border-color .2s;
+}
+.cf-url-inp:focus { border-color:var(--acc); }
+.cf-url-inp::placeholder { color:rgba(255,255,255,.2); font-size:9px; }
+.cf-btn {
+  padding:7px 12px; background:rgba(245,166,35,.15); border:1px solid rgba(245,166,35,.35);
+  color:var(--acc); border-radius:8px; font-size:10px; font-weight:900;
+  cursor:pointer; white-space:nowrap; font-family:inherit; transition:all .2s;
+}
+.cf-btn:hover { background:rgba(245,166,35,.3); }
+#adminPanel { width: 500px; max-width: 96vw; }
+
+
 #admBtn {
   position: fixed; top: 20px; right: 20px; z-index: 8000;
   width: 46px; height: 46px; border-radius: 50%;
@@ -1006,54 +1036,76 @@ textarea::placeholder { color:var(--muted); }
   <button class="sp-toggle" onclick="toggleSpotify()" id="spToggleBtn">🎵</button>
 </div>
 
+<!-- CF Worker status dot -->
+<div id="cfStatus"><div id="cfDot" class="wait"></div><span id="cfStatusTxt">Worker...</span></div>
+
 <!-- ADMIN ABUSES PANEL -->
-<div id="admBtn" onclick="toggleAdmin()" title="Admin Abuses [Ctrl+Shift+A]">👑</div>
+<div id="admBtn" onclick="toggleAdmin()" title="Admin Panel [Ctrl+Shift+A]">👑</div>
 <div id="adminPanel">
-  <!-- AUTH SCREEN -->
-  <div id="admAuth" style="padding:30px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;">
-    <div style="font-size:42px">👑</div>
-    <div style="font-size:15px;font-weight:900;color:#ff6b6b;letter-spacing:1px">ADMIN PANEL</div>
-    <div style="font-size:12px;color:var(--muted)">Введи пароль администратора</div>
+  <!-- AUTH -->
+  <div id="admAuth" style="padding:28px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <div style="font-size:44px">👑</div>
+    <div style="font-size:15px;font-weight:900;color:#ff6b6b;letter-spacing:1.5px">ADMIN PANEL</div>
+    <div style="font-size:11px;color:var(--muted)">Введи пароль</div>
     <input id="admPassInput" type="password" placeholder="••••••••"
-      style="background:rgba(0,0,0,.6);border:1.5px solid rgba(255,107,107,.3);border-radius:10px;color:var(--txt);font-size:18px;padding:10px 16px;outline:none;font-family:inherit;text-align:center;width:100%;letter-spacing:4px;"
+      style="background:rgba(0,0,0,.6);border:1.5px solid rgba(255,107,107,.3);border-radius:10px;color:var(--txt);font-size:20px;padding:11px 16px;outline:none;font-family:inherit;text-align:center;width:100%;letter-spacing:6px;"
       onkeydown="if(event.key==='Enter')checkAdmPass()">
-    <button onclick="checkAdmPass()" style="padding:10px 30px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.4);color:#ff6b6b;border-radius:10px;font-weight:900;cursor:pointer;font-size:14px;font-family:inherit;transition:all .2s;" onmouseover="this.style.background='rgba(255,107,107,.3)'" onmouseout="this.style.background='rgba(255,107,107,.15)'">ВОЙТИ</button>
-    <div id="admAuthErr" style="font-size:11px;color:var(--red);display:none;">Неверный пароль</div>
+    <button onclick="checkAdmPass()" style="padding:11px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.4);color:#ff6b6b;border-radius:10px;font-weight:900;cursor:pointer;font-size:14px;font-family:inherit;width:100%;">ВОЙТИ</button>
+    <div id="admAuthErr" style="font-size:11px;color:var(--red);display:none;">❌ Неверный пароль</div>
   </div>
-  <!-- MAIN PANEL (hidden until auth) -->
-  <div id="admMain" style="display:none;flex-direction:column;">
+  <!-- MAIN (скрыт до авторизации) -->
+  <div id="admMain" style="display:none;flex-direction:column;max-height:88vh;overflow-y:auto;">
     <div class="adm-hdr">
       <span class="adm-icon">👑</span>
       <span class="adm-title">Admin Abuses</span>
-      <span class="adm-version">v2.0 • Beer Edition</span>
+      <span class="adm-version" id="admConnLabel">v2.0 • не подключён</span>
       <span class="adm-xcl" onclick="toggleAdmin()">✕</span>
     </div>
-    <!-- MUSIC SECTION -->
+
+    <!-- CF WORKER CONFIG -->
+    <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(245,166,35,.03);">
+      <div style="font-size:10px;color:var(--acc);font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">⚡ Cloudflare Worker</div>
+      <div class="cf-row">
+        <input class="cf-url-inp" id="cfWorkerUrl" placeholder="https://beer-admin.ИМЯ.workers.dev" type="url">
+        <button class="cf-btn" onclick="cfConnect()">Подключить</button>
+      </div>
+      <div style="font-size:9px;color:rgba(255,255,255,.2);margin-top:5px;line-height:1.6;">
+        Задеплой <strong style="color:rgba(245,166,35,.7)">beer_admin_worker.js</strong> на CF Workers → KV привязка: BEER_KV → вставь URL сюда
+      </div>
+    </div>
+
+    <!-- SPOTIFY -->
     <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(29,185,84,.04);">
-      <div style="font-size:10px;color:#1DB954;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:7px;">🎵 Spotify Music</div>
+      <div style="font-size:10px;color:#1DB954;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">🎵 Spotify — играет у всех</div>
       <div style="display:flex;gap:6px;margin-bottom:6px;">
         <input id="spInput" placeholder="open.spotify.com/track/... или playlist/..." type="text"
           style="flex:1;background:rgba(0,0,0,.5);border:1px solid rgba(29,185,84,.2);border-radius:8px;color:var(--txt);font-size:11px;padding:7px 10px;outline:none;font-family:inherit;"
           onkeydown="if(event.key==='Enter')loadSpotify()">
-        <button onclick="loadSpotify()" style="padding:7px 12px;background:#1DB954;color:#111;border:none;border-radius:8px;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap;">▶ Играть</button>
+        <button onclick="loadSpotify()" style="padding:7px 12px;background:#1DB954;color:#111;border:none;border-radius:8px;font-size:13px;font-weight:900;cursor:pointer;">▶</button>
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;">
-        <span class="sp-preset" onclick="loadPreset('37i9dQZF1DXcBWIGoYBM5M')">Today's Hits</span>
+        <span class="sp-preset" onclick="loadPreset('37i9dQZF1DXcBWIGoYBM5M')">Today</span>
         <span class="sp-preset" onclick="loadPreset('37i9dQZF1DX4WYpdgoIcn6')">Chill</span>
         <span class="sp-preset" onclick="loadPreset('37i9dQZF1DX0XUsuxWHRQd')">Rap</span>
         <span class="sp-preset" onclick="loadPreset('37i9dQZF1DXdVpx0g1tNPo')">Party</span>
       </div>
     </div>
+
+    <!-- LOG -->
     <div class="adm-log" id="admLog">
-      <div class="adm-log-entry"><span class="ts">[SYS]</span><span class="sys">Admin connected. BroadcastChannel активен — все вкладки слушают.</span></div>
+      <div class="adm-log-entry"><span class="ts">[SYS]</span><span class="sys">Beer Admin v2. Подключи CF Worker для глобального вещания.</span></div>
     </div>
+
+    <!-- INPUT -->
     <div class="adm-input-row">
       <span class="adm-prompt">:&gt;</span>
-      <input id="admInput" placeholder="Введи команду..." autocomplete="off" onkeydown="admKeydown(event)">
+      <input id="admInput" placeholder="Введи команду... (:help)" autocomplete="off" onkeydown="admKeydown(event)">
       <button class="adm-enter" onclick="runAdmCmd()">RUN</button>
     </div>
+
+    <!-- CHIPS -->
     <div class="adm-cmds">
-      <div class="adm-cmds-title">Команды</div>
+      <div class="adm-cmds-title">Команды (распространяются на всех через Worker)</div>
       <div class="adm-cmds-grid">
         <span class="adm-cmd-chip" onclick="setAdmCmd(':fly')">:fly</span>
         <span class="adm-cmd-chip" onclick="setAdmCmd(':drunk')">:drunk</span>
@@ -1061,10 +1113,10 @@ textarea::placeholder { color:var(--muted); }
         <span class="adm-cmd-chip" onclick="setAdmCmd(':rainbow')">:rainbow</span>
         <span class="adm-cmd-chip" onclick="setAdmCmd(':explode')">:explode</span>
         <span class="adm-cmd-chip" onclick="setAdmCmd(':dance')">:dance</span>
-        <span class="adm-cmd-chip" onclick="setAdmCmd(':ban Player1')">:ban</span>
-        <span class="adm-cmd-chip" onclick="setAdmCmd(':kick Player1')">:kick</span>
+        <span class="adm-cmd-chip" onclick="setAdmCmd(':ban Vasya')">:ban</span>
+        <span class="adm-cmd-chip" onclick="setAdmCmd(':kick Vasya')">:kick</span>
         <span class="adm-cmd-chip" onclick="setAdmCmd(':give 999')">:give</span>
-        <span class="adm-cmd-chip" onclick="setAdmCmd(':announcement Привет!')">:announcement</span>
+        <span class="adm-cmd-chip" onclick="setAdmCmd(':announcement Всем привет!')">:announcement</span>
         <span class="adm-cmd-chip" onclick="setAdmCmd(':gamemode 1')">:gamemode 1</span>
         <span class="adm-cmd-chip" onclick="setAdmCmd(':gamemode 0')">:gamemode 0</span>
         <span class="adm-cmd-chip" onclick="setAdmCmd(':reset')">:reset</span>
@@ -2700,19 +2752,102 @@ function rkKill(){
 })();
 
 
-// ═══════════════════════════════════════════════
-//  BROADCAST CHANNEL (cross-tab sync)
-// ═══════════════════════════════════════════════
-const admChannel = new BroadcastChannel('beer_admin_v2');
-admChannel.onmessage = e => handleBroadcast(e.data);
 
-function broadcast(type, payload){
-  admChannel.postMessage({type, payload});
-  handleBroadcast({type, payload});
+// ═══════════════════════════════════════════════
+//  CLOUDFLARE WORKER — глобальный броадкаст
+//  Задеплой beer_admin_worker.js на CF Workers
+//  Вставь URL в поле в admin панели
+// ═══════════════════════════════════════════════
+const ADMIN_SECRET = 'beerAdmin2025_changeme'; // ← ТАКОЙ ЖЕ КАК В ВОРКЕРЕ!
+let cfWorkerUrl = localStorage.getItem('beer_cf_url') || '';
+let cfConnected = false;
+let cfLastTs = 0;
+let cfPollInterval = null;
+
+function setCfStatus(state, text) {
+  const dot = document.getElementById('cfDot');
+  const txt = document.getElementById('cfStatusTxt');
+  const lbl = document.getElementById('admConnLabel');
+  if(dot) dot.className = state;
+  if(txt) txt.textContent = text;
+  if(lbl) lbl.textContent = 'v2 • ' + text;
 }
 
-function handleBroadcast(msg){
-  switch(msg.type){
+async function cfConnect() {
+  const inp = document.getElementById('cfWorkerUrl');
+  const url = (inp ? inp.value.trim() : cfWorkerUrl).replace(/\/$/, '');
+  if(!url) { admLog('err', 'Введи URL воркера!'); return; }
+  setCfStatus('wait', 'проверка...');
+  admLog('info', 'Подключаемся: ' + url);
+  try {
+    const r = await fetch(url + '/status');
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if(!d.ok) throw new Error('bad response');
+    cfWorkerUrl = url; cfConnected = true;
+    localStorage.setItem('beer_cf_url', url);
+    setCfStatus('ok', 'Worker ✓');
+    admLog('ok', '✅ CF Worker подключён! Задержка ~2 сек.');
+    startPolling();
+  } catch(e) {
+    setCfStatus('err', 'ошибка');
+    admLog('err', 'Не могу: ' + e.message);
+    admLog('info', 'Убедись что воркер задеплоен и CORS работает');
+  }
+}
+
+async function cfSend(type, payload) {
+  if(!cfConnected || !cfWorkerUrl) return false;
+  try {
+    const r = await fetch(cfWorkerUrl + '/cmd', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': ADMIN_SECRET },
+      body: JSON.stringify({ type, payload })
+    });
+    return r.ok;
+  } catch(e) { setCfStatus('err', 'ошибка отправки'); return false; }
+}
+
+function startPolling() {
+  if(cfPollInterval) clearInterval(cfPollInterval);
+  cfLastTs = Date.now();
+  cfPollInterval = setInterval(pollCmd, 2000);
+}
+
+async function pollCmd() {
+  if(!cfWorkerUrl) return;
+  try {
+    const r = await fetch(cfWorkerUrl + '/cmd?since=' + cfLastTs);
+    if(!r.ok) return;
+    const data = await r.json();
+    if(data.cmd && data.cmd.ts > cfLastTs) {
+      cfLastTs = data.cmd.ts;
+      handleBroadcast(data.cmd);
+    }
+  } catch(e) { /* тихо */ }
+}
+
+// Отправить команду всем (через CF Worker или локально)
+function broadcast(type, payload) {
+  handleBroadcast({ type, payload, ts: Date.now() }); // применить локально сразу
+  if(cfConnected && cfWorkerUrl) {
+    cfSend(type, payload);
+  } else {
+    try { new BroadcastChannel('beer_admin_v2').postMessage({ type, payload, ts: Date.now() }); } catch(e) {}
+    admLog('warn', '⚠ CF Worker не подключён — только локально');
+  }
+}
+
+// BroadcastChannel fallback (один браузер, несколько вкладок)
+try {
+  const bc = new BroadcastChannel('beer_admin_v2');
+  bc.onmessage = e => { if(!cfConnected) handleBroadcast(e.data); };
+} catch(e) {}
+
+// Обработчик всех входящих команд
+function handleBroadcast(msg) {
+  if(!msg || !msg.type) return;
+  switch(msg.type) {
     case 'fly':          execFly(); break;
     case 'drunk':        execDrunk(); break;
     case 'sober':        execSober(); break;
@@ -2728,6 +2863,24 @@ function handleBroadcast(msg){
   }
 }
 
+// Автоподключение при загрузке (если URL сохранён)
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('beer_cf_url');
+  if(saved) {
+    cfWorkerUrl = saved;
+    const inp = document.getElementById('cfWorkerUrl');
+    if(inp) inp.value = saved;
+    cfLastTs = Date.now() - 5000;
+    startPolling();
+    fetch(saved + '/status')
+      .then(r => r.json())
+      .then(d => { if(d.ok) { cfConnected = true; setCfStatus('ok', 'Worker ✓'); } })
+      .catch(() => setCfStatus('err', 'недоступен'));
+  } else {
+    setCfStatus('err', 'не настроен');
+  }
+});
+
 // ═══════════════════════════════════════════════
 //  SPOTIFY PLAYER
 // ═══════════════════════════════════════════════
@@ -2736,308 +2889,269 @@ let spExpanded = false;
 function toggleSpotify() {
   spExpanded = !spExpanded;
   const w = document.getElementById('spotifyWidget');
-  if(spExpanded) w.classList.remove('collapsed');
-  else w.classList.add('collapsed');
+  if(spExpanded) w.classList.remove('collapsed'); else w.classList.add('collapsed');
 }
 
 function extractSpotifyId(url) {
   const m = url.match(/spotify\.com\/(track|playlist|album|artist)\/([a-zA-Z0-9]+)/);
-  if(m) return {type:m[1], id:m[2]};
+  if(m) return { type: m[1], id: m[2] };
   const m2 = url.match(/spotify:(track|playlist|album|artist):([a-zA-Z0-9]+)/);
-  if(m2) return {type:m2[1], id:m2[2]};
-  if(/^[a-zA-Z0-9]{22}$/.test(url.trim())) return {type:'playlist', id:url.trim()};
+  if(m2) return { type: m2[1], id: m2[2] };
+  if(/^[a-zA-Z0-9]{22}$/.test(url.trim())) return { type: 'playlist', id: url.trim() };
   return null;
 }
 
 function loadSpotify() {
-  const inp = document.getElementById('spInput');
-  if(!inp) return;
-  const val = inp.value.trim();
-  if(!val) return;
+  const inp = document.getElementById('spInput'); if(!inp) return;
+  const val = inp.value.trim(); if(!val) return;
   const info = extractSpotifyId(val);
-  if(!info){ inp.style.borderColor='var(--red)'; setTimeout(()=>inp.style.borderColor='',1000); return; }
-  broadcast('music', {type:info.type, id:info.id});
-  inp.style.borderColor='#1DB954';
-  admLog('ok', '\u{1F3B5} \u041C\u0443\u0437\u044B\u043A\u0430 \u0437\u0430\u043F\u0443\u0449\u0435\u043D\u0430: '+info.type+'/'+info.id);
+  if(!info) { inp.style.borderColor='var(--red)'; setTimeout(()=>inp.style.borderColor='',1000); return; }
+  broadcast('music', { type: info.type, id: info.id });
+  inp.style.borderColor = '#1DB954';
+  admLog('ok', '🎵 Музыка отправлена: ' + info.type);
 }
 
 function loadPreset(id) {
-  broadcast('music', {type:'playlist', id});
+  broadcast('music', { type: 'playlist', id });
   const inp = document.getElementById('spInput');
-  if(inp){ inp.value='open.spotify.com/playlist/'+id; inp.style.borderColor='#1DB954'; }
-  admLog('ok', '\u{1F3B5} \u041F\u043B\u0435\u0439\u043B\u0438\u0441\u0442 \u0432\u043A\u043B\u044E\u0447\u0451\u043D: '+id.slice(0,8)+'...');
+  if(inp) { inp.value = 'open.spotify.com/playlist/' + id; inp.style.borderColor = '#1DB954'; }
+  admLog('ok', '🎵 Плейлист включён');
 }
 
-function execMusic(data){
-  const frame = document.getElementById('spFrame');
-  if(!frame) return;
-  frame.src = 'https://open.spotify.com/embed/'+data.type+'/'+data.id+'?utm_source=generator&theme=0';
-  frame.height = data.type==='track' ? '80' : '352';
+function execMusic(data) {
+  if(!data) return;
+  const frame = document.getElementById('spFrame'); if(!frame) return;
+  frame.src = 'https://open.spotify.com/embed/' + data.type + '/' + data.id + '?utm_source=generator&theme=0';
+  frame.height = data.type === 'track' ? '80' : '352';
   const h = document.getElementById('spHint');
-  if(h) h.textContent = '\u{1F3B5} ' + (data.type==='track'?'\u0422\u0440\u0435\u043A':data.type==='playlist'?'\u041F\u043B\u0435\u0439\u043B\u0438\u0441\u0442':'\u0410\u043B\u044C\u0431\u043E\u043C') + ' \u0437\u0430\u043F\u0443\u0449\u0435\u043D';
+  if(h) h.textContent = '🎵 Музыка от администратора';
   if(!spExpanded) toggleSpotify();
 }
 
 // ═══════════════════════════════════════════════
-//  ADMIN PASSWORD AUTH
+//  ADMIN AUTH + COMMANDS
 // ═══════════════════════════════════════════════
-const ADMIN_PASS = 'beer2025';
-let admAuthed = false;
-let admOpen = false;
+const ADMIN_PASS = 'beer2025'; // ← СМЕНИ ПАРОЛЬ!
+let admAuthed = false, admOpen = false;
+let admEffects = { drunk: false, rainbow: false, dance: false };
+let admDrunkInt = null, admDanceInt = null;
+let admCmdHistory = [], admHistIdx = -1;
 
-function checkAdmPass(){
-  const inp = document.getElementById('admPassInput');
-  if(!inp) return;
-  if(inp.value === ADMIN_PASS){
+function checkAdmPass() {
+  const inp = document.getElementById('admPassInput'); if(!inp) return;
+  if(inp.value === ADMIN_PASS) {
     admAuthed = true;
     document.getElementById('admAuth').style.display = 'none';
     document.getElementById('admMain').style.display = 'flex';
-    admLog('ok', '\u2705 \u0410\u0432\u0442\u043E\u0440\u0438\u0437\u043E\u0432\u0430\u043D. BroadcastChannel \u0430\u043A\u0442\u0438\u0432\u0435\u043D.');
+    admLog('ok', '✅ Авторизован. :help — список команд');
   } else {
     const err = document.getElementById('admAuthErr');
-    if(err){ err.style.display='block'; setTimeout(()=>err.style.display='none',2000); }
-    inp.value=''; inp.focus();
-    inp.style.borderColor='var(--red)';
-    setTimeout(()=>inp.style.borderColor='',1000);
+    if(err) { err.style.display = 'block'; setTimeout(() => err.style.display = 'none', 2000); }
+    inp.value = ''; inp.focus();
+    inp.style.borderColor = 'var(--red)'; setTimeout(() => inp.style.borderColor = '', 1000);
   }
 }
 
 function toggleAdmin() {
   admOpen = !admOpen;
   document.getElementById('adminPanel').classList.toggle('open', admOpen);
-  if(admOpen){
-    if(!admAuthed) setTimeout(()=>document.getElementById('admPassInput')?.focus(), 80);
-    else setTimeout(()=>document.getElementById('admInput')?.focus(), 50);
+  if(admOpen) {
+    if(!admAuthed) setTimeout(() => document.getElementById('admPassInput')?.focus(), 80);
+    else setTimeout(() => document.getElementById('admInput')?.focus(), 50);
   }
 }
 
-function setAdmCmd(cmd){ document.getElementById('admInput').value=cmd; document.getElementById('admInput').focus(); }
+function setAdmCmd(cmd) { document.getElementById('admInput').value = cmd; document.getElementById('admInput').focus(); }
 
 function admLog(type, msg) {
-  const log = document.getElementById('admLog');
-  if(!log) return;
+  const log = document.getElementById('admLog'); if(!log) return;
   const now = new Date();
-  const ts = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  const div = document.createElement('div');
-  div.className = 'adm-log-entry';
-  div.innerHTML = '<span class="ts">['+ts+']</span><span class="'+type+'">'+msg+'</span>';
-  log.appendChild(div);
-  log.scrollTop = log.scrollHeight;
+  const ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  const div = document.createElement('div'); div.className = 'adm-log-entry';
+  div.innerHTML = '<span class="ts">[' + ts + ']</span><span class="' + type + '">' + msg + '</span>';
+  log.appendChild(div); log.scrollTop = log.scrollHeight;
 }
 
-function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ═══════════════════════════════════════════════
-//  ADMIN COMMANDS
-// ═══════════════════════════════════════════════
-let admEffects = { drunk:false, rainbow:false, dance:false };
-let admDrunkInt = null, admDanceInt = null;
-let admCmdHistory = [], admHistIdx = -1;
-
-function admKeydown(e){
-  if(e.key==='Enter'){ runAdmCmd(); return; }
+function admKeydown(e) {
+  if(e.key === 'Enter') { runAdmCmd(); return; }
   const inp = document.getElementById('admInput');
-  if(e.key==='ArrowUp'){ e.preventDefault(); admHistIdx=Math.min(admHistIdx+1,admCmdHistory.length-1); inp.value=admCmdHistory[admHistIdx]||''; }
-  else if(e.key==='ArrowDown'){ e.preventDefault(); admHistIdx=Math.max(admHistIdx-1,-1); inp.value=admHistIdx>=0?admCmdHistory[admHistIdx]:''; }
+  if(e.key === 'ArrowUp') { e.preventDefault(); admHistIdx = Math.min(admHistIdx+1, admCmdHistory.length-1); inp.value = admCmdHistory[admHistIdx] || ''; }
+  else if(e.key === 'ArrowDown') { e.preventDefault(); admHistIdx = Math.max(admHistIdx-1, -1); inp.value = admHistIdx >= 0 ? admCmdHistory[admHistIdx] : ''; }
 }
 
-function runAdmCmd(){
+function runAdmCmd() {
   if(!admAuthed) return;
   const inp = document.getElementById('admInput');
-  const raw = inp.value.trim();
-  if(!raw) return;
-  inp.value='';
-  admCmdHistory.unshift(raw);
-  admHistIdx=-1;
-  admLog('warn', '> '+raw);
+  const raw = inp.value.trim(); if(!raw) return;
+  inp.value = ''; admCmdHistory.unshift(raw); admHistIdx = -1;
+  admLog('warn', '> ' + raw);
+  const parts = raw.replace(/^:/, '').split(' ');
+  const cmd = parts[0].toLowerCase(); const args = parts.slice(1);
 
-  const parts = raw.replace(/^:/,'').split(' ');
-  const cmd = parts[0].toLowerCase();
-  const args = parts.slice(1);
-
-  if(cmd==='help'){ admLog('info','\u041A\u043E\u043C\u0430\u043D\u0434\u044B: fly, drunk, sober, rainbow, explode, dance, ban [name], kick [name], give [n], announcement [text], gamemode [0/1], reset'); return; }
-  if(cmd==='fly'){ broadcast('fly',{}); admLog('ok','\u{1F37A} \u041F\u0438\u0432\u043E \u043B\u0435\u0442\u0438\u0442 \u043F\u043E \u0432\u0441\u0435\u043C \u0432\u043A\u043B\u0430\u0434\u043A\u0430\u043C!'); return; }
-  if(cmd==='drunk'){ broadcast('drunk',{}); admLog('ok','\u{1F37A} \u0412\u0441\u0435 \u043F\u044C\u044F\u043D\u044B\u0435!'); return; }
-  if(cmd==='sober'){ broadcast('sober',{}); admLog('ok','\u{1F4A7} \u041F\u0440\u043E\u0442\u0440\u0435\u0437\u0432\u0435\u043B\u0438'); return; }
-  if(cmd==='rainbow'){ broadcast('rainbow',!admEffects.rainbow); admLog('ok',admEffects.rainbow?'\u{1F308} OFF':'\u{1F308} ON'); return; }
-  if(cmd==='explode'){ broadcast('explode',{}); admLog('ok','\u{1F4A5} \u0412\u0417\u0420\u042B\u0412!'); return; }
-  if(cmd==='dance'){ broadcast('dance',!admEffects.dance); admLog('ok',admEffects.dance?'\u{1F57A} \u0422\u0430\u043D\u0435\u0446 \u0441\u0442\u043E\u043F':'\u{1F57A} \u0422\u0430\u043D\u0446\u0443\u0435\u043C!'); return; }
-  if(cmd==='ban'){ const n=args.join(' ')||'Player123'; broadcast('ban',n); admLog('err','\u{1F528} \u0411\u0430\u043D: '+n); return; }
-  if(cmd==='kick'){ const n=args.join(' ')||'Player123'; broadcast('kick',n); admLog('warn','\u{1F45F} \u041A\u0438\u043A: '+n); return; }
-  if(cmd==='give'){
-    const a=parseInt(args[0])||100;
-    const b=document.getElementById('casbal');
-    if(b){const c=parseInt(b.textContent.replace(/\D/g,''))||0;b.textContent='$'+(c+a);b.classList.add('wf');setTimeout(()=>b.classList.remove('wf'),800);}
-    admLog('ok','\u{1F4B0} +$'+a+' \u043D\u0430 \u0431\u0430\u043B\u0430\u043D\u0441');
-    return;
+  if(cmd === 'help') { admLog('info', 'Команды: fly, drunk, sober, rainbow, explode, dance, ban [name], kick [name], give [n], announcement [текст], gamemode [0/1], reset'); return; }
+  if(cmd === 'fly')          { broadcast('fly', {});                       admLog('ok', '🍺 Пиво летит везде!'); return; }
+  if(cmd === 'drunk')        { broadcast('drunk', {});                     admLog('ok', '🍺 Все пьяные!'); return; }
+  if(cmd === 'sober')        { broadcast('sober', {});                     admLog('ok', '💧 Протрезвели'); return; }
+  if(cmd === 'rainbow')      { broadcast('rainbow', !admEffects.rainbow);  admLog('ok', admEffects.rainbow ? '🌈 OFF' : '🌈 ON'); return; }
+  if(cmd === 'explode')      { broadcast('explode', {});                   admLog('ok', '💥 ВЗРЫВ!'); return; }
+  if(cmd === 'dance')        { broadcast('dance', !admEffects.dance);      admLog('ok', admEffects.dance ? '🛑 Стоп' : '🕺 Танцуем!'); return; }
+  if(cmd === 'ban')          { const n = args.join(' ') || 'Player'; broadcast('ban', n);  admLog('err', '🔨 Бан: ' + n); return; }
+  if(cmd === 'kick')         { const n = args.join(' ') || 'Player'; broadcast('kick', n); admLog('warn', '👟 Кик: ' + n); return; }
+  if(cmd === 'give') {
+    const a = parseInt(args[0]) || 100;
+    const b = document.getElementById('casbal');
+    if(b) { const c = parseInt(b.textContent.replace(/\D/g,'')) || 0; b.textContent = '$' + (c + a); b.classList.add('wf'); setTimeout(() => b.classList.remove('wf'), 800); }
+    admLog('ok', '💰 +$' + a + ' на баланс (только локально)'); return;
   }
-  if(cmd==='announcement'){
-    const txt=args.join(' ');
-    if(!txt){admLog('err','\u0423\u043A\u0430\u0436\u0438 \u0442\u0435\u043A\u0441\u0442: :announcement \u0422\u0435\u043A\u0441\u0442');return;}
-    broadcast('announcement',txt);
-    admLog('ok','\u{1F4E2} \u041E\u0431\u044A\u044F\u0432\u043B\u0435\u043D\u0438\u0435 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u043E \u0432\u0441\u0435\u043C');
-    return;
+  if(cmd === 'announcement') {
+    const txt = args.join(' ');
+    if(!txt) { admLog('err', 'Укажи текст!'); return; }
+    broadcast('announcement', txt); admLog('ok', '📢 Объявление отправлено'); return;
   }
-  if(cmd==='gamemode'){
-    const v=parseInt(args[0]);
-    if(isNaN(v)){admLog('err','\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439: :gamemode 1 (\u0432\u043A\u043B) \u0438\u043B\u0438 :gamemode 0 (\u0432\u044B\u043A\u043B)');return;}
-    broadcast('gamemode',!!v);
-    admLog('ok',v?'\u{1F512} \u0418\u0433\u0440\u044B \u0417\u0410\u041A\u0420\u042B\u0422\u042B':'\u{1F513} \u0418\u0433\u0440\u044B \u041E\u0422\u041A\u0420\u042B\u0422\u042B');
-    return;
+  if(cmd === 'gamemode') {
+    const v = parseInt(args[0]);
+    if(isNaN(v)) { admLog('err', 'gamemode 1 или gamemode 0'); return; }
+    broadcast('gamemode', !!v); admLog('ok', v ? '🔒 Игры закрыты' : '🔓 Игры открыты'); return;
   }
-  if(cmd==='reset'){ broadcast('reset',{}); admLog('ok','\u{1F504} \u0421\u0431\u0440\u043E\u0441 \u043F\u043E \u0432\u0441\u0435\u043C \u0432\u043A\u043B\u0430\u0434\u043A\u0430\u043C'); return; }
-  admLog('err','\u041D\u0435\u0442 \u0442\u0430\u043A\u043E\u0439 \u043A\u043E\u043C\u0430\u043D\u0434\u044B. :help');
+  if(cmd === 'reset') { broadcast('reset', {}); admLog('ok', '🔄 Сброс всех эффектов'); return; }
+  admLog('err', 'Нет команды :' + cmd + '. Введи :help');
 }
 
 // ═══════════════════════════════════════════════
-//  EFFECT EXECUTORS
+//  EFFECTS
 // ═══════════════════════════════════════════════
-function execFly(){
-  const emojis=['\u{1F37A}','\u{1F37B}','\u2B50','\u{1F4AB}','\u{1F525}','\u{1F37A}','\u{1F37B}','\u{1F942}'];
-  for(let i=0;i<16;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='adm-fly-emoji';
-    const y=3+Math.random()*90;
-    el.style.setProperty('--fly-y',y+'vh');
-    el.style.top=y+'vh';
-    el.style.fontSize=(28+Math.random()*30)+'px';
-    el.style.animationDuration=(3.5+Math.random()*2)+'s';
-    el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),6000);
-  },i*180);
+function execFly() {
+  const emojis = ['🍺','🍻','⭐','💫','🔥','🍺','🍻','🎉'];
+  for(let i = 0; i < 16; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'adm-fly-emoji';
+    const y = 3 + Math.random() * 90;
+    el.style.setProperty('--fly-y', y + 'vh'); el.style.top = y + 'vh';
+    el.style.fontSize = (26 + Math.random() * 32) + 'px';
+    el.style.animationDuration = (3.5 + Math.random() * 2.5) + 's';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    document.body.appendChild(el); setTimeout(() => el.remove(), 6500);
+  }, i * 180);
 }
 
-function execDrunk(){
-  if(admEffects.drunk) return;
-  admEffects.drunk=true;
-  let phase=0;
-  admDrunkInt=setInterval(()=>{
-    phase+=0.04;
-    document.body.style.transform='rotate('+Math.sin(phase)*5+'deg) scale('+(1+Math.sin(phase*1.3)*0.015)+')';
-    document.body.style.filter='hue-rotate('+Math.sin(phase*0.7)*25+'deg) blur('+Math.abs(Math.sin(phase*0.5))*1.2+'px) saturate('+(1.2+Math.sin(phase)*0.3)+')';
-  },40);
+function execDrunk() {
+  if(admEffects.drunk) return; admEffects.drunk = true; let p = 0;
+  admDrunkInt = setInterval(() => {
+    p += 0.04;
+    document.body.style.transform = 'rotate(' + Math.sin(p)*5 + 'deg) scale(' + (1+Math.sin(p*1.3)*0.015) + ')';
+    document.body.style.filter = 'hue-rotate(' + Math.sin(p*0.7)*25 + 'deg) blur(' + Math.abs(Math.sin(p*0.5))*1.2 + 'px) saturate(' + (1.2+Math.sin(p)*0.3) + ')';
+  }, 40);
 }
 
-function execSober(){
+function execSober() {
   if(!admEffects.drunk) return;
-  clearInterval(admDrunkInt); admEffects.drunk=false;
-  document.body.style.transform=''; document.body.style.filter='';
+  clearInterval(admDrunkInt); admEffects.drunk = false;
+  document.body.style.transform = ''; document.body.style.filter = '';
 }
 
-function execRainbow(on){
-  admEffects.rainbow=on;
-  document.getElementById('admRainbow').style.opacity=on?'0.3':'0';
+function execRainbow(on) {
+  admEffects.rainbow = on;
+  document.getElementById('admRainbow').style.opacity = on ? '0.3' : '0';
 }
 
-function execExplode(){
-  const list=['\u{1F37A}','\u{1F4A5}','\u2B50','\u{1F389}','\u{1F525}','\u{1F4AB}','\u{1F31F}','\u{1F38A}','\u{1F37B}','\u{1F451}','\u{1F386}','\u{1F387}','\u2728','\u{1F308}','\u{1F386}'];
-  for(let i=0;i<55;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    const size=16+Math.random()*36;
-    el.style.cssText='position:fixed;left:'+Math.random()*100+'vw;top:'+Math.random()*100+'vh;font-size:'+size+'px;z-index:9998;pointer-events:none;transform:scale(0);transition:transform 0.18s ease,opacity 0.9s ease 0.2s;opacity:1;';
-    el.textContent=list[Math.floor(Math.random()*list.length)];
+function execExplode() {
+  const list = ['🍺','💥','⭐','🎉','🔥','💫','🌟','🎊','🍻','👑','🎆','🎇','✨','🌈'];
+  for(let i = 0; i < 55; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.style.cssText = 'position:fixed;left:'+Math.random()*100+'vw;top:'+Math.random()*100+'vh;font-size:'+(16+Math.random()*36)+'px;z-index:9998;pointer-events:none;transform:scale(0);transition:transform .18s ease,opacity .9s ease .2s;opacity:1;';
+    el.textContent = list[Math.floor(Math.random() * list.length)];
     document.body.appendChild(el);
-    requestAnimationFrame(()=>{ el.style.transform='scale(1) rotate('+Math.random()*360+'deg)'; });
-    setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>el.remove(),1000); },300+Math.random()*700);
-  },i*40);
-  const sw=document.createElement('div');
-  sw.style.cssText='position:fixed;top:50%;left:50%;width:0;height:0;border-radius:50%;border:4px solid rgba(245,166,35,.9);z-index:9997;pointer-events:none;transform:translate(-50%,-50%);transition:width 0.7s ease,height 0.7s ease,opacity 0.7s ease;opacity:1;';
+    requestAnimationFrame(() => { el.style.transform = 'scale(1) rotate(' + Math.random()*360 + 'deg)'; });
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 1000); }, 300 + Math.random()*700);
+  }, i * 40);
+  const sw = document.createElement('div');
+  sw.style.cssText = 'position:fixed;top:50%;left:50%;width:0;height:0;border-radius:50%;border:4px solid rgba(245,166,35,.9);z-index:9997;pointer-events:none;transform:translate(-50%,-50%);transition:width .7s ease,height .7s ease,opacity .7s ease;opacity:1;';
   document.body.appendChild(sw);
-  requestAnimationFrame(()=>{ sw.style.width='250vw'; sw.style.height='250vw'; sw.style.opacity='0'; });
-  setTimeout(()=>sw.remove(),800);
+  requestAnimationFrame(() => { sw.style.width = '260vw'; sw.style.height = '260vw'; sw.style.opacity = '0'; });
+  setTimeout(() => sw.remove(), 800);
 }
 
-function execDance(on){
-  admEffects.dance=on;
-  if(on){
-    let t=0;
-    admDanceInt=setInterval(()=>{
-      t+=0.055;
-      const mb=document.getElementById('mainBlock');
-      const br=document.querySelector('.blobs');
-      const tr=document.querySelector('.title-row');
-      if(mb) mb.style.transform='translateX('+Math.sin(t)*12+'px) translateY('+Math.cos(t*1.3)*6+'px) rotate('+Math.sin(t*0.8)*2.5+'deg)';
-      if(br) br.style.transform='scale('+(1+Math.sin(t*2)*0.05)+') rotate('+Math.sin(t*0.3)*3+'deg)';
-      if(tr) tr.style.transform='translateX('+Math.sin(t*1.5)*5+'px)';
-    },16);
+function execDance(on) {
+  admEffects.dance = on;
+  if(on) {
+    let t = 0;
+    admDanceInt = setInterval(() => {
+      t += 0.055;
+      const mb = document.getElementById('mainBlock');
+      const br = document.querySelector('.blobs');
+      const tr = document.querySelector('.title-row');
+      if(mb) mb.style.transform = 'translateX('+Math.sin(t)*12+'px) translateY('+Math.cos(t*1.3)*6+'px) rotate('+Math.sin(t*0.8)*2.5+'deg)';
+      if(br) br.style.transform = 'scale('+(1+Math.sin(t*2)*0.05)+') rotate('+Math.sin(t*0.3)*3+'deg)';
+      if(tr) tr.style.transform = 'translateX('+Math.sin(t*1.5)*5+'px)';
+    }, 16);
   } else {
     clearInterval(admDanceInt);
-    ['mainBlock','.blobs','.title-row'].forEach(sel=>{
-      const el=sel.startsWith('.')?document.querySelector(sel):document.getElementById(sel);
-      if(el) el.style.transform='';
-    });
+    [document.getElementById('mainBlock'), document.querySelector('.blobs'), document.querySelector('.title-row')]
+      .forEach(el => { if(el) { el.style.transform = ''; el.style.transition = ''; } });
   }
 }
 
-function execBan(name){
-  const ov=document.createElement('div');
-  ov.className='adm-ban-overlay';
-  ov.innerHTML='<div class="adm-ban-box"><div class="adm-ban-title">\u{1F528} \u0418\u0433\u0440\u043E\u043A \u0437\u0430\u0431\u0430\u043D\u0435\u043D!</div><div style="font-size:52px;margin:8px 0">\u{1F6AB}</div><div style="font-size:20px;font-weight:900;color:var(--txt);margin-bottom:6px">'+escHtml(name)+'</div><div class="adm-ban-reason">\u041F\u0440\u0438\u0447\u0438\u043D\u0430: Admin Abuse \u2022 Permanent Ban</div><div style="font-size:11px;color:rgba(255,255,255,.3);font-family:\'Courier New\',monospace;margin-bottom:18px">BAN-ID: '+Math.random().toString(36).substr(2,10).toUpperCase()+'</div><button class="adm-ban-close" onclick="this.closest(\'.adm-ban-overlay\').remove()">\u041F\u043E\u043D\u044F\u043B, \u0432\u044B\u0445\u043E\u0436\u0443</button></div>';
+function execBan(name) {
+  const ov = document.createElement('div'); ov.className = 'adm-ban-overlay';
+  ov.innerHTML = '<div class="adm-ban-box"><div class="adm-ban-title">🔨 Игрок забанен!</div>'
+    + '<div style="font-size:52px;margin:8px 0">🚫</div>'
+    + '<div style="font-size:20px;font-weight:900;color:var(--txt);margin-bottom:6px">' + escHtml(name) + '</div>'
+    + '<div class="adm-ban-reason">Причина: Admin Abuse • Permanent Ban</div>'
+    + '<div style="font-size:11px;color:rgba(255,255,255,.3);font-family:\'Courier New\',monospace;margin-bottom:18px">BAN-ID: ' + Math.random().toString(36).substr(2,10).toUpperCase() + '</div>'
+    + '<button class="adm-ban-close" onclick="this.closest(\'.adm-ban-overlay\').remove()">Понял, выхожу</button></div>';
   document.body.appendChild(ov);
 }
 
-function execKick(name){
-  const t=document.createElement('div');
-  t.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;backdrop-filter:blur(8px);';
-  t.innerHTML='<div style="font-size:80px;animation:wdResPop .3s ease">\u{1F45F}</div><div style="font-size:30px;font-weight:900;color:var(--red)">KICKED!</div><div style="font-size:16px;color:var(--txt)"><strong>'+escHtml(name)+'</strong> \u0431\u044B\u043B \u043A\u0438\u043A\u043D\u0443\u0442</div><div id="_kick_cnt" style="font-size:12px;color:var(--muted)">\u041F\u0435\u0440\u0435\u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u0447\u0435\u0440\u0435\u0437 3...</div>';
+function execKick(name) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;backdrop-filter:blur(8px);';
+  let cnt = 3;
+  t.innerHTML = '<div style="font-size:80px">👟</div><div style="font-size:30px;font-weight:900;color:var(--red)">KICKED!</div>'
+    + '<div style="font-size:16px;color:var(--txt)"><strong>' + escHtml(name) + '</strong> кикнут</div>'
+    + '<div id="_kct" style="font-size:12px;color:var(--muted)">Реконнект через ' + cnt + '...</div>';
   document.body.appendChild(t);
-  let cnt=3;
-  const iv=setInterval(()=>{ cnt--; const el=t.querySelector('#_kick_cnt'); if(el) el.textContent=cnt>0?'\u041F\u0435\u0440\u0435\u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u0447\u0435\u0440\u0435\u0437 '+cnt+'...':'\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E.'; if(cnt<=0){clearInterval(iv);setTimeout(()=>t.remove(),800);} },1000);
+  const iv = setInterval(() => { cnt--; const el = t.querySelector('#_kct'); if(el) el.textContent = cnt > 0 ? 'Реконнект через ' + cnt + '...' : 'Подключено.'; if(cnt <= 0) { clearInterval(iv); setTimeout(() => t.remove(), 800); } }, 1000);
 }
 
-function execAnnouncement(text){
-  const box=document.createElement('div');
-  box.style.cssText='position:fixed;top:0;left:0;right:0;z-index:20000;';
-  box.innerHTML='<div style="background:linear-gradient(135deg,rgba(245,166,35,.18),rgba(245,166,35,.06));border-bottom:2px solid var(--acc);padding:14px 24px;display:flex;align-items:center;gap:14px;backdrop-filter:blur(20px);">'
-    +'<div style="font-size:24px">\u{1F4E2}</div>'
-    +'<div style="flex:1;"><div style="font-size:10px;color:var(--acc);text-transform:uppercase;letter-spacing:1px;font-weight:900;margin-bottom:3px">\u041E\u0431\u044A\u044F\u0432\u043B\u0435\u043D\u0438\u0435 \u043E\u0442 \u0410\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0430</div>'
-    +'<div style="font-size:16px;font-weight:700;color:var(--txt)">'+escHtml(text)+'</div></div>'
-    +'<div onclick="this.closest(\'div[style]\').parentElement.remove()" style="color:var(--muted);cursor:pointer;font-size:20px;padding:4px 10px;">\u2715</div>'
-    +'</div>';
+function execAnnouncement(text) {
+  const box = document.createElement('div'); box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:20000;';
+  box.innerHTML = '<div style="background:linear-gradient(135deg,rgba(245,166,35,.18),rgba(245,166,35,.06));border-bottom:2px solid var(--acc);padding:14px 24px;display:flex;align-items:center;gap:14px;backdrop-filter:blur(20px);">'
+    + '<div style="font-size:24px">📢</div>'
+    + '<div style="flex:1;"><div style="font-size:10px;color:var(--acc);text-transform:uppercase;letter-spacing:1px;font-weight:900;margin-bottom:3px">Объявление администратора</div>'
+    + '<div style="font-size:15px;font-weight:700;color:var(--txt)">' + escHtml(text) + '</div></div>'
+    + '<div onclick="this.parentElement.parentElement.remove()" style="color:var(--muted);cursor:pointer;font-size:20px;padding:4px 10px;">✕</div></div>';
   document.body.appendChild(box);
-  setTimeout(()=>{ if(box.parentElement){box.style.transition='opacity .5s';box.style.opacity='0';setTimeout(()=>box.remove(),600);} },9000);
+  setTimeout(() => { if(box.parentElement) { box.style.transition = 'opacity .5s'; box.style.opacity = '0'; setTimeout(() => box.remove(), 600); } }, 9000);
 }
 
-function execGamemode(locked){
+function execGamemode(locked) {
   gamemodeActive = locked;
   const lock = document.getElementById('gamemodeLock');
   if(lock) lock.classList.toggle('active', locked);
-  if(locked){
-    closeGames();
-    showToast('\u{1F512} \u0410\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440 \u0437\u0430\u043A\u0440\u044B\u043B \u0432\u0441\u0435 \u0438\u0433\u0440\u044B', 'red');
-  } else {
-    showToast('\u{1F513} \u0418\u0433\u0440\u044B \u0441\u043D\u043E\u0432\u0430 \u043E\u0442\u043A\u0440\u044B\u0442\u044B!', 'green');
-  }
+  if(locked) { closeGames(); showToast('🔒 Администратор закрыл все игры', 'red'); }
+  else showToast('🔓 Игры снова открыты!', 'green');
 }
 
-function execReset(){
+function execReset() {
   clearInterval(admDrunkInt); clearInterval(admDanceInt);
-  admEffects={drunk:false,rainbow:false,dance:false};
-  document.body.style.transform='';
-  document.body.style.filter='';
-  document.getElementById('admRainbow').style.opacity='0';
-  ['mainBlock','.blobs','.title-row'].forEach(sel=>{
-    const el=sel.startsWith('.')?document.querySelector(sel):document.getElementById(sel);
-    if(el){ el.style.transform=''; if(el.style) el.style.transition=''; }
-  });
-  document.querySelectorAll('.adm-fly-emoji,.adm-ban-overlay').forEach(e=>e.remove());
-  gamemodeActive=false;
-  const lock=document.getElementById('gamemodeLock');
-  if(lock) lock.classList.remove('active');
-  // Remove announcement bars
-  document.querySelectorAll('div[style*="position:fixed;top:0;left:0;right:0"]').forEach(e=>e.remove());
-  // Stop spotify
-  const frame=document.getElementById('spFrame');
-  if(frame){ frame.src=''; frame.height='0'; }
+  admEffects = { drunk: false, rainbow: false, dance: false };
+  document.body.style.transform = ''; document.body.style.filter = '';
+  document.getElementById('admRainbow').style.opacity = '0';
+  [document.getElementById('mainBlock'), document.querySelector('.blobs'), document.querySelector('.title-row')]
+    .forEach(el => { if(el) { el.style.transform = ''; el.style.transition = ''; } });
+  document.querySelectorAll('.adm-fly-emoji, .adm-ban-overlay').forEach(e => e.remove());
+  gamemodeActive = false;
+  const lock = document.getElementById('gamemodeLock'); if(lock) lock.classList.remove('active');
+  document.querySelectorAll('div[style*="top:0;left:0;right:0"]').forEach(e => e.remove());
+  const frame = document.getElementById('spFrame'); if(frame) { frame.src = ''; frame.height = '0'; }
   if(spExpanded) toggleSpotify();
 }
 
 // Ctrl+Shift+A
-document.addEventListener('keydown', e=>{
-  if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='a'){ e.preventDefault(); toggleAdmin(); }
+document.addEventListener('keydown', e => {
+  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') { e.preventDefault(); toggleAdmin(); }
 });
-
 </script>
 </body>
 </html>
