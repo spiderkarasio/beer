@@ -6,9 +6,10 @@
 <title>VIBEFILTER — Kill Your Bad Tracks</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Azeret+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=spoof@100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#060608;--bg1:#0C0C10;--bg2:#111116;--acid:#D4F53C;--fire:#FF4D1C;--ice:#3CF5D4;--chalk:#EDE8DF;--fog:#414149;--smoke:#232328;--wire:rgba(255,255,255,.06);--fd:'Instrument Serif',serif;--fm:'Azeret Mono',monospace;}
+:root{--bg:#060608;--bg1:#0C0C10;--bg2:#111116;--acid:#D4F53C;--fire:#FF4D1C;--ice:#3CF5D4;--chalk:#EDE8DF;--fog:#414149;--smoke:#232328;--wire:rgba(255,255,255,.06);--fd:'Instrument Serif',serif;--fm:'Azeret Mono',monospace;--fs:'Spoof',sans-serif;}
 html,body{width:100%;background:var(--bg);color:var(--chalk);font-family:var(--fm);overflow-x:hidden}
 .grain{position:fixed;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.032;pointer-events:none;z-index:9999;animation:gr .6s steps(3) infinite}
 @keyframes gr{0%{transform:translate(0,0)}33%{transform:translate(-2%,1%)}66%{transform:translate(1%,-2%)}100%{transform:translate(0,0)}}
@@ -30,14 +31,14 @@ body:has(a:hover) #cur,body:has(button:hover) #cur{transform:translate(-50%,-50%
 .hero-center{flex:1;display:flex;flex-direction:column;justify-content:center}
 .hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:4px;color:var(--fog);text-transform:uppercase;margin-bottom:32px}
 .hero-tag::before{content:'';display:block;width:28px;height:1px;background:var(--fog)}
-.hero-h{font-family:var(--fd);font-size:clamp(60px,7vw,100px);line-height:.88;letter-spacing:-3px;color:var(--chalk);font-weight:400}
+.hero-h{font-family:var(--fs);font-size:clamp(60px,7vw,100px);line-height:.88;letter-spacing:-4px;color:var(--chalk);font-weight:900}
 .hero-h i{font-style:italic;color:var(--acid)}
 .hero-h .out{color:transparent;-webkit-text-stroke:1.5px rgba(237,232,223,.25)}
 .hero-desc{margin-top:40px;font-size:12px;line-height:1.9;color:var(--fog);max-width:380px}
 .hero-stats{display:flex}
 .hst{display:flex;flex-direction:column;gap:6px;padding-right:32px;margin-right:32px;border-right:1px solid var(--wire)}
 .hst:last-child{border-right:none}
-.hst-n{font-family:var(--fd);font-size:40px;color:var(--chalk);line-height:1}
+.hst-n{font-family:var(--fs);font-size:40px;font-weight:800;color:var(--chalk);line-height:1}
 .hst-l{font-size:9px;letter-spacing:3px;color:var(--fog);text-transform:uppercase}
 .setup-right{display:flex;flex-direction:column;justify-content:flex-start;padding:36px 46px;background:var(--bg1);position:relative;overflow-y:auto;max-height:100vh}
 .setup-right::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(212,245,60,.04),transparent 70%);pointer-events:none}
@@ -119,7 +120,7 @@ body:has(a:hover) #cur,body:has(button:hover) #cur{transform:translate(-50%,-50%
 .right-col{position:relative;overflow:hidden;display:flex;flex-direction:column}
 #lib-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .lib-head{padding:16px 26px 12px;border-bottom:1px solid var(--wire);display:flex;align-items:center;gap:14px;flex-shrink:0}
-.lib-title{font-family:var(--fd);font-size:24px;font-weight:400;letter-spacing:-.5px;flex:1}
+.lib-title{font-family:var(--fs);font-size:24px;font-weight:700;letter-spacing:-1px;flex:1}
 .lib-badge{font-size:9px;letter-spacing:3px;color:var(--fog);border:1px solid var(--wire);border-radius:2px;padding:4px 9px}
 .toolbar{padding:9px 26px;border-bottom:1px solid var(--wire);display:flex;gap:6px;align-items:center;flex-shrink:0;background:var(--bg)}
 .f-btn{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 11px;border-radius:2px;cursor:pointer;border:1px solid var(--smoke);background:transparent;color:var(--fog);transition:all .15s}
@@ -154,7 +155,7 @@ body:has(a:hover) #cur,body:has(button:hover) #cur{transform:translate(-50%,-50%
 .wv-bar{width:3px;border-radius:2px;background:var(--acid);animation:wv 1.2s ease infinite;opacity:.8}
 @keyframes wv{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
 .an-label{font-size:9px;letter-spacing:6px;color:var(--acid);text-transform:uppercase;margin-bottom:16px}
-.an-big{font-family:var(--fd);font-size:clamp(38px,5vw,60px);font-weight:400;letter-spacing:-1.5px;text-align:center;line-height:1.1;color:var(--chalk);margin-bottom:6px}
+.an-big{font-family:var(--fs);font-size:clamp(38px,5vw,60px);font-weight:800;letter-spacing:-2px;text-align:center;line-height:1.05;color:var(--chalk);margin-bottom:6px}
 .an-big i{font-style:italic;color:var(--acid)}
 .an-cur{font-size:11px;color:var(--fog);height:16px;overflow:hidden;text-align:center;white-space:nowrap;max-width:500px}
 .prog-outer{width:100%;max-width:480px;margin-top:40px}
@@ -167,7 +168,7 @@ body:has(a:hover) #cur,body:has(button:hover) #cur{transform:translate(-50%,-50%
 .an-si-it{padding:0 20px;font-size:9px;letter-spacing:2px;color:var(--smoke)}.an-si-it.hl{color:rgba(212,245,60,.4)}
 #done-view{position:absolute;inset:0;background:var(--bg);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:40px}
 #done-view.on{display:flex}
-.done-n{font-family:var(--fd);font-size:130px;font-weight:400;line-height:1;color:var(--fire);letter-spacing:-6px;animation:pop .7s cubic-bezier(.175,.885,.32,1.275) both}
+.done-n{font-family:var(--fs);font-size:130px;font-weight:900;line-height:1;color:var(--fire);letter-spacing:-6px;animation:pop .7s cubic-bezier(.175,.885,.32,1.275) both}
 @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
 .done-lbl{font-size:9px;letter-spacing:7px;color:var(--fog);text-transform:uppercase}
 .done-sub{font-family:var(--fd);font-size:20px;font-style:italic;color:var(--chalk);margin-top:2px}
@@ -176,19 +177,30 @@ body:has(a:hover) #cur,body:has(button:hover) #cur{transform:translate(-50%,-50%
 .btn-a:hover{filter:brightness(1.1);transform:translateY(-1px)}
 .btn-g{background:none;color:var(--fog);border:1px solid var(--smoke);border-radius:3px;padding:12px 20px;cursor:pointer;font-family:var(--fm);font-size:10px;letter-spacing:2px;text-transform:uppercase;transition:all .15s}
 .btn-g:hover{color:var(--chalk);border-color:var(--fog)}
-.yn-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;height:44px;border-radius:4px;border:none;cursor:pointer;font-family:var(--fm);font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;transition:all .2s;position:relative;overflow:hidden}
-.yn-btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
-.yn-no{background:transparent;color:var(--fire);border:1px solid rgba(255,77,28,.3)}
-.yn-no:not(:disabled):hover{background:rgba(255,77,28,.12);border-color:var(--fire);transform:translateY(-1px)}
-.yn-no:not(:disabled):active{transform:scale(.97)}
+.yn-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:4px;border:none;cursor:pointer;font-family:var(--fm);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .2s;position:relative;overflow:hidden}
+.yn-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.18) 0%,transparent 60%);opacity:0;transition:opacity .3s}
+.yn-btn:not(:disabled):hover::before{opacity:1}
+.yn-btn:disabled{opacity:.28;cursor:not-allowed;transform:none!important;filter:grayscale(.5)}
+.yn-no{background:rgba(255,77,28,.08);color:var(--fire);border:1px solid rgba(255,77,28,.3)}
+.yn-no:not(:disabled):hover{background:rgba(255,77,28,.16);border-color:var(--fire);transform:translateY(-2px);box-shadow:0 6px 24px rgba(255,77,28,.2)}
+.yn-no:not(:disabled):active{transform:scale(.96)}
+.yn-maybe{background:rgba(255,255,255,.04);color:var(--fog);border:1px solid var(--smoke)}
+.yn-maybe:not(:disabled):hover{background:rgba(255,255,255,.08);color:var(--chalk);border-color:var(--fog);transform:translateY(-2px)}
+.yn-maybe:not(:disabled):active{transform:scale(.96)}
 .yn-yes{background:var(--acid);color:#000}
-.yn-yes:not(:disabled):hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,245,60,.3)}
-.yn-yes:not(:disabled):active{transform:scale(.97)}
-.yn-icon{font-size:15px}
+.yn-yes:not(:disabled):hover{filter:brightness(1.12);transform:translateY(-2px);box-shadow:0 6px 28px rgba(212,245,60,.35)}
+.yn-yes:not(:disabled):active{transform:scale(.96)}
+.yn-icon{font-size:14px}
+/* LIQUID BLOB BG */
+.liquid-canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.55}
+/* TYPEWRITER cursor */
+.typing-cursor{display:inline-block;width:2px;height:12px;background:var(--acid);margin-left:2px;vertical-align:middle;animation:blink .7s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 @media(max-width:900px){.setup-wrap{grid-template-columns:1fr}.setup-hero{display:none}.setup-right{min-height:100vh;max-height:none}.app-body{grid-template-columns:1fr;grid-template-rows:300px 1fr}.chat-col{border-right:none;border-bottom:1px solid var(--wire)}.tr-why{display:none}.ai-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
+<canvas class="liquid-canvas" id="liquidCanvas"></canvas>
 <div class="grain"></div>
 <div id="cur"></div><div id="cur2"></div>
 
@@ -282,6 +294,9 @@ body:has(a:hover) #cur,body:has(button:hover) #cur{transform:translate(-50%,-50%
         <button class="yn-btn yn-no" id="btnNo" onclick="sendYN('Нет')" disabled>
           <span class="yn-icon">✕</span> Нет
         </button>
+        <button class="yn-btn yn-maybe" id="btnMaybe" onclick="sendYN('Не знаю')" disabled>
+          <span class="yn-icon">~</span> Не знаю
+        </button>
         <button class="yn-btn yn-yes" id="btnYes" onclick="sendYN('Да')" disabled>
           Да <span class="yn-icon">✓</span>
         </button>
@@ -362,7 +377,7 @@ function pkceV(){const a=new Uint8Array(64);crypto.getRandomValues(a);return bto
 async function pkceC(v){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return btoa(String.fromCharCode(...new Uint8Array(d))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
 async function bootApp(){try{setLoadTxt('Загружаем профиль...');S.user=await spGet('https://api.spotify.com/v1/me');const av=document.getElementById('navAv');document.getElementById('navName').textContent=S.user.display_name||S.user.id;if(S.user.images?.[0]?.url)av.innerHTML='<img src="'+S.user.images[0].url+'" alt="">';else av.textContent=(S.user.display_name||'U')[0].toUpperCase();document.getElementById('navAi').textContent=PROVIDERS[S.ai]?.name||S.ai;setLoadTxt('Загружаем треки (до 500)...');S.tracks=await fetchTracks();document.getElementById('libBadge').textContent=S.tracks.length+' треков';renderTracks();buildScrollMarquee();show('s-app');startChat();}catch(e){show('s-setup');showErr('Ошибка: '+e.message);}}
 async function spGet(url){const r=await fetch(url,{headers:{Authorization:'Bearer '+S.token}});if(!r.ok)throw new Error('Spotify '+r.status);return r.json();}
-async function fetchTracks(){let tracks=[],url='https://api.spotify.com/v1/me/tracks?limit=50';while(url&&tracks.length<500){const d=await spGet(url);tracks=tracks.concat(d.items.map(i=>i.track).filter(t=>t&&t.id&&!t.is_local));url=d.next;}return tracks.slice(0,500).map(t=>({id:t.id,name:t.name,artists:t.artists.map(a=>a.name),art:t.album.images?.[1]?.url||t.album.images?.[0]?.url||null}));}
+async function fetchTracks(){let tracks=[],url='https://api.spotify.com/v1/me/tracks?limit=50';while(url){const d=await spGet(url);tracks=tracks.concat(d.items.map(i=>i.track).filter(t=>t&&t.id&&!t.is_local));url=d.next;}return tracks.map(t=>({id:t.id,name:t.name,artists:t.artists.map(a=>a.name),art:t.album.images?.[1]?.url||t.album.images?.[0]?.url||null}));}
 async function deleteTracks(ids){for(let i=0;i<ids.length;i+=50){await fetch('https://api.spotify.com/v1/me/tracks',{method:'DELETE',headers:{Authorization:'Bearer '+S.token,'Content-Type':'application/json'},body:JSON.stringify({ids:ids.slice(i,i+50)})}); }}
 async function aiCall(sys,msgs,max){max=max||1500;switch(S.ai){case'anthropic':return callAnthropic(sys,msgs,max);case'openai':return callOpenAI(sys,msgs,max);case'gemini':return callGemini(sys,msgs,max);case'grok':return callGrok(sys,msgs,max);case'deepseek':return callDeepSeek(sys,msgs,max);case'mistral':return callMistral(sys,msgs,max);default:throw new Error('Unknown provider');}}
 async function callAnthropic(sys,msgs,max){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:max,system:sys,messages:msgs.slice(-18)})});const d=await r.json();if(d.error)throw new Error(d.error.message||JSON.stringify(d.error));return d.content?.[0]?.text||'';}
@@ -428,9 +443,61 @@ function sendYN(txt){
 async function sendMsg(){const inp=document.getElementById('cInp'),txt=inp.value.trim();if(!txt||S.busy)return;inp.value='';setInpOn(false);addMsg('user',txt);S.conv.push({role:'user',content:txt});addTyping();try{const r=await aiCall(SYS,S.conv);rmTyping();addMsg('ai',r);S.conv.push({role:'assistant',content:r});if(r.includes('VIBE_READY')){startAnalysis();return;}setInpOn(true);}catch(e){rmTyping();addMsg('ai','Ошибка: '+e.message);setInpOn(true);}}
 async function startAnalysis(){
   S.busy=true;setInpOn(false);
-  // Build vibe profile from conversation
-  const vibeQ=[...S.conv,{role:'user',content:'На основе моих ответов составь профиль в двух частях:\n\nЧТО НРАВИТСЯ: [перечисли конкретно жанры, темп, настроение на которые я ответил Да]\nЧТО НЕ НРАВИТСЯ: [перечисли конкретно жанры и стили на которые я ответил Нет]\n\nТолько факты из ответов, без додумывания. На русском.'}];
-  S.vibe=await aiCall(SYS,vibeQ,600).catch(()=>'Современная музыка, средний темп');
+
+  // ── Extract hard NO rules from conversation ──────────────────────────
+  // Map question keywords to what they mean musically
+  const Q_MAP=[
+    {q:'энергичного',no:'медленная спокойная музыка'},
+    {q:'медленного',no:'быстрая энергичная музыка'},
+    {q:'электронн',no:'электронная музыка: house, techno, EDM, synth'},
+    {q:'рок',no:'рок, метал, гитарная музыка'},
+    {q:'рэп',no:'рэп, хип-хоп, trap, drill'},
+    {q:'поп',no:'поп-музыка'},
+    {q:'джаз',no:'джаз, соул, блюз'},
+    {q:'инди',no:'инди, альтернатива'},
+    {q:'классик',no:'классическая и оркестровая музыка'},
+    {q:'R&B',no:'R&B'},
+    {q:'фолк',no:'фолк, акустика'},
+    {q:'русскоязычн',no:'русскоязычная музыка, русский язык в треках'},
+    {q:'80-х',no:'музыка 80-х и 90-х'},
+    {q:'тёмное',no:'тёмное меланхоличное настроение'},
+    {q:'радостное',no:'радостное позитивное настроение'},
+    {q:'трениров',no:'энергичная тренировочная музыка'},
+    {q:'живые инструмент',no:'живые инструменты: гитара, пианино, барабаны'},
+    {q:'синтезатор',no:'синтезаторы и электроника'},
+    {q:'без слов',no:'инструментальная музыка без слов'},
+    {q:'тяжёл',no:'тяжёлое агрессивное звучание'},
+    {q:'мягк',no:'мягкое нежное звучание'},
+  ];
+
+  // Parse conversation: find AI question + user "Нет" pairs
+  const hardNO=[];
+  const msgs=S.conv;
+  for(let i=0;i<msgs.length-1;i++){
+    if(msgs[i].role==='assistant' && msgs[i+1].role==='user'){
+      const q=msgs[i].content.toLowerCase();
+      const a=msgs[i+1].content.trim();
+      if(a==='Нет'){
+        for(const m of Q_MAP){
+          if(q.includes(m.q.toLowerCase())){
+            hardNO.push(m.no);
+            break;
+          }
+        }
+      }
+    }
+  }
+  console.log('Hard NO rules:', hardNO);
+
+  // ── Build vibe profile ────────────────────────────────────────────────
+  const vibeQ=[...S.conv,{role:'user',content:'На основе моих ответов составь профиль:\n\nНРАВИТСЯ: [жанры/стили на которые я ответил ДА]\nНЕ НРАВИТСЯ: [жанры/стили на которые я ответил НЕТ]\nНЕЙТРАЛЬНО: [на которые я ответил Не знаю — не удалять]\n\nТолько факты из ответов. На русском.'}];
+  S.vibe=await aiCall(SYS,vibeQ,500).catch(()=>'Современная музыка');
+
+  // Append hard rules to vibe for extra clarity
+  if(hardNO.length>0){
+    S.vibe+='\n\nАБСОЛЮТНЫЕ ЗАПРЕТЫ (пользователь явно сказал НЕТ): '+hardNO.join('; ')+'.';
+  }
+
   const ov=document.getElementById('analysis-view');
   ov.classList.add('on');
   const total=S.tracks.length;
@@ -442,36 +509,46 @@ async function startAnalysis(){
   async function analyzeBatch(batch,offset,attempt){
     attempt=attempt||0;
     const list=batch.map((t,j)=>(offset+j+1)+'. "'+t.name+'" — '+t.artists.join(', ')+' ['+t.id+']').join('\n');
-    const trackCount=batch.length;
-    const maxRemove=Math.ceil(trackCount*0.3);
-    const prompt='Вкус пользователя:\n'+S.vibe+'\n\nЗадача: из списка треков найди те, которые ЯВНО ПРОТИВОРЕЧАТ вкусу — прямая противоположность по жанру или настроению. Например если человек сказал что НЕ любит рэп, а трек явный рэп — remove. Но если просто "не идеальный" или жанр смешанный — keep.\n\nЖёсткие правила:\n- Сомневаешься? → keep.\n- Не знаешь артиста? → keep.\n- Трек просто "мог бы быть лучше"? → keep.\n- Удаляй ТОЛЬКО очевидные противоречия вкусу.\n- Не более '+maxRemove+' треков из '+trackCount+' можно пометить remove.\n\nТреки:\n'+list+'\n\nJSON (без markdown):\n[{"id":"ID","decision":"keep или remove","reason":"причина 3-5 слов"}]';
+
+    // Build hard rules section
+    const hardRulesText=hardNO.length>0
+      ? '\nЖЁСТКИЕ ПРАВИЛА (пользователь сказал НЕТ — эти треки УДАЛЯТЬ ВСЕГДА):\n'+hardNO.map(r=>'- Если трек относится к: '+r+' → ОБЯЗАТЕЛЬНО remove').join('\n')+'\n'
+      : '';
+
+    const prompt='Профиль пользователя:\n'+S.vibe
+      +hardRulesText
+      +'\nТреки:\n'+list
+      +'\n\nПравила:\n'
+      +'1. Если трек попадает под ЖЁСТКИЕ ПРАВИЛА выше — remove без исключений.\n'
+      +'2. Если сомневаешься в жанре — keep.\n'
+      +'3. Если трек просто "не идеальный" — keep.\n'
+      +'4. Удаляй только очевидное несовпадение.\n'
+      +'\nJSON:\n[{"id":"ID","decision":"keep или remove","reason":"причина 3-5 слов"}]';
+
     try{
       const raw=await aiCall(ANALYSIS_SYS,[{role:'user',content:prompt}],4000);
-      // robust JSON extraction
       let clean=raw.replace(/```json|```/gi,'').trim();
-      // remove any text before [
-      const s=clean.indexOf('[');
-      const e=clean.lastIndexOf(']');
+      const s=clean.indexOf('['),e=clean.lastIndexOf(']');
       if(s===-1||e===-1)throw new Error('No JSON array');
-      clean=clean.slice(s,e+1);
-      // fix common AI mistakes: trailing commas
-      clean=clean.replace(/,\s*([}\]])/g,'$1');
+      clean=clean.slice(s,e+1).replace(/,\s*([}\]])/g,'$1');
       const arr=JSON.parse(clean);
       if(!Array.isArray(arr)||arr.length===0)throw new Error('Empty array');
-      // map results, fallback keep for any missing
       const found=new Set();
       for(const r of arr){
         const tk=S.tracks.find(t=>t.id===r.id);
-        if(tk){found.add(tk.id);S.results.push({track:tk,decision:r.decision||'keep',reason:r.reason||'',_desel:false});}
+        if(tk){
+          // Normalize decision: only 'remove' or 'keep'
+          const dec=(r.decision||'').toLowerCase().includes('remove')?'remove':'keep';
+          found.add(tk.id);
+          S.results.push({track:tk,decision:dec,reason:r.reason||'',_desel:false});
+        }
       }
-      // any tracks in batch not returned → keep
       for(const t of batch){if(!found.has(t.id))S.results.push({track:t,decision:'keep',reason:'Нет данных',_desel:false});}
     }catch(e){
       if(attempt<2){
         await new Promise(r=>setTimeout(r,1500));
         return analyzeBatch(batch,offset,attempt+1);
       }
-      // final fallback
       for(const t of batch)S.results.push({track:t,decision:'keep',reason:'Ошибка анализа',_desel:false});
     }
   }
@@ -485,21 +562,16 @@ async function startAnalysis(){
     document.getElementById('progGlow').style.left=pct+'%';
     document.getElementById('progDone').textContent=done;
     hlScroll(batch.map(t=>t.name));
-    // small delay between batches to avoid rate limits
     if(i+BATCH<S.tracks.length)await new Promise(r=>setTimeout(r,600));
   }
-  // Sanity check: if AI went crazy and marked >60% as remove, trust nothing
+
+  // Sanity cap: never remove more than 60%
   const rmCount=S.results.filter(r=>r.decision==='remove').length;
-  const rmRatio=rmCount/S.results.length;
-  if(rmRatio>0.6){
-    console.warn('AI marked '+Math.round(rmRatio*100)+'% for removal — seems wrong, capping at 30%');
-    // Sort by "most obviously wrong" and flip the excess back to keep
-    // Strategy: keep the remove decisions, but shuffle excess back
-    const removeList=S.results.filter(r=>r.decision==='remove');
-    const maxAllowed=Math.floor(S.results.length*0.3);
-    // keep only first maxAllowed removes, rest become keep
-    removeList.slice(maxAllowed).forEach(r=>{r.decision='keep';r.reason='Оставлен (авто-коррекция)';});
+  if(rmCount/S.results.length>0.6){
+    const maxAllowed=Math.floor(S.results.length*0.5);
+    S.results.filter(r=>r.decision==='remove').slice(maxAllowed).forEach(r=>{r.decision='keep';r.reason='Авто-коррекция';});
   }
+
   ov.classList.remove('on');S.busy=false;showResults();
 }
 function showResults(){const rm=S.results.filter(r=>r.decision==='remove').length,kp=S.results.filter(r=>r.decision==='keep').length;document.getElementById('libBadge').textContent=rm+' удалить · '+kp+' оставить';document.getElementById('actBar').style.display='flex';document.getElementById('selAll').style.display='block';setF('remove',document.getElementById('fb-remove'));updateActInfo();}
@@ -513,11 +585,42 @@ function showDone(count){document.getElementById('doneN').textContent=0;document
 function restartChat(){document.getElementById('done-view').classList.remove('on');document.getElementById('actBar').style.display='none';document.getElementById('selAll').style.display='none';S.results=[];renderTracks();startChat();}
 function buildScrollMarquee(){const names=S.tracks.slice(0,22).map(t=>t.name);const dbl=[...names,...names];document.getElementById('anSi').innerHTML=dbl.map(n=>'<span class="an-si-it" data-n="'+esc(n)+'">&#9834; '+esc(n)+'</span>').join('');}
 function hlScroll(names){document.querySelectorAll('.an-si-it').forEach(el=>el.classList.toggle('hl',names.includes(el.dataset.n)));}
-function addMsg(role,txt){const m=document.getElementById('msgs'),el=document.createElement('div');el.className='msg '+role;const c=txt.replace('VIBE_READY','').trim();el.innerHTML=role==='ai'?'<div class="m-av ai">&#129302;</div><div class="m-bub">'+c+'</div>':'<div class="m-bub">'+esc(c)+'</div><div class="m-av hu">ты</div>';m.appendChild(el);m.scrollTop=m.scrollHeight;}
+function addMsg(role,txt){
+  const m=document.getElementById('msgs'),el=document.createElement('div');
+  el.className='msg '+role;
+  const clean=txt.replace('VIBE_READY','').trim();
+  if(role==='ai'){
+    el.innerHTML='<div class="m-av ai">&#129302;</div><div class="m-bub" id="mb_'+Date.now()+'"></div>';
+    m.appendChild(el);m.scrollTop=m.scrollHeight;
+    const bub=el.querySelector('.m-bub');
+    typewrite(bub,clean);
+  }else{
+    el.innerHTML='<div class="m-bub">'+esc(clean)+'</div><div class="m-av hu">ты</div>';
+    m.appendChild(el);m.scrollTop=m.scrollHeight;
+  }
+}
+function typewrite(el,text){
+  el.innerHTML='<span class="typing-cursor"></span>';
+  let i=0;
+  const speed=18;
+  const m=document.getElementById('msgs');
+  function tick(){
+    if(i<text.length){
+      const cur=el.querySelector('.typing-cursor');
+      if(cur)cur.before(document.createTextNode(text[i]));
+      i++;m.scrollTop=m.scrollHeight;
+      setTimeout(tick,speed+(text[i-1]==='.'||text[i-1]==='!'||text[i-1]==='?'?120:0));
+    }else{
+      const cur=el.querySelector('.typing-cursor');
+      if(cur)cur.remove();
+    }
+  }
+  tick();
+}
 function addTyping(){const m=document.getElementById('msgs'),el=document.createElement('div');el.className='msg ai';el.id='typing';el.innerHTML='<div class="m-av ai">&#129302;</div><div class="m-bub"><div class="tdots"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>';m.appendChild(el);m.scrollTop=m.scrollHeight;}
 function rmTyping(){const t=document.getElementById('typing');if(t)t.remove();}
 function clearMsgs(){document.getElementById('msgs').innerHTML='';}
-function setInpOn(on){const no=document.getElementById('btnNo'),yes=document.getElementById('btnYes');if(no){no.disabled=!on;yes.disabled=!on;}}
+function setInpOn(on){['btnNo','btnMaybe','btnYes'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=!on;});}
 function setChSub(t){document.getElementById('chSub').textContent=t;}
 function setLoadTxt(t){document.getElementById('loadTxt').textContent=t;}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
@@ -528,6 +631,70 @@ function copyURI(){navigator.clipboard.writeText(PAGE).then(()=>{const ok=docume
 function doLogout(){sessionStorage.clear();localStorage.removeItem('vf3');location.reload();}
 function ls(k,v){if(v!==undefined){try{localStorage.setItem(k,JSON.stringify(v))}catch{}return}try{const r=localStorage.getItem(k);return r?JSON.parse(r):null}catch{return null}}
 function ss(k,v){if(v!==undefined){sessionStorage.setItem(k,v);return}return sessionStorage.getItem(k)||''}
+
+// ── LIQUID BLOBS ──────────────────────────────────────────────────────
+(function(){
+  const canvas=document.getElementById('liquidCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  let W,H,mx=0,my=0,t=0;
+
+  const blobs=[
+    {x:.15,y:.2,r:.28,vx:.00018,vy:.00012,c:'rgba(212,245,60,'},
+    {x:.82,y:.7,r:.22,vx:-.00015,vy:.0002,c:'rgba(60,245,212,'},
+    {x:.5,y:.5,r:.18,vx:.0002,vy:-.00018,c:'rgba(255,77,28,'},
+    {x:.3,y:.8,r:.2,vx:-.0001,vy:-.00022,c:'rgba(212,245,60,'},
+    {x:.75,y:.15,r:.15,vx:.00025,vy:.00015,c:'rgba(60,245,212,'},
+  ];
+
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  window.addEventListener('resize',resize);resize();
+  document.addEventListener('mousemove',e=>{mx=e.clientX/W;my=e.clientY/H;});
+
+  function lemniscate(blob,t){
+    // figure-8 + drift
+    const a=Math.sin(t*blob.vx*1000)*0.08;
+    const b=Math.cos(t*blob.vy*1000)*0.06;
+    return{x:blob.x+a+(mx-.5)*.04,y:blob.y+b+(my-.5)*.04};
+  }
+
+  function drawBlob(blob,t){
+    const p=lemniscate(blob,t);
+    const px=p.x*W,py=p.y*H,r=blob.r*Math.min(W,H);
+    const g=ctx.createRadialGradient(px,py,0,px,py,r);
+    g.addColorStop(0,blob.c+'0.07)');
+    g.addColorStop(.5,blob.c+'0.04)');
+    g.addColorStop(1,blob.c+'0)');
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fill();
+  }
+
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    t+=16;
+    blobs.forEach(b=>drawBlob(b,t));
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+// ── LIQUID RIPPLE ON BUTTON CLICK ────────────────────────────────────
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.yn-btn');
+  if(!btn||btn.disabled)return;
+  const r=btn.getBoundingClientRect();
+  const mx=((e.clientX-r.left)/r.width*100).toFixed(1)+'%';
+  const my=((e.clientY-r.top)/r.height*100).toFixed(1)+'%';
+  btn.style.setProperty('--mx',mx);btn.style.setProperty('--my',my);
+  // ripple
+  const rip=document.createElement('span');
+  rip.style.cssText='position:absolute;border-radius:50%;background:rgba(255,255,255,.25);width:10px;height:10px;left:'+(e.clientX-r.left-5)+'px;top:'+(e.clientY-r.top-5)+'px;transform:scale(0);animation:rip .5s ease-out forwards;pointer-events:none';
+  btn.appendChild(rip);setTimeout(()=>rip.remove(),600);
+});
+// ripple keyframe
+const ripStyle=document.createElement('style');
+ripStyle.textContent='@keyframes rip{to{transform:scale(18);opacity:0}}';
+document.head.appendChild(ripStyle);
 </script>
 </body>
 </html>
