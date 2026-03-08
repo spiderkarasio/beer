@@ -176,6 +176,15 @@ body:has(a:hover) #cur,body:has(button:hover) #cur{transform:translate(-50%,-50%
 .btn-a:hover{filter:brightness(1.1);transform:translateY(-1px)}
 .btn-g{background:none;color:var(--fog);border:1px solid var(--smoke);border-radius:3px;padding:12px 20px;cursor:pointer;font-family:var(--fm);font-size:10px;letter-spacing:2px;text-transform:uppercase;transition:all .15s}
 .btn-g:hover{color:var(--chalk);border-color:var(--fog)}
+.yn-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;height:44px;border-radius:4px;border:none;cursor:pointer;font-family:var(--fm);font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;transition:all .2s;position:relative;overflow:hidden}
+.yn-btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+.yn-no{background:transparent;color:var(--fire);border:1px solid rgba(255,77,28,.3)}
+.yn-no:not(:disabled):hover{background:rgba(255,77,28,.12);border-color:var(--fire);transform:translateY(-1px)}
+.yn-no:not(:disabled):active{transform:scale(.97)}
+.yn-yes{background:var(--acid);color:#000}
+.yn-yes:not(:disabled):hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,245,60,.3)}
+.yn-yes:not(:disabled):active{transform:scale(.97)}
+.yn-icon{font-size:15px}
 @media(max-width:900px){.setup-wrap{grid-template-columns:1fr}.setup-hero{display:none}.setup-right{min-height:100vh;max-height:none}.app-body{grid-template-columns:1fr;grid-template-rows:300px 1fr}.chat-col{border-right:none;border-bottom:1px solid var(--wire)}.tr-why{display:none}.ai-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -231,9 +240,13 @@ body:has(a:hover) #cur,body:has(button:hover) #cur{transform:translate(-50%,-50%
         <div class="fhead"><div class="fname">Spotify Client ID</div><div class="flink"><a href="https://developer.spotify.com/dashboard" target="_blank">dashboard →</a></div></div>
         <input class="finp" id="fClientId" type="text" placeholder="Spotify Client ID..." autocomplete="off" spellcheck="false">
       </div>
-      <div class="rbox">
-        <strong style="color:var(--chalk)">Redirect URI — добавь в Spotify Dashboard:</strong><br>
-        <code id="redirectUri">загружается...</code>
+      <div class="rbox" id="rboxWrap">
+        <strong style="color:var(--chalk)">Redirect URI — вставь точно в Spotify Dashboard:</strong><br>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <code id="redirectUri" style="flex:1;word-break:break-all;font-size:11px"></code>
+          <button onclick="copyURI()" id="copyBtn" style="flex-shrink:0;background:rgba(212,245,60,.15);border:1px solid rgba(212,245,60,.3);color:var(--acid);border-radius:2px;padding:4px 8px;cursor:pointer;font-family:var(--fm);font-size:9px;letter-spacing:1px;white-space:nowrap">COPY</button>
+        </div>
+        <div id="copyOk" style="font-size:10px;color:var(--acid);margin-top:4px;display:none">✓ Скопировано!</div>
       </div>
       <button class="login-btn" onclick="doLogin()">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
@@ -265,9 +278,13 @@ body:has(a:hover) #cur,body:has(button:hover) #cur{transform:translate(-50%,-50%
         <div class="ch-sub" id="chSub">Загружаем библиотеку...</div>
       </div>
       <div class="msgs" id="msgs"></div>
-      <div class="inp-row">
-        <input class="c-inp" id="cInp" placeholder="напиши что-нибудь..." disabled onkeydown="if(event.key==='Enter')sendMsg()">
-        <button class="c-send" id="cSend" onclick="sendMsg()" disabled>→</button>
+      <div class="inp-row" id="inpRow">
+        <button class="yn-btn yn-no" id="btnNo" onclick="sendYN('Нет')" disabled>
+          <span class="yn-icon">✕</span> Нет
+        </button>
+        <button class="yn-btn yn-yes" id="btnYes" onclick="sendYN('Да')" disabled>
+          Да <span class="yn-icon">✓</span>
+        </button>
       </div>
     </div>
     <div class="right-col">
@@ -325,13 +342,13 @@ const PROVIDERS={
   mistral:{name:'Mistral Small 3.1',ph:'...',hint:'Получить на <a href="https://console.mistral.ai" target="_blank" style="color:var(--acid)">console.mistral.ai</a>',lbl:'Mistral API Key'}
 };
 const S={ai:'gemini',apiKey:'',clientId:'',token:'',user:null,tracks:[],results:[],conv:[],vibe:'',filter:'all',busy:false};
-const PAGE=window.location.href.split('?')[0].split('#')[0];
+const PAGE=(()=>{let u=window.location.href.split('?')[0].split('#')[0];if(u.endsWith('/')&&u.split('/').length>4)u=u.slice(0,-1);return u;})();
 {const c=document.getElementById('cur'),r=document.getElementById('cur2');let rx=0,ry=0,mx=0,my=0;document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;c.style.left=mx+'px';c.style.top=my+'px'});(function L(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;r.style.left=rx+'px';r.style.top=ry+'px';requestAnimationFrame(L)})();}
 {const w=['AI Curator','500 Tracks','Kill Bad Vibes','Gemini Free','ChatGPT','Grok','DeepSeek','Mistral','Spotify API','Pure Vibe','No Regrets','AI Curator','500 Tracks','Kill Bad Vibes','Gemini Free','ChatGPT','Grok','DeepSeek','Mistral','Spotify API','Pure Vibe','No Regrets'];document.getElementById('tickerTrack').innerHTML=w.map(x=>`<span class="t-it"><span class="t-dot"></span>${x}</span>`).join('');}
 {const wf=document.getElementById('waveform');for(let i=0;i<28;i++){const b=document.createElement('div');b.className='wv-bar';b.style.height=(12+Math.sin(i*.5)*20+Math.random()*14)+'px';b.style.animationDelay=(i*.055)+'s';b.style.animationDuration=(.8+Math.random()*.9)+'s';wf.appendChild(b);}}
 function pickAI(card){document.querySelectorAll('.ai-card').forEach(c=>c.classList.remove('sel'));card.classList.add('sel');S.ai=card.dataset.ai;const p=PROVIDERS[S.ai];document.getElementById('keyLbl').textContent=p.lbl;document.getElementById('keyHint').innerHTML=p.hint;document.getElementById('fApiKey').placeholder=p.ph;}
 document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('redirectUri').textContent=PAGE;
+  document.getElementById('redirectUri').textContent=PAGE;document.title='VIBEFILTER — '+PAGE.split('/').pop();
   const saved=ls('vf3');
   if(saved){if(saved.c)document.getElementById('fClientId').value=saved.c;if(saved.k)document.getElementById('fApiKey').value=saved.k;if(saved.ai){S.ai=saved.ai;const card=document.querySelector('[data-ai="'+saved.ai+'"]');if(card){document.querySelectorAll('.ai-card').forEach(x=>x.classList.remove('sel'));card.classList.add('sel');pickAI(card);}}}
   const p=new URLSearchParams(window.location.search),code=p.get('code'),err=p.get('error');
@@ -354,10 +371,123 @@ async function callGemini(sys,msgs,max){const contents=msgs.slice(-18).map(m=>({
 async function callGrok(sys,msgs,max){const r=await fetch('https://api.x.ai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.apiKey},body:JSON.stringify({model:'grok-3-mini',max_tokens:max,messages:[{role:'system',content:sys},...msgs.slice(-18)]})});const d=await r.json();if(d.error)throw new Error(d.error.message||JSON.stringify(d.error));return d.choices?.[0]?.message?.content||'';}
 async function callDeepSeek(sys,msgs,max){const r=await fetch('https://api.deepseek.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.apiKey},body:JSON.stringify({model:'deepseek-chat',max_tokens:max,messages:[{role:'system',content:sys},...msgs.slice(-18)]})});const d=await r.json();if(d.error)throw new Error(d.error.message||JSON.stringify(d.error));return d.choices?.[0]?.message?.content||'';}
 async function callMistral(sys,msgs,max){const r=await fetch('https://api.mistral.ai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.apiKey},body:JSON.stringify({model:'mistral-small-latest',max_tokens:max,messages:[{role:'system',content:sys},...msgs.slice(-18)]})});const d=await r.json();if(d.error)throw new Error(d.error.message||JSON.stringify(d.error));return d.choices?.[0]?.message?.content||'';}
-const SYS=`Ты -- острый музыкальный куратор с реально хорошим вкусом. Общаешься неформально, по-русски.\n\nЦель: за 3-4 вопроса понять текущий вкус пользователя. По одному вопросу за раз. Узнай:\n-- Настроение / энергия прямо сейчас\n-- Жанры и артисты которые резонируют сейчас\n-- Что надоело / раздражает\n-- Темп, атмосфера, контекст\n\nКогда собрал достаточно, скажи что начинаешь анализ. В конце добавь ровно: VIBE_READY`;
+const SYS=`Ты — музыкальный куратор. Говоришь коротко, по-русски. Один вопрос за раз.
+
+ПРАВИЛО: пользователь отвечает ТОЛЬКО «Да» или «Нет». Задавай ТОЛЬКО закрытые вопросы. Никаких списков, никаких пояснений — просто вопрос.
+
+Задай ровно 25 вопросов в таком порядке:
+1. Сейчас хочется чего-то быстрого и энергичного?
+2. Или наоборот — медленного и атмосферного?
+3. Нравится электронная музыка (house, techno, synth)?
+4. Нравится рок или метал?
+5. Слушаешь рэп или хип-хоп?
+6. Слушаешь поп-музыку?
+7. Нравится джаз или соул?
+8. Слушаешь инди или альтернативу?
+9. Нравится классика или оркестровая музыка?
+10. Слушаешь R&B?
+11. Нравится фолк или акустика?
+12. Слушаешь русскоязычную музыку?
+13. Нравится музыка 80-х или 90-х?
+14. Предпочитаешь современные релизы (2020+)?
+15. Нравится тёмное, меланхоличное настроение?
+16. Или яркое и позитивное?
+17. Слушаешь в фоне, пока работаешь?
+18. Слушаешь на тренировке?
+19. Нравятся живые инструменты (гитара, пианино)?
+20. Нравится много электроники и синтезаторов?
+21. Нравится музыка без слов — инструментальная?
+22. Важен смысл и текст песни?
+23. Нравится тяжёлое, агрессивное звучание?
+24. Нравится мягкое и нежное звучание?
+25. Хочется открыть что-то новое и незнакомое?
+
+После 25 вопросов — одна фраза что начинаешь анализ, и в конце: VIBE_READY`;
 function startChat(){S.conv=[];S.results=[];S.vibe='';clearMsgs();setInpOn(false);setChSub(S.tracks.length+' треков загружено');S.conv.push({role:'user',content:'Привет! Хочу почистить Spotify от треков которые мне сейчас не подходят.'});addTyping();aiCall(SYS,S.conv).then(t=>{rmTyping();addMsg('ai',t);S.conv.push({role:'assistant',content:t});setInpOn(true);if(t.includes('VIBE_READY'))startAnalysis();}).catch(e=>{rmTyping();addMsg('ai','Ошибка API: '+e.message);});}
+function sendYN(txt){
+  const yes=document.getElementById('btnYes');
+  if(!yes||yes.disabled)return;
+  setInpOn(false);
+  addMsg('user',txt);
+  S.conv.push({role:'user',content:txt});
+  addTyping();
+  aiCall(SYS,S.conv,600)
+    .then(r=>{
+      rmTyping();
+      addMsg('ai',r);
+      S.conv.push({role:'assistant',content:r});
+      if(r.includes('VIBE_READY')){startAnalysis();return;}
+      setInpOn(true);
+    })
+    .catch(e=>{
+      rmTyping();
+      addMsg('ai','⚠️ Ошибка: '+e.message+'. Попробуй ещё раз.');
+      setInpOn(true);
+    });
+}
 async function sendMsg(){const inp=document.getElementById('cInp'),txt=inp.value.trim();if(!txt||S.busy)return;inp.value='';setInpOn(false);addMsg('user',txt);S.conv.push({role:'user',content:txt});addTyping();try{const r=await aiCall(SYS,S.conv);rmTyping();addMsg('ai',r);S.conv.push({role:'assistant',content:r});if(r.includes('VIBE_READY')){startAnalysis();return;}setInpOn(true);}catch(e){rmTyping();addMsg('ai','Ошибка: '+e.message);setInpOn(true);}}
-async function startAnalysis(){S.busy=true;setInpOn(false);const vm=[...S.conv,{role:'user',content:'Опиши мой текущий музыкальный вкус одним сжатым абзацем на русском.'}];S.vibe=await aiCall(SYS,vm,400).catch(()=>'Современная музыка');const ov=document.getElementById('analysis-view');ov.classList.add('on');const total=S.tracks.length;S.results=[];document.getElementById('progTotal').textContent='/ '+total;const BATCH=40;for(let i=0;i<S.tracks.length;i+=BATCH){const batch=S.tracks.slice(i,i+BATCH);document.getElementById('anCur').textContent='♪ '+batch[0].name+' — '+batch[0].artists[0];const list=batch.map((t,j)=>(i+j+1)+'. "'+t.name+'" — '+t.artists.join(', ')+' ['+t.id+']').join('\n');const prompt='Вкус пользователя:\n'+S.vibe+'\n\nРеши для каждого трека: keep или remove.\n\n'+list+'\n\nОтветь ТОЛЬКО JSON без markdown:\n[{"id":"ID","decision":"keep|remove","reason":"причина до 7 слов на русском"}]';try{const raw=await aiCall('Отвечай только валидным JSON без markdown.',[{role:'user',content:prompt}],3000);const cl=raw.replace(/```json|```/g,'').trim();const s=cl.indexOf('['),e=cl.lastIndexOf(']');const arr=JSON.parse(s>=0?cl.slice(s,e+1):cl);for(const r of arr){const tk=S.tracks.find(t=>t.id===r.id);if(tk)S.results.push({track:tk,decision:r.decision||'keep',reason:r.reason||'',_desel:false});}}catch{for(const t of batch)S.results.push({track:t,decision:'keep',reason:'Ошибка анализа',_desel:false});}const done=Math.min(i+BATCH,total),pct=(done/total)*100;document.getElementById('progFill').style.width=pct+'%';document.getElementById('progGlow').style.left=pct+'%';document.getElementById('progDone').textContent=done;hlScroll(batch.map(t=>t.name));}ov.classList.remove('on');S.busy=false;showResults();}
+async function startAnalysis(){
+  S.busy=true;setInpOn(false);
+  // Build vibe profile from conversation
+  const vibeQ=[...S.conv,{role:'user',content:'На основе всех моих ответов Да/Нет составь подробный профиль моего музыкального вкуса. Перечисли конкретно: любимые жанры, нежелательные жанры, темп, настроение, языки, эпохи, инструменты. Ответ на русском, 5-6 предложений.'}];
+  S.vibe=await aiCall(SYS,vibeQ,800).catch(()=>'Современная музыка, средний темп');
+  const ov=document.getElementById('analysis-view');
+  ov.classList.add('on');
+  const total=S.tracks.length;
+  S.results=[];
+  document.getElementById('progTotal').textContent='/ '+total;
+  const BATCH=15;
+  const ANALYSIS_SYS='Ты музыкальный эксперт. Анализируй треки и отвечай ТОЛЬКО валидным JSON массивом. Никакого текста до или после. Никаких markdown блоков.';
+
+  async function analyzeBatch(batch,offset,attempt){
+    attempt=attempt||0;
+    const list=batch.map((t,j)=>(offset+j+1)+'. "'+t.name+'" — '+t.artists.join(', ')+' ['+t.id+']').join('\n');
+    const prompt='Профиль вкуса:\n'+S.vibe+'\n\nДля каждого трека реши: keep (подходит под вкус) или remove (не подходит).\n\nСписок треков:\n'+list+'\n\nВерни СТРОГО JSON массив без какого-либо текста до или после:\n[{"id":"SPOTIFY_ID","decision":"keep или remove","reason":"причина 5-7 слов"}]';
+    try{
+      const raw=await aiCall(ANALYSIS_SYS,[{role:'user',content:prompt}],4000);
+      // robust JSON extraction
+      let clean=raw.replace(/```json|```/gi,'').trim();
+      // remove any text before [
+      const s=clean.indexOf('[');
+      const e=clean.lastIndexOf(']');
+      if(s===-1||e===-1)throw new Error('No JSON array');
+      clean=clean.slice(s,e+1);
+      // fix common AI mistakes: trailing commas
+      clean=clean.replace(/,\s*([}\]])/g,'$1');
+      const arr=JSON.parse(clean);
+      if(!Array.isArray(arr)||arr.length===0)throw new Error('Empty array');
+      // map results, fallback keep for any missing
+      const found=new Set();
+      for(const r of arr){
+        const tk=S.tracks.find(t=>t.id===r.id);
+        if(tk){found.add(tk.id);S.results.push({track:tk,decision:r.decision||'keep',reason:r.reason||'',_desel:false});}
+      }
+      // any tracks in batch not returned → keep
+      for(const t of batch){if(!found.has(t.id))S.results.push({track:t,decision:'keep',reason:'Нет данных',_desel:false});}
+    }catch(e){
+      if(attempt<2){
+        await new Promise(r=>setTimeout(r,1500));
+        return analyzeBatch(batch,offset,attempt+1);
+      }
+      // final fallback
+      for(const t of batch)S.results.push({track:t,decision:'keep',reason:'Ошибка анализа',_desel:false});
+    }
+  }
+
+  for(let i=0;i<S.tracks.length;i+=BATCH){
+    const batch=S.tracks.slice(i,i+BATCH);
+    document.getElementById('anCur').textContent='♪ '+batch[0].name+' — '+batch[0].artists[0];
+    await analyzeBatch(batch,i);
+    const done=Math.min(i+BATCH,total),pct=(done/total)*100;
+    document.getElementById('progFill').style.width=pct+'%';
+    document.getElementById('progGlow').style.left=pct+'%';
+    document.getElementById('progDone').textContent=done;
+    hlScroll(batch.map(t=>t.name));
+    // small delay between batches to avoid rate limits
+    if(i+BATCH<S.tracks.length)await new Promise(r=>setTimeout(r,600));
+  }
+  ov.classList.remove('on');S.busy=false;showResults();
+}
 function showResults(){const rm=S.results.filter(r=>r.decision==='remove').length,kp=S.results.filter(r=>r.decision==='keep').length;document.getElementById('libBadge').textContent=rm+' удалить · '+kp+' оставить';document.getElementById('actBar').style.display='flex';document.getElementById('selAll').style.display='block';setF('remove',document.getElementById('fb-remove'));updateActInfo();}
 function setF(type,btn){S.filter=type;document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderTracks();}
 function renderTracks(){const list=document.getElementById('tlist');let items=S.results.length?S.results:S.tracks.map(t=>({track:t,decision:'?',reason:'',_desel:false}));if(S.filter==='remove')items=items.filter(r=>r.decision==='remove');if(S.filter==='keep')items=items.filter(r=>r.decision==='keep');if(!items.length){list.innerHTML='<div class="empty"><div class="empty-ico">&#9834;</div><div>Нет треков в этой категории</div></div>';return;}list.innerHTML=items.map((r,i)=>{const d=r.decision,rc=d==='remove'?'rm':d==='keep'?'kp':'';const chk=!r._desel&&d==='remove'?'on':'';const bc=d==='remove'?'b-rm':d==='keep'?'b-kp':'';const bt=d==='remove'?'REMOVE':d==='keep'?'KEEP':'...';const art=r.track.art?'<img src="'+r.track.art+'" alt="" loading="lazy">':'&#9834;';const cb=d==='remove'?'<div class="tr-cb '+chk+'" onclick="togTrack(\''+r.track.id+'\',this)"></div>':'';return '<div class="trow '+rc+'" style="animation-delay:'+Math.min(i*12,300)+'ms">'+cb+'<div class="tr-img">'+art+'</div><div class="tr-info"><div class="tr-name">'+esc(r.track.name)+'</div><div class="tr-art">'+esc(r.track.artists.join(', '))+'</div></div>'+(r.reason?'<div class="tr-why">'+esc(r.reason)+'</div>':'')+'<div class="tr-badge '+bc+'">'+bt+'</div></div>';}).join('');}
@@ -373,13 +503,14 @@ function addMsg(role,txt){const m=document.getElementById('msgs'),el=document.cr
 function addTyping(){const m=document.getElementById('msgs'),el=document.createElement('div');el.className='msg ai';el.id='typing';el.innerHTML='<div class="m-av ai">&#129302;</div><div class="m-bub"><div class="tdots"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>';m.appendChild(el);m.scrollTop=m.scrollHeight;}
 function rmTyping(){const t=document.getElementById('typing');if(t)t.remove();}
 function clearMsgs(){document.getElementById('msgs').innerHTML='';}
-function setInpOn(on){document.getElementById('cInp').disabled=!on;document.getElementById('cSend').disabled=!on;}
+function setInpOn(on){const no=document.getElementById('btnNo'),yes=document.getElementById('btnYes');if(no){no.disabled=!on;yes.disabled=!on;}}
 function setChSub(t){document.getElementById('chSub').textContent=t;}
 function setLoadTxt(t){document.getElementById('loadTxt').textContent=t;}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
 function showErr(msg){const e=document.getElementById('errBox');e.innerHTML=msg;e.style.display='block';}
 function hideErr(){document.getElementById('errBox').style.display='none';}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function copyURI(){navigator.clipboard.writeText(PAGE).then(()=>{const ok=document.getElementById('copyOk'),btn=document.getElementById('copyBtn');ok.style.display='block';btn.textContent='COPIED!';setTimeout(()=>{ok.style.display='none';btn.textContent='COPY';},2000);}).catch(()=>{const el=document.createElement('textarea');el.value=PAGE;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);const ok=document.getElementById('copyOk');ok.style.display='block';setTimeout(()=>ok.style.display='none',2000);});}
 function doLogout(){sessionStorage.clear();localStorage.removeItem('vf3');location.reload();}
 function ls(k,v){if(v!==undefined){try{localStorage.setItem(k,JSON.stringify(v))}catch{}return}try{const r=localStorage.getItem(k);return r?JSON.parse(r):null}catch{return null}}
 function ss(k,v){if(v!==undefined){sessionStorage.setItem(k,v);return}return sessionStorage.getItem(k)||''}
