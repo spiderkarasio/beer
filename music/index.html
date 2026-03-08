@@ -429,20 +429,22 @@ async function sendMsg(){const inp=document.getElementById('cInp'),txt=inp.value
 async function startAnalysis(){
   S.busy=true;setInpOn(false);
   // Build vibe profile from conversation
-  const vibeQ=[...S.conv,{role:'user',content:'На основе всех моих ответов Да/Нет составь подробный профиль моего музыкального вкуса. Перечисли конкретно: любимые жанры, нежелательные жанры, темп, настроение, языки, эпохи, инструменты. Ответ на русском, 5-6 предложений.'}];
-  S.vibe=await aiCall(SYS,vibeQ,800).catch(()=>'Современная музыка, средний темп');
+  const vibeQ=[...S.conv,{role:'user',content:'На основе моих ответов составь профиль в двух частях:\n\nЧТО НРАВИТСЯ: [перечисли конкретно жанры, темп, настроение на которые я ответил Да]\nЧТО НЕ НРАВИТСЯ: [перечисли конкретно жанры и стили на которые я ответил Нет]\n\nТолько факты из ответов, без додумывания. На русском.'}];
+  S.vibe=await aiCall(SYS,vibeQ,600).catch(()=>'Современная музыка, средний темп');
   const ov=document.getElementById('analysis-view');
   ov.classList.add('on');
   const total=S.tracks.length;
   S.results=[];
   document.getElementById('progTotal').textContent='/ '+total;
   const BATCH=15;
-  const ANALYSIS_SYS='Ты музыкальный эксперт. Анализируй треки и отвечай ТОЛЬКО валидным JSON массивом. Никакого текста до или после. Никаких markdown блоков.';
+  const ANALYSIS_SYS='Ты отвечаешь ТОЛЬКО JSON массивом. Без markdown, без текста до или после.';
 
   async function analyzeBatch(batch,offset,attempt){
     attempt=attempt||0;
     const list=batch.map((t,j)=>(offset+j+1)+'. "'+t.name+'" — '+t.artists.join(', ')+' ['+t.id+']').join('\n');
-    const prompt='Профиль вкуса:\n'+S.vibe+'\n\nДля каждого трека реши: keep (подходит под вкус) или remove (не подходит).\n\nСписок треков:\n'+list+'\n\nВерни СТРОГО JSON массив без какого-либо текста до или после:\n[{"id":"SPOTIFY_ID","decision":"keep или remove","reason":"причина 5-7 слов"}]';
+    const trackCount=batch.length;
+    const maxRemove=Math.ceil(trackCount*0.3);
+    const prompt='Вкус пользователя:\n'+S.vibe+'\n\nЗадача: из списка треков найди те, которые ЯВНО ПРОТИВОРЕЧАТ вкусу — прямая противоположность по жанру или настроению. Например если человек сказал что НЕ любит рэп, а трек явный рэп — remove. Но если просто "не идеальный" или жанр смешанный — keep.\n\nЖёсткие правила:\n- Сомневаешься? → keep.\n- Не знаешь артиста? → keep.\n- Трек просто "мог бы быть лучше"? → keep.\n- Удаляй ТОЛЬКО очевидные противоречия вкусу.\n- Не более '+maxRemove+' треков из '+trackCount+' можно пометить remove.\n\nТреки:\n'+list+'\n\nJSON (без markdown):\n[{"id":"ID","decision":"keep или remove","reason":"причина 3-5 слов"}]';
     try{
       const raw=await aiCall(ANALYSIS_SYS,[{role:'user',content:prompt}],4000);
       // robust JSON extraction
@@ -485,6 +487,18 @@ async function startAnalysis(){
     hlScroll(batch.map(t=>t.name));
     // small delay between batches to avoid rate limits
     if(i+BATCH<S.tracks.length)await new Promise(r=>setTimeout(r,600));
+  }
+  // Sanity check: if AI went crazy and marked >60% as remove, trust nothing
+  const rmCount=S.results.filter(r=>r.decision==='remove').length;
+  const rmRatio=rmCount/S.results.length;
+  if(rmRatio>0.6){
+    console.warn('AI marked '+Math.round(rmRatio*100)+'% for removal — seems wrong, capping at 30%');
+    // Sort by "most obviously wrong" and flip the excess back to keep
+    // Strategy: keep the remove decisions, but shuffle excess back
+    const removeList=S.results.filter(r=>r.decision==='remove');
+    const maxAllowed=Math.floor(S.results.length*0.3);
+    // keep only first maxAllowed removes, rest become keep
+    removeList.slice(maxAllowed).forEach(r=>{r.decision='keep';r.reason='Оставлен (авто-коррекция)';});
   }
   ov.classList.remove('on');S.busy=false;showResults();
 }
