@@ -901,10 +901,13 @@ textarea::placeholder { color:var(--muted); }
 
     <div class="gmenu" id="gmenu">
       <div class="gcard" onclick="openClicker()"><div class="ic">🍺</div><div class="nm">Beer Clicker</div><div class="ds">Стань пивным магнатом</div></div>
-      <div class="gcard locked" id="card-mines" onclick="tryOpenLocked('mines',50)"><div class="ic">💣</div><div class="nm">Сапер</div><div class="ds">Классическая головоломка</div><div class="lock-price" id="lp-mines">🔒 $50 для разблокировки</div></div>
-      <div class="gcard locked" id="card-snake" onclick="tryOpenLocked('snake',75)"><div class="ic">🐍</div><div class="nm">Змейка</div><div class="ds">Старое доброе ретро</div><div class="lock-price" id="lp-snake">🔒 $75 для разблокировки</div></div>
-      <div class="gcard locked" id="card-flags" onclick="tryOpenLocked('flags',30)"><div class="ic">🌍</div><div class="nm">Угадай Флаг</div><div class="ds">Проверь знание географии</div><div class="lock-price" id="lp-flags">🔒 $30 для разблокировки</div></div>
+      <div class="gcard" id="card-mines" onclick="openGame('gMines','💣 Сапёр',initMines)"><div class="ic">💣</div><div class="nm">Сапёр</div><div class="ds">Классическая головоломка</div></div>
+      <div class="gcard" id="card-snake" onclick="openGame('gSnake','🐍 Змейка',startSnake)"><div class="ic">🐍</div><div class="nm">Змейка</div><div class="ds">Старое доброе ретро</div></div>
+      <div class="gcard" id="card-flags" onclick="openGame('gFlags','🌍 Угадай Флаг',startFlags)"><div class="ic">🌍</div><div class="nm">Угадай Флаг</div><div class="ds">Проверь знание географии</div></div>
       <div class="gcard" onclick="openCasino()"><div class="ic">🎰</div><div class="nm">Пивное Казино</div><div class="ds">Слоты, Ракета и другое!</div></div>
+      <div class="gcard" onclick="openGame('gReaction','⚡ Реакция',initReaction)"><div class="ic">⚡</div><div class="nm">Реакция</div><div class="ds">Проверь скорость реакции</div></div>
+      <div class="gcard" onclick="openGame('gMemory','🃏 Память',initMemory)"><div class="ic">🃏</div><div class="nm">Память</div><div class="ds">Найди все пары карточек</div></div>
+      <div class="gcard" onclick="openGame('g2048','🔢 2048',init2048)"><div class="ic">🔢</div><div class="nm">2048</div><div class="ds">Собери плитку 2048</div></div>
     </div>
 
     <div class="gamemode-lock" id="gamemodeLock">
@@ -970,6 +973,47 @@ textarea::placeholder { color:var(--muted); }
         <div class="flags-score" id="flScore">Счёт: 0</div>
         <div class="flags-emoji" id="flEmoji">🏳</div>
         <div class="flags-opts" id="flOpts"></div>
+      </div>
+    </div>
+
+    <!-- REACTION GAME -->
+    <div id="gReaction" class="gcont">
+      <div class="back" onclick="backMenu()">← Назад</div>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding-top:50px">
+        <div style="font-size:15px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px">Тест реакции</div>
+        <div id="rxBest" style="font-size:13px;color:var(--acc)">Рекорд: —</div>
+        <div id="rxBox" onclick="rxClick()" style="width:200px;height:200px;border-radius:28px;background:var(--glass);border:2px solid var(--glass-b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;font-weight:800;color:var(--muted);transition:background .15s,box-shadow .15s;user-select:none">Нажми чтобы начать</div>
+        <div id="rxResult" style="font-size:28px;font-weight:900;color:var(--green);min-height:40px;text-align:center"></div>
+        <div style="font-size:11px;color:var(--muted);text-align:center">Жди зелёного — потом жми как можно быстрее!</div>
+      </div>
+    </div>
+
+    <!-- MEMORY GAME -->
+    <div id="gMemory" class="gcont">
+      <div class="back" onclick="backMenu()">← Назад</div>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding-top:50px">
+        <div style="display:flex;gap:20px;align-items:baseline">
+          <span style="font-size:18px;font-weight:900;color:var(--acc)" id="memScore">Пары: 0/8</span>
+          <span style="font-size:13px;color:var(--muted)" id="memMoves">Ходы: 0</span>
+        </div>
+        <div id="memGrid" style="display:grid;grid-template-columns:repeat(4,70px);grid-template-rows:repeat(4,70px);gap:8px"></div>
+        <button class="rbtn" onclick="initMemory()">🔄 Заново</button>
+      </div>
+    </div>
+
+    <!-- 2048 GAME -->
+    <div id="g2048" class="gcont">
+      <div class="back" onclick="backMenu()">← Назад</div>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding-top:50px">
+        <div style="display:flex;gap:24px;align-items:baseline">
+          <span style="font-size:22px;font-weight:900;color:var(--acc)" id="score2048">0</span>
+          <span style="font-size:13px;color:var(--muted)" id="best2048">Рекорд: 0</span>
+        </div>
+        <div id="grid2048" style="display:grid;grid-template-columns:repeat(4,72px);grid-template-rows:repeat(4,72px);gap:8px;background:rgba(0,0,0,.4);padding:10px;border-radius:14px;border:1px solid var(--glass-b)"></div>
+        <div style="display:flex;gap:10px">
+          <button class="rbtn" onclick="init2048()">🔄 Заново</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted)">Стрелки / WASD / свайп</div>
       </div>
     </div>
 
@@ -1208,7 +1252,8 @@ textarea::placeholder { color:var(--muted); }
 <!-- AI KEY POPUP -->
 <div id="aiKeyPopup">
   <div class="aik-title">🤖 Gemini API Key</div>
-  <div class="aik-sub">Ключ нужен для AI Mode. Не хранится нигде — только в памяти.</div>
+  <div class="aik-sub">Ключ хранится в localStorage браузера. Не попадает в код.</div>
+  <div class="aik-sub" style="margin-top:2px;opacity:.5">Горячая клавиша: <kbd style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-family:monospace">Ctrl+Shift+K</kbd></div>
   <div class="aik-sub" style="margin-top:4px">Получи бесплатно: <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#a855f7">aistudio.google.com/apikey</a></div>
   <input id="aiKeyInput" type="password" placeholder="AIzaSy..." autocomplete="off" onkeydown="if(event.key==='Enter')confirmAIKey()">
   <div style="display:flex;gap:8px;margin-top:2px">
@@ -2895,43 +2940,35 @@ function execMusic(data) {
   const uri = 'spotify:' + data.type + ':' + data.id;
   spCurrentUri = uri;
   const target = document.getElementById('spEmbedTarget'); if(!target) return;
-
   const h = document.getElementById('spHint');
   const volRow = document.getElementById('spVolRow');
 
+  // Всегда показываем ползунок — работает и с iFrame API и без
+  if(volRow) volRow.style.display = 'flex';
+
   if(spController) {
-    // Контроллер уже есть — просто меняем трек
     spController.loadUri(uri);
     spController.setVolume(spVolume / 100);
     if(h) h.textContent = '🎵 ' + (data.type === 'track' ? 'Трек' : 'Плейлист') + ' загружен';
-    if(volRow) volRow.style.display = 'flex';
     target.className = data.type === 'track' ? 'has-track' : 'has-playlist';
     if(!spExpanded) toggleSpotify();
     return;
   }
 
-  // Первая загрузка — создаём контроллер
-  if(!window._SpotifyIFrameAPI) {
-    // SDK ещё не загрузился — fallback на обычный iframe
-    target.innerHTML = '<iframe src="https://open.spotify.com/embed/' + data.type + '/' + data.id + '?utm_source=generator&theme=0" width="100%" height="' + (data.type==='track'?'80':'352') + '" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" style="border-radius:12px;"></iframe>';
-    target.className = data.type === 'track' ? 'has-track' : 'has-playlist';
-    if(h) h.textContent = '🎵 Загружено (ползунок доступен после обновления)';
-    if(volRow) volRow.style.display = 'none';
-    if(!spExpanded) toggleSpotify();
-    return;
-  }
-
-  target.innerHTML = '';
+  // Ставим обычный iframe (всегда работает)
+  target.innerHTML = '<iframe src="https://open.spotify.com/embed/' + data.type + '/' + data.id + '?utm_source=generator&theme=0" width="100%" height="' + (data.type==='track'?'80':'352') + '" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" style="border-radius:12px;display:block;"></iframe>';
   target.className = data.type === 'track' ? 'has-track' : 'has-playlist';
+  if(h) h.textContent = '🎵 Загружено';
 
-  const options = { uri, width: '100%', height: data.type === 'track' ? 80 : 352 };
-
-  window._SpotifyIFrameAPI.createController(target, options, (ctrl) => {
-    spController = ctrl;
-    ctrl.setVolume(spVolume / 100);
-    if(h) h.textContent = '🎵 ' + (data.type === 'track' ? 'Трек' : 'Плейлист') + ' загружен';
-    if(volRow) volRow.style.display = 'flex';
-  });
+  // Пробуем подключить iFrame API поверх (если успеет загрузиться)
+  if(window._SpotifyIFrameAPI) {
+    target.innerHTML = '';
+    window._SpotifyIFrameAPI.createController(target, { uri, width:'100%', height: data.type==='track'?80:352 }, (ctrl) => {
+      spController = ctrl;
+      ctrl.setVolume(spVolume / 100);
+      if(h) h.textContent = '🎵 Загружено (громкость активна)';
+    });
+  }
 
   if(!spExpanded) toggleSpotify();
 }
@@ -2991,11 +3028,184 @@ fetch('https://discord.com/api/guilds/1481009328784805928/widget.json')
     const on = document.getElementById('dcOnline');
     const tot = document.getElementById('dcTotal');
     if(on && d.presence_count !== undefined) on.textContent = d.presence_count;
-    if(tot && d.members) tot.textContent = '1000+'; // widget не даёт точный total
+    if(tot) tot.textContent = d.members ? d.members.length + '+' : '—';
   })
   .catch(()=>{
     const on = document.getElementById('dcOnline'); if(on) on.textContent = '–';
+    const tot = document.getElementById('dcTotal'); if(tot) tot.textContent = '–';
   });
+
+// ═══════════════════════════════════════════════
+//  GAME HELPERS
+// ═══════════════════════════════════════════════
+function openGame(id, title, initFn) {
+  openGames();
+  setTimeout(() => {
+    document.getElementById('gtitle').textContent = title;
+    document.querySelectorAll('.gcont').forEach(g => g.style.display = 'none');
+    const el = document.getElementById(id);
+    if(el) { el.style.display = 'flex'; if(initFn) initFn(); }
+  }, 50);
+}
+
+// ═══════════════════════════════════════════════
+//  REACTION GAME
+// ═══════════════════════════════════════════════
+let rxState = 'idle'; // idle, waiting, ready, done
+let rxTimer = null;
+let rxStart = 0;
+let rxBestMs = Infinity;
+
+function initReaction() { rxState = 'idle'; rxRender('Нажми чтобы начать', 'var(--glass)', 'var(--glass-b)', 'var(--muted)'); }
+
+function rxRender(txt, bg, border, color) {
+  const b = document.getElementById('rxBox');
+  if(!b) return;
+  b.textContent = txt; b.style.background = bg; b.style.borderColor = border; b.style.color = color;
+  b.style.fontSize = txt.length > 10 ? '16px' : '22px';
+  b.style.boxShadow = bg.includes('23d160') ? '0 0 60px rgba(35,209,96,.4)' : bg.includes('eb57') ? '0 0 60px rgba(235,87,87,.4)' : 'none';
+}
+
+function rxClick() {
+  if(rxState === 'idle') {
+    rxState = 'waiting';
+    rxRender('Жди...', 'rgba(235,87,87,.15)', 'var(--red)', 'var(--red)');
+    const delay = 1500 + Math.random() * 3000;
+    rxTimer = setTimeout(() => {
+      rxState = 'ready'; rxStart = Date.now();
+      rxRender('ЖМИ!', 'rgba(35,209,96,.2)', '#23d160', '#23d160');
+    }, delay);
+  } else if(rxState === 'waiting') {
+    clearTimeout(rxTimer); rxState = 'idle';
+    rxRender('Слишком рано! 😅\nНажми снова', 'rgba(235,87,87,.15)', 'var(--red)', 'var(--red)');
+    document.getElementById('rxResult').textContent = '';
+  } else if(rxState === 'ready') {
+    const ms = Date.now() - rxStart; rxState = 'done';
+    if(ms < rxBestMs) { rxBestMs = ms; const b = document.getElementById('rxBest'); if(b) b.textContent = 'Рекорд: ' + ms + ' мс 🏆'; }
+    const grade = ms < 200 ? '⚡ Молния!' : ms < 300 ? '🔥 Отлично!' : ms < 500 ? '👍 Хорошо' : '🐢 Медленно';
+    document.getElementById('rxResult').textContent = ms + ' мс — ' + grade;
+    rxRender('Ещё раз?', 'var(--glass)', 'var(--acc)', 'var(--acc)');
+  } else if(rxState === 'done') { rxState = 'idle'; rxClick(); }
+}
+
+// ═══════════════════════════════════════════════
+//  MEMORY GAME
+// ═══════════════════════════════════════════════
+const MEM_EMOJIS = ['🍺','🎰','🐍','💣','🌍','🚀','⭐','🎉'];
+let memCards = [], memFlipped = [], memSolved = 0, memMoves = 0, memLock = false;
+
+function initMemory() {
+  memSolved = 0; memMoves = 0; memFlipped = []; memLock = false;
+  const pairs = [...MEM_EMOJIS, ...MEM_EMOJIS].sort(() => Math.random() - .5);
+  memCards = pairs.map((e, i) => ({ id: i, emoji: e, solved: false, flipped: false }));
+  renderMemory(); updateMemStats();
+}
+
+function renderMemory() {
+  const g = document.getElementById('memGrid'); if(!g) return;
+  g.innerHTML = '';
+  memCards.forEach(c => {
+    const d = document.createElement('div');
+    d.style.cssText = 'width:70px;height:70px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:all .2s;user-select:none;border:2px solid;';
+    if(c.solved) { d.style.background='rgba(111,207,151,.15)'; d.style.borderColor='var(--green)'; d.textContent=c.emoji; }
+    else if(c.flipped) { d.style.background='rgba(245,166,35,.12)'; d.style.borderColor='var(--acc)'; d.textContent=c.emoji; }
+    else { d.style.background='var(--glass)'; d.style.borderColor='var(--glass-b)'; d.textContent='❓'; d.style.cursor='pointer'; }
+    if(!c.solved) d.onclick = () => memFlip(c.id);
+    g.appendChild(d);
+  });
+}
+
+function memFlip(id) {
+  if(memLock) return;
+  const c = memCards[id];
+  if(c.solved || c.flipped) return;
+  c.flipped = true; memFlipped.push(id); renderMemory();
+  if(memFlipped.length === 2) {
+    memLock = true; memMoves++; updateMemStats();
+    const [a, b] = memFlipped.map(i => memCards[i]);
+    if(a.emoji === b.emoji) {
+      a.solved = b.solved = true; memSolved++; memFlipped = []; memLock = false; renderMemory(); updateMemStats();
+      if(memSolved === MEM_EMOJIS.length) setTimeout(() => showToast('🎉 Победа за ' + memMoves + ' ходов!', 'green'), 200);
+    } else {
+      setTimeout(() => { a.flipped = b.flipped = false; memFlipped = []; memLock = false; renderMemory(); }, 800);
+    }
+  }
+}
+function updateMemStats() {
+  const s = document.getElementById('memScore'); if(s) s.textContent = 'Пары: ' + memSolved + '/' + MEM_EMOJIS.length;
+  const m = document.getElementById('memMoves'); if(m) m.textContent = 'Ходы: ' + memMoves;
+}
+
+// ═══════════════════════════════════════════════
+//  2048 GAME
+// ═══════════════════════════════════════════════
+let g2048 = [], s2048 = 0, best2048 = 0;
+const COLORS_2048 = { 0:'rgba(0,0,0,.2)', 2:'#3d3d5c', 4:'#4a3f6b', 8:'#c8603a', 16:'#d4522a', 32:'#e84a25', 64:'#f5622e', 128:'#edcf72', 256:'#edcc61', 512:'#edc850', 1024:'#edc53f', 2048:'#edc22e' };
+
+function init2048() {
+  g2048 = Array(4).fill(null).map(() => Array(4).fill(0));
+  s2048 = 0; add2048Tile(); add2048Tile(); render2048();
+}
+
+function add2048Tile() {
+  const empty = [];
+  for(let r=0;r<4;r++) for(let c=0;c<4;c++) if(!g2048[r][c]) empty.push([r,c]);
+  if(!empty.length) return;
+  const [r,c] = empty[Math.floor(Math.random()*empty.length)];
+  g2048[r][c] = Math.random()<.9 ? 2 : 4;
+}
+
+function render2048() {
+  const el = document.getElementById('score2048'); if(el) el.textContent = s2048;
+  if(s2048 > best2048) { best2048 = s2048; const b = document.getElementById('best2048'); if(b) b.textContent = 'Рекорд: ' + best2048; }
+  const g = document.getElementById('grid2048'); if(!g) return;
+  g.innerHTML = '';
+  for(let r=0;r<4;r++) for(let c=0;c<4;c++) {
+    const v = g2048[r][c];
+    const d = document.createElement('div');
+    const bg = COLORS_2048[v] || '#f59563';
+    d.style.cssText = 'width:72px;height:72px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:' + (v>999?'18px':v>99?'22px':'26px') + ';color:' + (v<=4?'#a89f8c':'#fff') + ';background:' + bg + ';transition:all .1s;';
+    d.textContent = v || '';
+    g.appendChild(d);
+  }
+}
+
+function move2048(dir) {
+  let moved = false;
+  const rotate = m => m[0].map((_,i) => m.map(r=>r[i]).reverse());
+  const slide = row => {
+    let r = row.filter(x=>x); let res = [];
+    for(let i=0;i<r.length;i++) {
+      if(r[i+1]===r[i]) { res.push(r[i]*2); s2048+=r[i]*2; i++; } else res.push(r[i]);
+    }
+    while(res.length<4) res.push(0);
+    return res;
+  };
+  let tmp = g2048.map(r=>[...r]);
+  if(dir==='left') { tmp=tmp.map(slide); }
+  else if(dir==='right') { tmp=tmp.map(r=>slide([...r].reverse()).reverse()); }
+  else if(dir==='up') { tmp=rotate(rotate(rotate(tmp))).map(slide); tmp=rotate(tmp); }
+  else { tmp=rotate(tmp).map(slide); tmp=rotate(rotate(rotate(tmp))); }
+  if(JSON.stringify(tmp)!==JSON.stringify(g2048)) { g2048=tmp; moved=true; }
+  if(moved) { add2048Tile(); render2048(); }
+}
+
+document.addEventListener('keydown', e => {
+  const map = { ArrowLeft:'left', ArrowRight:'right', ArrowUp:'up', ArrowDown:'down', a:'left', d:'right', w:'up', s:'down' };
+  const dir = map[e.key];
+  if(dir && document.getElementById('g2048')?.style.display!=='none') { e.preventDefault(); move2048(dir); }
+});
+
+// Touch support for 2048
+let t2048Start = null;
+document.addEventListener('touchstart', e => { if(document.getElementById('g2048')?.style.display!=='none') t2048Start = e.touches[0]; });
+document.addEventListener('touchend', e => {
+  if(!t2048Start || document.getElementById('g2048')?.style.display==='none') return;
+  const dx = e.changedTouches[0].clientX - t2048Start.clientX;
+  const dy = e.changedTouches[0].clientY - t2048Start.clientY;
+  if(Math.abs(dx)>Math.abs(dy)) move2048(dx>0?'right':'left'); else move2048(dy>0?'down':'up');
+  t2048Start = null;
+});
 
 // ═══════════════════════════════════════════════
 //  GEMINI AI MODE — сам ломает сайт
@@ -3091,25 +3301,45 @@ async function aiStep() {
   setAIStatus(true, `🤖 Раунд ${aiRound}/15 — Gemini пишет код...`);
 
   const prevHistory = aiHistory.slice(-3).join('\n---\n');
-  const prompt = `Ты — злобный AI, который постепенно ЛОМАЕТ веб-страницу. 
-Это раунд ${aiRound} из 15. 
-Предыдущие действия: ${prevHistory || 'нет'}
+  const prompt = `Ты — злобный AI который ПОСТЕПЕННО ломает внешний вид веб-страницы.
+Раунд ${aiRound} из 15. Предыдущее: ${prevHistory || 'нет'}
 
-Напиши ТОЛЬКО JavaScript код (без объяснений, только \`\`\`js блок) который:
-- Добавляет хаотичные визуальные эффекты нарастающей силы
-- На раундах 1-5: меняй цвета, добавляй эмодзи, анимации, случайные надписи
-- На раундах 6-10: крути/масштабируй элементы, искажай шрифты, спамь DOM
-- На раундах 11+: максимальный хаос, страница почти нечитаема
-- Сейчас раунд ${aiRound}, действуй соответственно
-- Код до 25 строк, только vanilla JS, без импортов
-- НЕ повторяй предыдущие действия`;
+СТРОГИЕ ПРАВИЛА (нарушение = страница сломается сразу, это плохо):
+- НЕЛЬЗЯ: удалять элементы (remove, innerHTML='', removeChild)  
+- НЕЛЬЗЯ: бесконечные циклы (while(true), for без выхода)
+- НЕЛЬЗЯ: alert, confirm, prompt
+- НЕЛЬЗЯ: менять position у body или html
+- НЕЛЬЗЯ: document.write()
+- НЕЛЬЗЯ: ничего async/await/fetch
+- МОЖНО: менять стили через style или classList
+- МОЖНО: добавлять новые элементы в body (appendChild)
+- МОЖНО: менять innerHTML существующих элементов (не body, не head)
+- МОЖНО: CSS анимации через <style> тег
+- Код должен работать БЕЗ ОШИБОК
+
+Раунды 1-4: лёгкие эффекты (случайные цвета, маленькие эмодзи, небольшие анимации)
+Раунды 5-8: средние эффекты (крутить элементы, менять шрифты, больше мусора)  
+Раунды 9-12: сильные эффекты (серьёзные искажения, много мусора на экране)
+Раунды 13-15: полный хаос (страница почти нечитаема но не сломана)
+
+Сейчас раунд ${aiRound}. Код до 20 строк. Верни ТОЛЬКО \`\`\`js блок.`;
 
   try {
     const text = await callGemini(prompt);
     const code = extractCode(text);
+
+    // Проверка безопасности — блокируем опасные паттерны
+    const dangerous = ['while(true)', 'for(;;)', '.remove()', 'removeChild', 'document.write', 'innerHTML=""', "innerHTML=''", 'alert(', 'confirm(', 'prompt('];
+    const hasDanger = dangerous.some(p => code.includes(p));
+
     aiHistory.push(`Раунд ${aiRound}: ${code.substring(0,80)}...`);
     setAIStatus(true, `💀 Раунд ${aiRound}/15 — выполняю...`);
-    try { new Function(code)(); } catch(e) { console.warn('AI code err:', e); }
+
+    if(!hasDanger) {
+      try { new Function(code)(); } catch(e) { console.warn('AI code err r'+aiRound+':', e.message); }
+    } else {
+      console.warn('AI: заблокирован опасный код раунда', aiRound);
+    }
 
     if(aiRound >= 15) {
       setAIStatus(true, '☠️ Сайт уничтожен! Перезагрузи страницу.');
@@ -3124,16 +3354,23 @@ async function aiStep() {
     aiTimer = setTimeout(aiStep, delay);
   } catch(e) {
     setAIStatus(true, '❌ Ошибка: ' + e.message.substring(0,50));
-    // Если ключ невалидный — сбрасываем
     if(e.message.includes('API_KEY') || e.message.includes('401') || e.message.includes('403')) {
       geminiKey = '';
       stopAIMode();
-      showToast('❌ Ключ недействителен. Введи новый.', 'red');
+      showToast('❌ Ключ недействителен. Нажми 🤖 и введи новый.', 'red');
       return;
     }
     aiTimer = setTimeout(aiStep, 6000);
   }
 }
+
+// Экстренный сброс ключа — Ctrl+Shift+K
+document.addEventListener('keydown', e => {
+  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    openAIKeyPopup();
+  }
+});
 
 function startAIMode() {
   aiModeActive = true;
