@@ -901,13 +901,13 @@ textarea::placeholder { color:var(--muted); }
 
     <div class="gmenu" id="gmenu">
       <div class="gcard" onclick="openClicker()"><div class="ic">🍺</div><div class="nm">Beer Clicker</div><div class="ds">Стань пивным магнатом</div></div>
-      <div class="gcard" id="card-mines" onclick="openGame('gMines','💣 Сапёр',initMines)"><div class="ic">💣</div><div class="nm">Сапёр</div><div class="ds">Классическая головоломка</div></div>
-      <div class="gcard" id="card-snake" onclick="openGame('gSnake','🐍 Змейка',startSnake)"><div class="ic">🐍</div><div class="nm">Змейка</div><div class="ds">Старое доброе ретро</div></div>
-      <div class="gcard" id="card-flags" onclick="openGame('gFlags','🌍 Угадай Флаг',startFlags)"><div class="ic">🌍</div><div class="nm">Угадай Флаг</div><div class="ds">Проверь знание географии</div></div>
+      <div class="gcard" onclick="openGame('gMines','💣 Сапёр',initMines)"><div class="ic">💣</div><div class="nm">Сапёр</div><div class="ds">Классическая головоломка</div></div>
+      <div class="gcard" onclick="openGame('gSnake','🐍 Змейка',startSnake)"><div class="ic">🐍</div><div class="nm">Змейка</div><div class="ds">Старое доброе ретро</div></div>
+      <div class="gcard" onclick="openGame('gFlags','🌍 Угадай Флаг',startFlags)"><div class="ic">🌍</div><div class="nm">Угадай Флаг</div><div class="ds">Проверь знание географии</div></div>
       <div class="gcard" onclick="openCasino()"><div class="ic">🎰</div><div class="nm">Пивное Казино</div><div class="ds">Слоты, Ракета и другое!</div></div>
-      <div class="gcard" onclick="openGame('gReaction','⚡ Реакция',initReaction)"><div class="ic">⚡</div><div class="nm">Реакция</div><div class="ds">Проверь скорость реакции</div></div>
       <div class="gcard" onclick="openGame('gMemory','🃏 Память',initMemory)"><div class="ic">🃏</div><div class="nm">Память</div><div class="ds">Найди все пары карточек</div></div>
       <div class="gcard" onclick="openGame('g2048','🔢 2048',init2048)"><div class="ic">🔢</div><div class="nm">2048</div><div class="ds">Собери плитку 2048</div></div>
+      <div class="gcard" onclick="openGame('gTetris','🧱 Тетрис',initTetris)"><div class="ic">🧱</div><div class="nm">Тетрис</div><div class="ds">Классика всех времён</div></div>
     </div>
 
     <div class="gamemode-lock" id="gamemodeLock">
@@ -976,28 +976,53 @@ textarea::placeholder { color:var(--muted); }
       </div>
     </div>
 
-    <!-- REACTION GAME -->
-    <div id="gReaction" class="gcont">
-      <div class="back" onclick="backMenu()">← Назад</div>
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding-top:50px">
-        <div style="font-size:15px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px">Тест реакции</div>
-        <div id="rxBest" style="font-size:13px;color:var(--acc)">Рекорд: —</div>
-        <div id="rxBox" onclick="rxClick()" style="width:200px;height:200px;border-radius:28px;background:var(--glass);border:2px solid var(--glass-b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;font-weight:800;color:var(--muted);transition:background .15s,box-shadow .15s;user-select:none">Нажми чтобы начать</div>
-        <div id="rxResult" style="font-size:28px;font-weight:900;color:var(--green);min-height:40px;text-align:center"></div>
-        <div style="font-size:11px;color:var(--muted);text-align:center">Жди зелёного — потом жми как можно быстрее!</div>
-      </div>
-    </div>
-
     <!-- MEMORY GAME -->
     <div id="gMemory" class="gcont">
       <div class="back" onclick="backMenu()">← Назад</div>
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding-top:50px">
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding-top:50px">
         <div style="display:flex;gap:20px;align-items:baseline">
           <span style="font-size:18px;font-weight:900;color:var(--acc)" id="memScore">Пары: 0/8</span>
           <span style="font-size:13px;color:var(--muted)" id="memMoves">Ходы: 0</span>
+          <span style="font-size:13px;color:var(--blue)" id="memTimer">0с</span>
         </div>
-        <div id="memGrid" style="display:grid;grid-template-columns:repeat(4,70px);grid-template-rows:repeat(4,70px);gap:8px"></div>
+        <div id="memGrid" style="display:grid;grid-template-columns:repeat(4,72px);grid-template-rows:repeat(4,72px);gap:8px"></div>
         <button class="rbtn" onclick="initMemory()">🔄 Заново</button>
+      </div>
+    </div>
+
+    <!-- TETRIS -->
+    <div id="gTetris" class="gcont">
+      <div class="back" onclick="backMenu();tetrisStop()">← Назад</div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:20px;padding-top:50px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+          <canvas id="tetCvs" width="200" height="400" style="border:1px solid var(--glass-b);border-radius:10px;background:rgba(0,0,0,.4);display:block"></canvas>
+          <div style="display:flex;gap:8px">
+            <button class="rbtn" onclick="tetrisStart()" id="tetStartBtn">▶ Старт</button>
+            <button class="rbtn" onclick="tetrisPause()" id="tetPauseBtn" style="display:none">⏸</button>
+          </div>
+          <div class="dpad" style="margin-top:4px">
+            <div class="dpb emp"></div><div class="dpb" onclick="tetMove(0,-1)">▲</div><div class="dpb emp"></div>
+            <div class="dpb" onclick="tetMove(-1,0)">◀</div><div class="dpb" onclick="tetDrop()">▼</div><div class="dpb" onclick="tetMove(1,0)">▶</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;min-width:90px">
+          <div style="background:var(--glass);border:1px solid var(--glass-b);border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Счёт</div>
+            <div id="tetScore" style="font-size:22px;font-weight:900;color:var(--acc)">0</div>
+          </div>
+          <div style="background:var(--glass);border:1px solid var(--glass-b);border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Рекорд</div>
+            <div id="tetBest" style="font-size:16px;font-weight:900;color:var(--muted)">0</div>
+          </div>
+          <div style="background:var(--glass);border:1px solid var(--glass-b);border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Уровень</div>
+            <div id="tetLevel" style="font-size:22px;font-weight:900;color:var(--green)">1</div>
+          </div>
+          <div style="background:var(--glass);border:1px solid var(--glass-b);border-radius:12px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:6px">Следующий</div>
+            <canvas id="tetNext" width="80" height="80" style="display:block;margin:0 auto"></canvas>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1010,9 +1035,7 @@ textarea::placeholder { color:var(--muted); }
           <span style="font-size:13px;color:var(--muted)" id="best2048">Рекорд: 0</span>
         </div>
         <div id="grid2048" style="display:grid;grid-template-columns:repeat(4,72px);grid-template-rows:repeat(4,72px);gap:8px;background:rgba(0,0,0,.4);padding:10px;border-radius:14px;border:1px solid var(--glass-b)"></div>
-        <div style="display:flex;gap:10px">
-          <button class="rbtn" onclick="init2048()">🔄 Заново</button>
-        </div>
+        <button class="rbtn" onclick="init2048()">🔄 Заново</button>
         <div style="font-size:11px;color:var(--muted)">Стрелки / WASD / свайп</div>
       </div>
     </div>
@@ -1527,9 +1550,7 @@ function backMenu(){
   document.getElementById('gamemodeLock').classList.remove('active');
   gmenu.style.display='grid';
   document.getElementById('gtitle').innerText='🎮 Игровое Меню';
-  ['gClicker','gMines','gSnake','gFlags','gCasino'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.style.display='none';
-  });
+  document.querySelectorAll('.gcont').forEach(el=>el.style.display='none');
   document.onkeydown=null;
 }
 function killAll(){ activeInts.forEach(clearInterval); activeInts=[]; rkKill(); document.onkeydown=null; }
@@ -2943,59 +2964,66 @@ function execMusic(data) {
   const h = document.getElementById('spHint');
   const volRow = document.getElementById('spVolRow');
 
-  // Всегда показываем ползунок — работает и с iFrame API и без
-  if(volRow) volRow.style.display = 'flex';
-
   if(spController) {
     spController.loadUri(uri);
     spController.setVolume(spVolume / 100);
-    if(h) h.textContent = '🎵 ' + (data.type === 'track' ? 'Трек' : 'Плейлист') + ' загружен';
     target.className = data.type === 'track' ? 'has-track' : 'has-playlist';
+    if(h) h.textContent = '🎵 Загружено';
+    if(volRow) volRow.style.display = 'flex';
     if(!spExpanded) toggleSpotify();
     return;
   }
 
-  // Ставим обычный iframe (всегда работает)
-  target.innerHTML = '<iframe src="https://open.spotify.com/embed/' + data.type + '/' + data.id + '?utm_source=generator&theme=0" width="100%" height="' + (data.type==='track'?'80':'352') + '" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" style="border-radius:12px;display:block;"></iframe>';
+  const h2 = data.type === 'track' ? '80' : '352';
   target.className = data.type === 'track' ? 'has-track' : 'has-playlist';
-  if(h) h.textContent = '🎵 Загружено';
 
-  // Пробуем подключить iFrame API поверх (если успеет загрузиться)
   if(window._SpotifyIFrameAPI) {
     target.innerHTML = '';
-    window._SpotifyIFrameAPI.createController(target, { uri, width:'100%', height: data.type==='track'?80:352 }, (ctrl) => {
+    window._SpotifyIFrameAPI.createController(target, { uri, width:'100%', height: parseInt(h2) }, (ctrl) => {
       spController = ctrl;
       ctrl.setVolume(spVolume / 100);
-      if(h) h.textContent = '🎵 Загружено (громкость активна)';
+      if(h) h.textContent = '🎵 Загружено';
     });
+  } else {
+    // Обычный iframe — громкость через CSS filter (единственный способ без API)
+    target.innerHTML = `<iframe id="spFrame" src="https://open.spotify.com/embed/${data.type}/${data.id}?utm_source=generator&theme=0" width="100%" height="${h2}" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" style="border-radius:12px;display:block;"></iframe>`;
+    if(h) h.textContent = '🎵 Загружено';
   }
 
+  if(volRow) volRow.style.display = 'flex';
+  updateVolSlider();
   if(!spExpanded) toggleSpotify();
+}
+
+function updateVolSlider() {
+  const slider = document.getElementById('spVolSlider');
+  const valEl = document.getElementById('spVolVal');
+  const icon = document.getElementById('spVolIcon');
+  if(slider) { slider.value = spVolume; slider.style.setProperty('--vol', spVolume + '%'); }
+  if(valEl) valEl.textContent = spVolume + '%';
+  if(icon) icon.textContent = spVolume === 0 ? '🔇' : spVolume < 40 ? '🔉' : '🔊';
 }
 
 function setVolume(val) {
   spVolume = parseInt(val);
   spMuted = false;
-  const slider = document.getElementById('spVolSlider');
-  const valEl = document.getElementById('spVolVal');
-  const icon = document.getElementById('spVolIcon');
-  if(slider) slider.style.setProperty('--vol', spVolume + '%');
-  if(valEl) valEl.textContent = spVolume + '%';
-  if(icon) icon.textContent = spVolume === 0 ? '🔇' : spVolume < 40 ? '🔉' : '🔊';
-  if(spController) spController.setVolume(spVolume / 100);
+  updateVolSlider();
+  if(spController) {
+    spController.setVolume(spVolume / 100);
+  } else {
+    // Для обычного iframe — меняем opacity/filter контейнера как визуальный фидбек
+    // и пытаемся postMessage (некоторые версии поддерживают)
+    const frame = document.getElementById('spFrame');
+    if(frame) {
+      try { frame.contentWindow.postMessage({ command:'setVolume', volume: spVolume/100 }, '*'); } catch(e){}
+    }
+  }
 }
 
 function toggleMute() {
-  if(spMuted) {
-    spMuted = false;
-    spVolume = spPrevVol || 80;
-  } else {
-    spMuted = true;
-    spPrevVol = spVolume;
-    spVolume = 0;
-  }
-  const slider = document.getElementById('spVolSlider');
-  if(slider) { slider.value = spVolume; setVolume(spVolume); }
+  if(spMuted) { spMuted = false; spVolume = spPrevVol || 80; }
+  else { spMuted = true; spPrevVol = spVolume; spVolume = 0; }
+  setVolume(spVolume);
 }
 
 // ═══════════════════════════════════════════════
@@ -3039,66 +3067,29 @@ fetch('https://discord.com/api/guilds/1481009328784805928/widget.json')
 //  GAME HELPERS
 // ═══════════════════════════════════════════════
 function openGame(id, title, initFn) {
-  openGames();
-  setTimeout(() => {
-    document.getElementById('gtitle').textContent = title;
-    document.querySelectorAll('.gcont').forEach(g => g.style.display = 'none');
-    const el = document.getElementById(id);
-    if(el) { el.style.display = 'flex'; if(initFn) initFn(); }
-  }, 50);
+  if(gamemodeActive) return;
+  modal.style.display = 'flex';
+  gmenu.style.display = 'none';
+  document.getElementById('gtitle').innerText = title;
+  document.querySelectorAll('.gcont').forEach(el => el.style.display = 'none');
+  const el = document.getElementById(id);
+  if(el) { el.style.display = 'flex'; if(initFn) initFn(); }
 }
 
 // ═══════════════════════════════════════════════
-//  REACTION GAME
-// ═══════════════════════════════════════════════
-let rxState = 'idle'; // idle, waiting, ready, done
-let rxTimer = null;
-let rxStart = 0;
-let rxBestMs = Infinity;
-
-function initReaction() { rxState = 'idle'; rxRender('Нажми чтобы начать', 'var(--glass)', 'var(--glass-b)', 'var(--muted)'); }
-
-function rxRender(txt, bg, border, color) {
-  const b = document.getElementById('rxBox');
-  if(!b) return;
-  b.textContent = txt; b.style.background = bg; b.style.borderColor = border; b.style.color = color;
-  b.style.fontSize = txt.length > 10 ? '16px' : '22px';
-  b.style.boxShadow = bg.includes('23d160') ? '0 0 60px rgba(35,209,96,.4)' : bg.includes('eb57') ? '0 0 60px rgba(235,87,87,.4)' : 'none';
-}
-
-function rxClick() {
-  if(rxState === 'idle') {
-    rxState = 'waiting';
-    rxRender('Жди...', 'rgba(235,87,87,.15)', 'var(--red)', 'var(--red)');
-    const delay = 1500 + Math.random() * 3000;
-    rxTimer = setTimeout(() => {
-      rxState = 'ready'; rxStart = Date.now();
-      rxRender('ЖМИ!', 'rgba(35,209,96,.2)', '#23d160', '#23d160');
-    }, delay);
-  } else if(rxState === 'waiting') {
-    clearTimeout(rxTimer); rxState = 'idle';
-    rxRender('Слишком рано! 😅\nНажми снова', 'rgba(235,87,87,.15)', 'var(--red)', 'var(--red)');
-    document.getElementById('rxResult').textContent = '';
-  } else if(rxState === 'ready') {
-    const ms = Date.now() - rxStart; rxState = 'done';
-    if(ms < rxBestMs) { rxBestMs = ms; const b = document.getElementById('rxBest'); if(b) b.textContent = 'Рекорд: ' + ms + ' мс 🏆'; }
-    const grade = ms < 200 ? '⚡ Молния!' : ms < 300 ? '🔥 Отлично!' : ms < 500 ? '👍 Хорошо' : '🐢 Медленно';
-    document.getElementById('rxResult').textContent = ms + ' мс — ' + grade;
-    rxRender('Ещё раз?', 'var(--glass)', 'var(--acc)', 'var(--acc)');
-  } else if(rxState === 'done') { rxState = 'idle'; rxClick(); }
-}
-
-// ═══════════════════════════════════════════════
-//  MEMORY GAME
+//  MEMORY GAME (улучшенная логика)
 // ═══════════════════════════════════════════════
 const MEM_EMOJIS = ['🍺','🎰','🐍','💣','🌍','🚀','⭐','🎉'];
 let memCards = [], memFlipped = [], memSolved = 0, memMoves = 0, memLock = false;
+let memTimerInt = null, memSeconds = 0;
 
 function initMemory() {
-  memSolved = 0; memMoves = 0; memFlipped = []; memLock = false;
+  clearInterval(memTimerInt);
+  memSolved = 0; memMoves = 0; memFlipped = []; memLock = false; memSeconds = 0;
   const pairs = [...MEM_EMOJIS, ...MEM_EMOJIS].sort(() => Math.random() - .5);
   memCards = pairs.map((e, i) => ({ id: i, emoji: e, solved: false, flipped: false }));
   renderMemory(); updateMemStats();
+  memTimerInt = setInterval(() => { memSeconds++; const t = document.getElementById('memTimer'); if(t) t.textContent = memSeconds + 'с'; }, 1000);
 }
 
 function renderMemory() {
@@ -3106,11 +3097,20 @@ function renderMemory() {
   g.innerHTML = '';
   memCards.forEach(c => {
     const d = document.createElement('div');
-    d.style.cssText = 'width:70px;height:70px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:all .2s;user-select:none;border:2px solid;';
-    if(c.solved) { d.style.background='rgba(111,207,151,.15)'; d.style.borderColor='var(--green)'; d.textContent=c.emoji; }
-    else if(c.flipped) { d.style.background='rgba(245,166,35,.12)'; d.style.borderColor='var(--acc)'; d.textContent=c.emoji; }
-    else { d.style.background='var(--glass)'; d.style.borderColor='var(--glass-b)'; d.textContent='❓'; d.style.cursor='pointer'; }
-    if(!c.solved) d.onclick = () => memFlip(c.id);
+    d.style.cssText = 'width:72px;height:72px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;transition:all .18s;user-select:none;border:2px solid;';
+    if(c.solved) {
+      d.style.background = 'rgba(111,207,151,.15)'; d.style.borderColor = 'var(--green)';
+      d.style.transform = 'scale(.95)'; d.textContent = c.emoji;
+    } else if(c.flipped) {
+      d.style.background = 'rgba(245,166,35,.15)'; d.style.borderColor = 'var(--acc)';
+      d.style.transform = 'scale(1.05)'; d.style.boxShadow = '0 4px 16px rgba(245,166,35,.3)';
+      d.textContent = c.emoji;
+    } else {
+      d.style.background = 'var(--glass)'; d.style.borderColor = 'var(--glass-b)';
+      d.textContent = '?';
+      d.style.color = 'var(--muted)'; d.style.fontWeight = '900'; d.style.fontSize = '24px';
+      d.onclick = () => memFlip(c.id);
+    }
     g.appendChild(d);
   });
 }
@@ -3118,16 +3118,22 @@ function renderMemory() {
 function memFlip(id) {
   if(memLock) return;
   const c = memCards[id];
-  if(c.solved || c.flipped) return;
+  if(c.solved || c.flipped || memFlipped.length >= 2) return;
   c.flipped = true; memFlipped.push(id); renderMemory();
   if(memFlipped.length === 2) {
     memLock = true; memMoves++; updateMemStats();
     const [a, b] = memFlipped.map(i => memCards[i]);
     if(a.emoji === b.emoji) {
-      a.solved = b.solved = true; memSolved++; memFlipped = []; memLock = false; renderMemory(); updateMemStats();
-      if(memSolved === MEM_EMOJIS.length) setTimeout(() => showToast('🎉 Победа за ' + memMoves + ' ходов!', 'green'), 200);
+      setTimeout(() => {
+        a.solved = b.solved = true; memSolved++; memFlipped = []; memLock = false;
+        renderMemory(); updateMemStats();
+        if(memSolved === MEM_EMOJIS.length) {
+          clearInterval(memTimerInt);
+          setTimeout(() => showToast('🎉 Победа за ' + memMoves + ' ходов и ' + memSeconds + 'с!', 'green'), 200);
+        }
+      }, 400);
     } else {
-      setTimeout(() => { a.flipped = b.flipped = false; memFlipped = []; memLock = false; renderMemory(); }, 800);
+      setTimeout(() => { a.flipped = b.flipped = false; memFlipped = []; memLock = false; renderMemory(); }, 900);
     }
   }
 }
@@ -3135,6 +3141,160 @@ function updateMemStats() {
   const s = document.getElementById('memScore'); if(s) s.textContent = 'Пары: ' + memSolved + '/' + MEM_EMOJIS.length;
   const m = document.getElementById('memMoves'); if(m) m.textContent = 'Ходы: ' + memMoves;
 }
+
+// ═══════════════════════════════════════════════
+//  TETRIS
+// ═══════════════════════════════════════════════
+const TET_W = 10, TET_H = 20, TET_SZ = 20;
+const TET_PIECES = [
+  { shape:[[1,1,1,1]], color:'#00f5ff' },
+  { shape:[[1,1],[1,1]], color:'#f5a623' },
+  { shape:[[1,1,1],[0,1,0]], color:'#a855f7' },
+  { shape:[[1,1,1],[1,0,0]], color:'#3b82f6' },
+  { shape:[[1,1,1],[0,0,1]], color:'#f97316' },
+  { shape:[[0,1,1],[1,1,0]], color:'#22c55e' },
+  { shape:[[1,1,0],[0,1,1]], color:'#ef4444' },
+];
+let tetBoard, tetPiece, tetNext, tetScore2, tetBestScore, tetLevel2, tetInterval, tetRunning = false, tetPaused = false;
+
+function initTetris() {
+  tetBoard = Array(TET_H).fill(null).map(() => Array(TET_W).fill(0));
+  tetScore2 = 0; tetLevel2 = 1; tetRunning = false; tetPaused = false;
+  tetBestScore = parseInt(localStorage.getItem('tet_best')||'0');
+  document.getElementById('tetBest').textContent = tetBestScore;
+  tetNext = randTetPiece();
+  tetDraw();
+}
+
+function randTetPiece() {
+  const p = TET_PIECES[Math.floor(Math.random()*TET_PIECES.length)];
+  return { shape:p.shape.map(r=>[...r]), color:p.color, x:Math.floor(TET_W/2)-1, y:0 };
+}
+
+function tetrisStart() {
+  if(tetRunning) return;
+  initTetris();
+  tetPiece = randTetPiece(); tetNext = randTetPiece();
+  tetRunning = true;
+  document.getElementById('tetStartBtn').style.display = 'none';
+  document.getElementById('tetPauseBtn').style.display = '';
+  tetInterval = setInterval(tetTick, Math.max(100, 600 - (tetLevel2-1)*50));
+  activeInts.push(tetInterval);
+}
+
+function tetrisStop() { clearInterval(tetInterval); tetRunning = false; tetPaused = false; }
+function tetrisPause() {
+  if(!tetRunning) return;
+  tetPaused = !tetPaused;
+  document.getElementById('tetPauseBtn').textContent = tetPaused ? '▶' : '⏸';
+}
+
+function tetTick() {
+  if(tetPaused || !tetRunning) return;
+  if(!tetCanMove(0, 1)) {
+    tetPlace();
+    const lines = tetClear();
+    const pts = [0,100,300,500,800][lines] * tetLevel2;
+    tetScore2 += pts;
+    if(tetScore2 > tetBestScore) { tetBestScore = tetScore2; localStorage.setItem('tet_best', tetBestScore); }
+    document.getElementById('tetScore').textContent = tetScore2;
+    document.getElementById('tetBest').textContent = tetBestScore;
+    tetLevel2 = Math.floor(tetScore2/500)+1;
+    document.getElementById('tetLevel').textContent = tetLevel2;
+    clearInterval(tetInterval);
+    if(tetRunning) { tetInterval = setInterval(tetTick, Math.max(100,600-(tetLevel2-1)*50)); activeInts.push(tetInterval); }
+    tetPiece = tetNext; tetNext = randTetPiece();
+    if(!tetCanMove(0,0)) { tetRunning=false; clearInterval(tetInterval); showToast('💀 Конец! Счёт: '+tetScore2,'red'); document.getElementById('tetStartBtn').style.display=''; document.getElementById('tetPauseBtn').style.display='none'; }
+  } else { tetPiece.y++; }
+  tetDraw();
+}
+
+function tetCanMove(dx, dy, shape) {
+  const s = shape || tetPiece.shape;
+  for(let r=0;r<s.length;r++) for(let c=0;c<s[r].length;c++) {
+    if(!s[r][c]) continue;
+    const nx=tetPiece.x+c+dx, ny=tetPiece.y+r+dy;
+    if(nx<0||nx>=TET_W||ny>=TET_H) return false;
+    if(ny>=0 && tetBoard[ny][nx]) return false;
+  }
+  return true;
+}
+
+function tetPlace() {
+  tetPiece.shape.forEach((row,r) => row.forEach((v,c) => {
+    if(v && tetPiece.y+r >= 0) tetBoard[tetPiece.y+r][tetPiece.x+c] = tetPiece.color;
+  }));
+}
+
+function tetClear() {
+  let lines = 0;
+  for(let r=TET_H-1;r>=0;r--) {
+    if(tetBoard[r].every(c=>c)) { tetBoard.splice(r,1); tetBoard.unshift(Array(TET_W).fill(0)); lines++; r++; }
+  }
+  return lines;
+}
+
+function tetMove(dx, dy) {
+  if(!tetRunning||tetPaused) return;
+  if(tetCanMove(dx,dy)) { tetPiece.x+=dx; tetPiece.y+=dy; tetDraw(); }
+}
+
+function tetDrop() {
+  if(!tetRunning||tetPaused) return;
+  while(tetCanMove(0,1)) tetPiece.y++;
+  tetTick();
+}
+
+function tetRotate() {
+  if(!tetRunning||tetPaused) return;
+  const rot = tetPiece.shape[0].map((_,i)=>tetPiece.shape.map(r=>r[i]).reverse());
+  if(tetCanMove(0,0,rot)) { tetPiece.shape=rot; tetDraw(); }
+}
+
+function tetDraw() {
+  const cvs = document.getElementById('tetCvs'); if(!cvs) return;
+  const ctx = cvs.getContext('2d');
+  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0,0,cvs.width,cvs.height);
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,.04)';
+  for(let r=0;r<TET_H;r++) for(let c=0;c<TET_W;c++) { ctx.strokeRect(c*TET_SZ,r*TET_SZ,TET_SZ,TET_SZ); }
+  // Board
+  for(let r=0;r<TET_H;r++) for(let c=0;c<TET_W;c++) {
+    if(tetBoard[r][c]) { ctx.fillStyle=tetBoard[r][c]; ctx.fillRect(c*TET_SZ+1,r*TET_SZ+1,TET_SZ-2,TET_SZ-2); }
+  }
+  // Ghost
+  if(tetPiece) {
+    let gy=tetPiece.y; while(tetCanMove(0,gy-tetPiece.y+1)) gy++;
+    ctx.globalAlpha=.2; ctx.fillStyle=tetPiece.color;
+    tetPiece.shape.forEach((row,r)=>row.forEach((v,c)=>{ if(v) ctx.fillRect((tetPiece.x+c)*TET_SZ+1,(gy+r)*TET_SZ+1,TET_SZ-2,TET_SZ-2); }));
+    ctx.globalAlpha=1;
+    // Active
+    ctx.fillStyle=tetPiece.color;
+    tetPiece.shape.forEach((row,r)=>row.forEach((v,c)=>{ if(v&&tetPiece.y+r>=0) ctx.fillRect((tetPiece.x+c)*TET_SZ+1,(tetPiece.y+r)*TET_SZ+1,TET_SZ-2,TET_SZ-2); }));
+  }
+  // Next
+  const nc = document.getElementById('tetNext'); if(!nc) return;
+  const nctx = nc.getContext('2d'); nctx.clearRect(0,0,80,80);
+  if(tetNext) {
+    nctx.fillStyle = tetNext.color;
+    const off = Math.floor((4-tetNext.shape[0].length)/2)*14;
+    tetNext.shape.forEach((row,r)=>row.forEach((v,c)=>{ if(v) nctx.fillRect(off+c*14+1,r*14+14,12,12); }));
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if(document.getElementById('gTetris')?.style.display !== 'none' && tetRunning) {
+    if(e.key==='ArrowLeft'||e.key==='a') { e.preventDefault(); tetMove(-1,0); }
+    if(e.key==='ArrowRight'||e.key==='d') { e.preventDefault(); tetMove(1,0); }
+    if(e.key==='ArrowDown'||e.key==='s') { e.preventDefault(); tetMove(0,1); }
+    if(e.key==='ArrowUp'||e.key==='w') { e.preventDefault(); tetRotate(); }
+    if(e.key===' ') { e.preventDefault(); tetDrop(); }
+  }
+});
+
+// ═══════════════════════════════════════════════
+//  TYPING SPEED
+// ═══════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════
 //  2048 GAME
