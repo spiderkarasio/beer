@@ -605,17 +605,117 @@ textarea::placeholder { color:var(--muted); }
 ::-webkit-scrollbar { width:4px; }
 ::-webkit-scrollbar-thumb { background:var(--glass-b); border-radius:10px; }
 
-/* ===== DISCORD WIDGET ===== */
+/* ===== DISCORD BANNER ===== */
 #discordWidget { position:fixed; bottom:90px; left:20px; z-index:8000; }
-.dc-toggle { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#5865F2,#4752c4); border:none; cursor:pointer; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(88,101,242,.55); transition:transform .2s; }
-.dc-toggle:hover { transform:scale(1.1); }
-.dc-box { display:none; position:absolute; bottom:70px; left:0; background:rgba(10,12,22,.97); border:1px solid rgba(88,101,242,.35); border-radius:18px; padding:14px; box-shadow:0 10px 40px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.08); backdrop-filter:blur(20px); animation:dcIn .25s cubic-bezier(.34,1.2,.64,1); }
+.dc-toggle {
+  width:58px; height:58px; border-radius:50%;
+  background:linear-gradient(135deg,#5865F2,#4752c4);
+  border:none; cursor:pointer; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 24px rgba(88,101,242,.6); transition:all .2s;
+  position:relative;
+}
+.dc-toggle:hover { transform:scale(1.1); box-shadow:0 6px 32px rgba(88,101,242,.8); }
+.dc-notif {
+  position:absolute; top:-3px; right:-3px; width:16px; height:16px;
+  background:#eb5757; border-radius:50%; border:2px solid var(--dark);
+  font-size:8px; font-weight:900; color:#fff; display:flex; align-items:center; justify-content:center;
+  animation:dcPing 2s ease-in-out infinite;
+}
+@keyframes dcPing { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.2);opacity:.8} }
+
+.dc-box {
+  display:none; position:absolute; bottom:72px; left:0;
+  width:320px;
+  background:linear-gradient(160deg,rgba(12,14,26,.99),rgba(8,10,20,.99));
+  border:1px solid rgba(88,101,242,.3); border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(24px);
+  animation:dcIn .28s cubic-bezier(.34,1.2,.64,1);
+}
 .dc-box.open { display:block; }
-@keyframes dcIn { from{opacity:0;transform:scale(.9)translateY(10px)} to{opacity:1;transform:none} }
-.dc-hdr { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
-.dc-title { font-size:13px; font-weight:800; color:#5865F2; flex:1; text-transform:uppercase; letter-spacing:.5px; }
-.dc-close { color:var(--muted); cursor:pointer; font-size:16px; transition:color .2s; }
-.dc-close:hover { color:var(--red); }
+@keyframes dcIn { from{opacity:0;transform:scale(.92)translateY(14px)} to{opacity:1;transform:none} }
+
+/* Banner header */
+.dc-banner {
+  height:80px; position:relative; overflow:hidden;
+  background: linear-gradient(135deg,#23272a 0%,#2c2f33 40%,#1a1c2e 100%);
+}
+.dc-banner-bg {
+  position:absolute; inset:0;
+  background: linear-gradient(135deg,#5865F2 0%,#4752c4 40%,#7289da 100%);
+  opacity:.35;
+}
+.dc-banner-blobs { position:absolute; inset:0; pointer-events:none; }
+.dc-banner-blob {
+  position:absolute; border-radius:50%; filter:blur(30px); opacity:.5;
+}
+.dcb1 { width:120px;height:120px;background:#5865F2;top:-40px;left:-20px; }
+.dcb2 { width:80px;height:80px;background:#7289da;top:-10px;right:20px; }
+.dc-banner-content { position:relative; z-index:1; padding:14px 16px; display:flex; align-items:flex-end; height:100%; gap:12px; }
+.dc-server-icon {
+  width:52px; height:52px; border-radius:16px;
+  background:linear-gradient(135deg,#5865F2,#7289da);
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; flex-shrink:0;
+  border:3px solid rgba(10,12,22,.9);
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
+  margin-bottom:-10px;
+}
+.dc-banner-close {
+  margin-left:auto; margin-bottom:auto;
+  color:rgba(255,255,255,.5); cursor:pointer; font-size:14px;
+  width:24px; height:24px; display:flex; align-items:center; justify-content:center;
+  border-radius:50%; transition:all .2s;
+}
+.dc-banner-close:hover { color:#fff; background:rgba(255,255,255,.15); }
+
+/* Server info block */
+.dc-info { padding:18px 16px 14px; }
+.dc-name-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.dc-name { font-size:17px; font-weight:900; color:#fff; }
+.dc-verified { background:#5865F2; border-radius:50%; width:18px; height:18px; display:flex; align-items:center; justify-content:center; }
+.dc-verified svg { width:11px; height:11px; }
+.dc-desc { font-size:12px; color:rgba(255,255,255,.55); line-height:1.5; margin-bottom:14px; }
+
+/* Stats row */
+.dc-stats { display:flex; gap:16px; margin-bottom:16px; }
+.dc-stat { display:flex; align-items:center; gap:5px; }
+.dc-stat-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.dc-stat-dot.online { background:#23d160; box-shadow:0 0 6px #23d160; }
+.dc-stat-dot.total { background:rgba(255,255,255,.3); }
+.dc-stat-txt { font-size:11px; font-weight:700; color:rgba(255,255,255,.6); }
+.dc-stat-num { font-size:11px; font-weight:900; color:rgba(255,255,255,.85); }
+
+/* Tags */
+.dc-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+.dc-tag {
+  padding:3px 9px; border-radius:99px; font-size:10px; font-weight:700;
+  background:rgba(88,101,242,.15); border:1px solid rgba(88,101,242,.3); color:#7289da;
+}
+
+/* Join button */
+.dc-join-btn {
+  width:100%; padding:13px; border:none; border-radius:12px; cursor:pointer;
+  background:linear-gradient(135deg,#5865F2,#4752c4); color:#fff;
+  font-size:14px; font-weight:900; letter-spacing:.5px;
+  transition:all .2s; font-family:inherit;
+  box-shadow:0 4px 20px rgba(88,101,242,.45);
+  display:flex; align-items:center; justify-content:center; gap:9px;
+}
+.dc-join-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(88,101,242,.65); background:linear-gradient(135deg,#6875f5,#5865F2); }
+.dc-join-btn:active { transform:translateY(0); }
+
+/* Live widget toggle */
+.dc-widget-toggle {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:8px; font-size:10px; color:rgba(255,255,255,.35); cursor:pointer;
+  transition:color .2s; border-top:1px solid rgba(255,255,255,.05);
+}
+.dc-widget-toggle:hover { color:rgba(255,255,255,.6); }
+.dc-live-widget { padding:0 16px 14px; display:none; }
+.dc-live-widget.open { display:block; }
 
 /* ===== AI MODE ===== */
 #aiModeBtn { position:fixed; top:20px; right:20px; z-index:8500; display:flex; align-items:center; gap:8px; padding:10px 16px; background:linear-gradient(135deg,rgba(88,28,135,.85),rgba(139,92,246,.85)); border:1px solid rgba(167,139,250,.4); border-radius:99px; color:#fff; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 4px 20px rgba(139,92,246,.4); transition:all .2s; backdrop-filter:blur(10px); letter-spacing:.5px; font-family:inherit; }
@@ -626,53 +726,125 @@ textarea::placeholder { color:var(--muted); }
 #aiStatusDot { width:8px; height:8px; border-radius:50%; background:#a855f7; flex-shrink:0; animation:aiDot 1s ease-in-out infinite alternate; }
 @keyframes aiDot { from{opacity:.3;transform:scale(.8)} to{opacity:1;transform:scale(1.2)} }
 
+/* ===== AI KEY POPUP ===== */
+#aiKeyPopup {
+  display:none; position:fixed; top:70px; right:20px; z-index:9000;
+  background:rgba(10,12,22,.97); border:1px solid rgba(167,139,250,.45);
+  border-radius:16px; padding:18px; width:300px;
+  box-shadow:0 12px 50px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(24px);
+  animation:aipIn .22s cubic-bezier(.34,1.2,.64,1);
+}
+#aiKeyPopup.open { display:flex; flex-direction:column; gap:10px; }
+@keyframes aipIn { from{opacity:0;transform:scale(.9)translateY(-8px)} to{opacity:1;transform:none} }
+.aik-title { font-size:14px; font-weight:900; color:#c084fc; letter-spacing:.5px; }
+.aik-sub { font-size:10px; color:var(--muted); line-height:1.5; }
+#aiKeyInput {
+  width:100%; background:rgba(0,0,0,.6); border:1.5px solid rgba(167,139,250,.3);
+  border-radius:10px; color:var(--txt); font-size:13px; padding:10px 12px;
+  outline:none; font-family:'Courier New',monospace; letter-spacing:2px;
+  transition:border-color .2s;
+}
+#aiKeyInput:focus { border-color:#a855f7; }
+#aiKeyInput::placeholder { color:rgba(255,255,255,.2); letter-spacing:0; font-family:inherit; }
+.aik-forget { padding:9px 10px; background:rgba(235,87,87,.1); border:1px solid rgba(235,87,87,.25); color:var(--red); border-radius:9px; cursor:pointer; font-size:13px; transition:all .2s; font-family:inherit; }
+.aik-forget:hover { background:rgba(235,87,87,.25); }
+.aik-cancel { flex:1; padding:9px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:var(--muted); border-radius:9px; cursor:pointer; font-size:12px; font-weight:700; transition:all .2s; font-family:inherit; }
+.aik-cancel:hover { background:rgba(255,255,255,.1); color:var(--txt); }
+.aik-go { flex:2; padding:9px; background:linear-gradient(135deg,#7c3aed,#a855f7); border:none; color:#fff; border-radius:9px; cursor:pointer; font-size:12px; font-weight:900; transition:all .2s; font-family:inherit; letter-spacing:.5px; }
+.aik-go:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(168,85,247,.5); }
+
 /* ===== SPOTIFY PLAYER ===== */
 #spotifyWidget {
   position: fixed; bottom: 20px; right: 20px; z-index: 8000;
-  width: 320px; transition: all .3s cubic-bezier(.34,1.2,.64,1);
+  width: 340px; transition: all .35s cubic-bezier(.34,1.2,.64,1);
 }
-#spotifyWidget.collapsed { width: 56px; height: 56px; }
+#spotifyWidget.collapsed { width: 58px; height: 58px; }
 .sp-toggle {
   position: absolute; bottom: 0; right: 0;
-  width: 56px; height: 56px; border-radius: 50%;
+  width: 58px; height: 58px; border-radius: 50%;
   background: linear-gradient(135deg, #1DB954, #169c44);
-  border: none; cursor: pointer; font-size: 22px;
+  border: none; cursor: pointer; font-size: 24px;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 20px rgba(29,185,84,.5); z-index: 2;
-  transition: transform .2s; color: #fff;
+  box-shadow: 0 4px 24px rgba(29,185,84,.55); z-index: 2;
+  transition: transform .2s, box-shadow .2s; color: #fff;
 }
-.sp-toggle:hover { transform: scale(1.1); }
+.sp-toggle:hover { transform: scale(1.12); box-shadow: 0 6px 32px rgba(29,185,84,.75); }
 .sp-box {
-  background: rgba(10,12,22,.95); border: 1px solid rgba(29,185,84,.3);
-  border-radius: 18px; padding: 16px; margin-bottom: 10px;
-  backdrop-filter: blur(20px); box-shadow: 0 10px 40px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08);
+  background: linear-gradient(160deg, rgba(12,16,28,.98), rgba(8,12,20,.99));
+  border: 1px solid rgba(29,185,84,.25);
+  border-radius: 20px; padding: 16px 16px 14px; margin-bottom: 10px;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 16px 50px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.07);
   transition: all .3s;
 }
 #spotifyWidget.collapsed .sp-box { display: none; }
-.sp-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-.sp-logo { font-size: 20px; }
-.sp-title { font-size: 13px; font-weight: 800; color: #1DB954; letter-spacing: .5px; text-transform: uppercase; flex: 1; }
-.sp-close { color: var(--muted); cursor: pointer; font-size: 16px; transition: color .2s; }
-.sp-close:hover { color: var(--red); }
-.sp-url-row { display: flex; gap: 6px; margin-bottom: 12px; }
+.sp-hdr {
+  display: flex; align-items: center; gap: 9px; margin-bottom: 12px;
+  padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.sp-logo-wrap {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg,#1DB954,#0d8a3a);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(29,185,84,.4);
+}
+.sp-logo-svg { width: 18px; height: 18px; fill: #fff; }
+.sp-title { font-size: 13px; font-weight: 900; color: #1DB954; letter-spacing: .4px; text-transform: uppercase; flex: 1; }
+.sp-close { color: var(--muted); cursor: pointer; font-size: 15px; width: 26px; height: 26px; display:flex; align-items:center; justify-content:center; border-radius:50%; transition: all .2s; }
+.sp-close:hover { color: var(--red); background: rgba(235,87,87,.12); }
+.sp-url-row { display: flex; gap: 6px; margin-bottom: 10px; }
 #spInput {
-  flex: 1; background: rgba(0,0,0,.6); border: 1px solid rgba(29,185,84,.25);
-  border-radius: 8px; color: var(--txt); font-size: 11px; padding: 8px 10px;
+  flex: 1; background: rgba(0,0,0,.5); border: 1px solid rgba(29,185,84,.2);
+  border-radius: 9px; color: var(--txt); font-size: 11px; padding: 8px 10px;
   outline: none; font-family: inherit; transition: border-color .2s;
 }
-#spInput:focus { border-color: #1DB954; }
+#spInput:focus { border-color: #1DB954; box-shadow: 0 0 0 2px rgba(29,185,84,.12); }
 #spInput::placeholder { color: var(--muted); }
 .sp-load-btn {
-  padding: 8px 14px; background: #1DB954; color: #111; border: none;
-  border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;
-  transition: all .2s; white-space: nowrap;
+  padding: 8px 14px; background: linear-gradient(135deg,#1DB954,#169c44); color: #fff; border: none;
+  border-radius: 9px; font-size: 13px; font-weight: 900; cursor: pointer;
+  transition: all .2s; box-shadow: 0 2px 10px rgba(29,185,84,.35);
 }
-.sp-load-btn:hover { background: #1ed760; transform: translateY(-1px); }
-#spFrame { width: 100%; border-radius: 12px; border: none; background: transparent; }
-.sp-presets { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-.sp-preset { padding: 4px 10px; background: rgba(29,185,84,.1); border: 1px solid rgba(29,185,84,.25);
-  color: #1DB954; border-radius: 99px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all .2s; }
-.sp-preset:hover { background: rgba(29,185,84,.25); }
+.sp-load-btn:hover { background: linear-gradient(135deg,#1ed760,#1DB954); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(29,185,84,.55); }
+#spEmbedTarget { width: 100%; border-radius: 12px; overflow: hidden; min-height: 0; transition: min-height .3s; }
+#spotifyWidget:not(.collapsed) #spEmbedTarget.has-track { min-height: 80px; }
+#spotifyWidget:not(.collapsed) #spEmbedTarget.has-playlist { min-height: 352px; }
+
+/* Volume slider */
+.sp-vol-row {
+  display: flex; align-items: center; gap: 9px;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.sp-vol-icon { font-size: 14px; cursor: pointer; user-select: none; flex-shrink: 0; transition: transform .15s; }
+.sp-vol-icon:hover { transform: scale(1.2); }
+.sp-vol-slider {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 4px; border-radius: 99px; outline: none; cursor: pointer;
+  background: linear-gradient(to right, #1DB954 var(--vol, 80%), rgba(255,255,255,.15) var(--vol, 80%));
+  transition: height .15s;
+}
+.sp-vol-slider:hover { height: 6px; }
+.sp-vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  border-radius: 50%; background: #1DB954; cursor: pointer;
+  box-shadow: 0 0 6px rgba(29,185,84,.6); transition: transform .15s;
+}
+.sp-vol-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
+.sp-vol-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%; background: #1DB954;
+  cursor: pointer; border: none; box-shadow: 0 0 6px rgba(29,185,84,.6);
+}
+.sp-vol-val { font-size: 10px; font-weight: 800; color: var(--muted); width: 26px; text-align: right; }
+
+.sp-presets { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.sp-preset {
+  padding: 4px 11px; background: rgba(29,185,84,.08); border: 1px solid rgba(29,185,84,.2);
+  color: #1DB954; border-radius: 99px; font-size: 10px; font-weight: 700; cursor: pointer;
+  transition: all .2s;
+}
+.sp-preset:hover { background: rgba(29,185,84,.22); border-color: rgba(29,185,84,.5); transform: translateY(-1px); }
 .sp-hint { font-size: 10px; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.5; }
 
 
@@ -921,19 +1093,29 @@ textarea::placeholder { color:var(--muted); }
     </div>
 </div>
 
+<!-- SPOTIFY IFRAME API -->
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+
 <!-- SPOTIFY WIDGET -->
 <div id="spotifyWidget" class="collapsed">
   <div class="sp-box">
     <div class="sp-hdr">
-      <span class="sp-logo">🎵</span>
-      <span class="sp-title">Spotify Player</span>
+      <div class="sp-logo-wrap">
+        <svg class="sp-logo-svg" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+      </div>
+      <span class="sp-title">Spotify</span>
       <span class="sp-close" onclick="toggleSpotify()">✕</span>
     </div>
     <div class="sp-url-row">
       <input id="spInput" placeholder="Вставь ссылку Spotify..." type="text" onkeydown="if(event.key==='Enter')loadSpotify()">
       <button class="sp-load-btn" onclick="loadSpotify()">▶</button>
     </div>
-    <iframe id="spFrame" src="" height="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <div id="spEmbedTarget"></div>
+    <div class="sp-vol-row" id="spVolRow" style="display:none">
+      <span class="sp-vol-icon" id="spVolIcon" onclick="toggleMute()">🔊</span>
+      <input type="range" class="sp-vol-slider" id="spVolSlider" min="0" max="100" value="80" oninput="setVolume(this.value)">
+      <span class="sp-vol-val" id="spVolVal">80%</span>
+    </div>
     <div class="sp-presets">
       <span class="sp-preset" onclick="loadPreset('37i9dQZF1DXcBWIGoYBM5M')">🔥 Today</span>
       <span class="sp-preset" onclick="loadPreset('37i9dQZF1DX4WYpdgoIcn6')">😌 Chill</span>
@@ -942,29 +1124,99 @@ textarea::placeholder { color:var(--muted); }
     </div>
     <div class="sp-hint" id="spHint">Вставь ссылку или выбери плейлист</div>
   </div>
-  <button class="sp-toggle" onclick="toggleSpotify()" id="spToggleBtn">🎵</button>
-</div>
-
-<!-- DISCORD WIDGET -->
-<div id="discordWidget">
-  <div class="dc-box" id="dcBox">
-    <div class="dc-hdr">
-      <span style="font-size:18px">🎮</span>
-      <span class="dc-title">Наш Discord</span>
-      <span class="dc-close" onclick="toggleDiscord()">✕</span>
-    </div>
-    <iframe src="https://discord.com/widget?id=1459956038634836106&theme=dark" width="320" height="460" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" style="border-radius:12px;display:block;"></iframe>
-  </div>
-  <button class="dc-toggle" onclick="toggleDiscord()" title="Discord Server">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.132 18.115a19.887 19.887 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.027c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+  <button class="sp-toggle" onclick="toggleSpotify()" id="spToggleBtn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
   </button>
 </div>
 
-<!-- AI РЕЖИМ КНОПКА -->
-<button id="aiModeBtn" onclick="startAIMode()" title="AI Режим — Gemini будет ломать сайт">
+<!-- DISCORD BANNER -->
+<div id="discordWidget">
+  <div class="dc-box" id="dcBox">
+
+    <!-- Banner header -->
+    <div class="dc-banner">
+      <div class="dc-banner-bg"></div>
+      <div class="dc-banner-blobs">
+        <div class="dc-banner-blob dcb1"></div>
+        <div class="dc-banner-blob dcb2"></div>
+      </div>
+      <div class="dc-banner-content">
+        <div class="dc-server-icon">🍺</div>
+        <span class="dc-banner-close" onclick="toggleDiscord()">✕</span>
+      </div>
+    </div>
+
+    <!-- Server info -->
+    <div class="dc-info">
+      <div class="dc-name-row">
+        <span class="dc-name">Beer Translate</span>
+        <div class="dc-verified">
+          <svg viewBox="0 0 16 16" fill="white"><path d="M7.4 1.6a1 1 0 0 1 1.2 0l1.4 1.1 1.7-.4a1 1 0 0 1 1.1.7l.5 1.7 1.4 1a1 1 0 0 1 .3 1.2l-.7 1.6.7 1.6a1 1 0 0 1-.3 1.2l-1.4 1-.5 1.7a1 1 0 0 1-1.1.7l-1.7-.4-1.4 1.1a1 1 0 0 1-1.2 0L6 13.4l-1.7.4a1 1 0 0 1-1.1-.7l-.5-1.7-1.4-1a1 1 0 0 1-.3-1.2L1.7 8 1 6.4a1 1 0 0 1 .3-1.2l1.4-1 .5-1.7a1 1 0 0 1 1.1-.7l1.7.4 1.4-1.1zm.6 3.9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+        </div>
+      </div>
+      <div class="dc-desc">Наш дискорд сервер 🍺 Переводчик, игры, казино и общение. Присоединяйся!</div>
+
+      <div class="dc-stats">
+        <div class="dc-stat">
+          <div class="dc-stat-dot online"></div>
+          <span class="dc-stat-num" id="dcOnline">—</span>
+          <span class="dc-stat-txt">&nbsp;онлайн</span>
+        </div>
+        <div class="dc-stat">
+          <div class="dc-stat-dot total"></div>
+          <span class="dc-stat-num" id="dcTotal">—</span>
+          <span class="dc-stat-txt">&nbsp;участников</span>
+        </div>
+      </div>
+
+      <div class="dc-tags">
+        <span class="dc-tag">🎮 Игры</span>
+        <span class="dc-tag">🍺 Пиво</span>
+        <span class="dc-tag">🎰 Казино</span>
+        <span class="dc-tag">🌍 Переводчик</span>
+      </div>
+
+      <a href="https://discord.gg/vMrpnNKxxJ" target="_blank" style="text-decoration:none">
+        <button class="dc-join-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.132 18.115a19.887 19.887 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.027c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+          Присоединиться
+        </button>
+      </a>
+
+      <div class="dc-widget-toggle" onclick="toggleDcWidget(this)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+        Показать участников онлайн
+      </div>
+      <div class="dc-live-widget" id="dcLiveWidget">
+        <iframe src="https://discord.com/widget?id=1481009328784805928&theme=dark" width="288" height="300" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" style="border-radius:10px;display:block;"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <button class="dc-toggle" onclick="toggleDiscord()" title="Discord Server">
+    <div class="dc-notif">!</div>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.132 18.115a19.887 19.887 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.027c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+  </button>
+</div>
+
+<!-- AI РЕЖИМ -->
+<button id="aiModeBtn" onclick="handleAIBtn()" title="AI Режим — Gemini будет ломать сайт">
   <span id="aiModeBtnIcon">🤖</span>
   <span id="aiModeBtnTxt">AI Mode</span>
 </button>
+
+<!-- AI KEY POPUP -->
+<div id="aiKeyPopup">
+  <div class="aik-title">🤖 Gemini API Key</div>
+  <div class="aik-sub">Ключ нужен для AI Mode. Не хранится нигде — только в памяти.</div>
+  <div class="aik-sub" style="margin-top:4px">Получи бесплатно: <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#a855f7">aistudio.google.com/apikey</a></div>
+  <input id="aiKeyInput" type="password" placeholder="AIzaSy..." autocomplete="off" onkeydown="if(event.key==='Enter')confirmAIKey()">
+  <div style="display:flex;gap:8px;margin-top:2px">
+    <button class="aik-cancel" onclick="closeAIKeyPopup()">Отмена</button>
+    <button class="aik-forget" onclick="forgetAIKey()" title="Удалить сохранённый ключ">🗑</button>
+    <button class="aik-go" onclick="confirmAIKey()">🚀 Запустить</button>
+  </div>
+</div>
 
 <!-- AI СТАТУС -->
 <div id="aiStatus" style="display:none;">
@@ -2587,9 +2839,19 @@ function rkKill(){
 })();
 
 // ═══════════════════════════════════════════════
-//  SPOTIFY PLAYER (standalone, no admin needed)
+//  SPOTIFY iFrame API (официальный — поддерживает громкость)
 // ═══════════════════════════════════════════════
 let spExpanded = false;
+let spController = null;
+let spVolume = 80;
+let spMuted = false;
+let spPrevVol = 80;
+let spCurrentUri = null;
+
+// Вызывается Spotify SDK когда готов
+window.onSpotifyIframeApiReady = (IFrameAPI) => {
+  window._SpotifyIFrameAPI = IFrameAPI;
+};
 
 function toggleSpotify() {
   spExpanded = !spExpanded;
@@ -2625,62 +2887,195 @@ function loadSpotify() {
 function loadPreset(id) {
   execMusic({ type: 'playlist', id });
   const inp = document.getElementById('spInput');
-  if(inp) { inp.value = 'open.spotify.com/playlist/' + id; inp.style.borderColor='#1DB954'; setTimeout(()=>inp.style.borderColor='',2000); }
+  if(inp) { inp.value = 'spotify:playlist:' + id; inp.style.borderColor='#1DB954'; setTimeout(()=>inp.style.borderColor='',2000); }
 }
 
 function execMusic(data) {
   if(!data) return;
-  const frame = document.getElementById('spFrame'); if(!frame) return;
-  frame.src = 'https://open.spotify.com/embed/' + data.type + '/' + data.id + '?utm_source=generator&theme=0';
-  frame.height = data.type === 'track' ? '80' : '352';
+  const uri = 'spotify:' + data.type + ':' + data.id;
+  spCurrentUri = uri;
+  const target = document.getElementById('spEmbedTarget'); if(!target) return;
+
   const h = document.getElementById('spHint');
-  if(h) h.textContent = '🎵 ' + (data.type === 'track' ? 'Трек' : 'Плейлист') + ' загружен';
+  const volRow = document.getElementById('spVolRow');
+
+  if(spController) {
+    // Контроллер уже есть — просто меняем трек
+    spController.loadUri(uri);
+    spController.setVolume(spVolume / 100);
+    if(h) h.textContent = '🎵 ' + (data.type === 'track' ? 'Трек' : 'Плейлист') + ' загружен';
+    if(volRow) volRow.style.display = 'flex';
+    target.className = data.type === 'track' ? 'has-track' : 'has-playlist';
+    if(!spExpanded) toggleSpotify();
+    return;
+  }
+
+  // Первая загрузка — создаём контроллер
+  if(!window._SpotifyIFrameAPI) {
+    // SDK ещё не загрузился — fallback на обычный iframe
+    target.innerHTML = '<iframe src="https://open.spotify.com/embed/' + data.type + '/' + data.id + '?utm_source=generator&theme=0" width="100%" height="' + (data.type==='track'?'80':'352') + '" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" style="border-radius:12px;"></iframe>';
+    target.className = data.type === 'track' ? 'has-track' : 'has-playlist';
+    if(h) h.textContent = '🎵 Загружено (ползунок доступен после обновления)';
+    if(volRow) volRow.style.display = 'none';
+    if(!spExpanded) toggleSpotify();
+    return;
+  }
+
+  target.innerHTML = '';
+  target.className = data.type === 'track' ? 'has-track' : 'has-playlist';
+
+  const options = { uri, width: '100%', height: data.type === 'track' ? 80 : 352 };
+
+  window._SpotifyIFrameAPI.createController(target, options, (ctrl) => {
+    spController = ctrl;
+    ctrl.setVolume(spVolume / 100);
+    if(h) h.textContent = '🎵 ' + (data.type === 'track' ? 'Трек' : 'Плейлист') + ' загружен';
+    if(volRow) volRow.style.display = 'flex';
+  });
+
   if(!spExpanded) toggleSpotify();
 }
 
+function setVolume(val) {
+  spVolume = parseInt(val);
+  spMuted = false;
+  const slider = document.getElementById('spVolSlider');
+  const valEl = document.getElementById('spVolVal');
+  const icon = document.getElementById('spVolIcon');
+  if(slider) slider.style.setProperty('--vol', spVolume + '%');
+  if(valEl) valEl.textContent = spVolume + '%';
+  if(icon) icon.textContent = spVolume === 0 ? '🔇' : spVolume < 40 ? '🔉' : '🔊';
+  if(spController) spController.setVolume(spVolume / 100);
+}
+
+function toggleMute() {
+  if(spMuted) {
+    spMuted = false;
+    spVolume = spPrevVol || 80;
+  } else {
+    spMuted = true;
+    spPrevVol = spVolume;
+    spVolume = 0;
+  }
+  const slider = document.getElementById('spVolSlider');
+  if(slider) { slider.value = spVolume; setVolume(spVolume); }
+}
+
 // ═══════════════════════════════════════════════
-//  DISCORD WIDGET
+//  DISCORD BANNER
 // ═══════════════════════════════════════════════
 let dcOpen = false;
+let dcWidgetOpen = false;
+
 function toggleDiscord() {
   dcOpen = !dcOpen;
   const box = document.getElementById('dcBox');
-  if(box) box.classList.toggle('open', dcOpen);
+  if(box) {
+    box.classList.toggle('open', dcOpen);
+    // Убрать уведомление при открытии
+    if(dcOpen) { const n = document.querySelector('.dc-notif'); if(n) n.style.display='none'; }
+  }
 }
+
+function toggleDcWidget(el) {
+  dcWidgetOpen = !dcWidgetOpen;
+  const w = document.getElementById('dcLiveWidget');
+  if(w) w.classList.toggle('open', dcWidgetOpen);
+  if(el) el.textContent = dcWidgetOpen ? '▲ Скрыть' : '▶ Показать участников онлайн';
+}
+
+// Подгружаем кол-во участников через Discord widget JSON
+fetch('https://discord.com/api/guilds/1481009328784805928/widget.json')
+  .then(r=>r.json())
+  .then(d=>{
+    const on = document.getElementById('dcOnline');
+    const tot = document.getElementById('dcTotal');
+    if(on && d.presence_count !== undefined) on.textContent = d.presence_count;
+    if(tot && d.members) tot.textContent = '1000+'; // widget не даёт точный total
+  })
+  .catch(()=>{
+    const on = document.getElementById('dcOnline'); if(on) on.textContent = '–';
+  });
 
 // ═══════════════════════════════════════════════
 //  GEMINI AI MODE — сам ломает сайт
 // ═══════════════════════════════════════════════
-const GEMINI_API_KEY = 'AIzaSyAgr1rKBTAP0MGL_so6Pr1f-cgzd9Azzyc';
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
+const GEMINI_URL_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+let geminiKey = '';
 let aiModeActive = false;
 let aiRound = 0;
 let aiTimer = null;
 const aiHistory = [];
 const AI_DELAYS = [8000, 7000, 6000, 5000, 4000, 3000, 2500, 2000, 1500, 1000, 800];
 
-function getAIDelay() {
-  return AI_DELAYS[Math.min(aiRound, AI_DELAYS.length-1)];
-}
+function getAIDelay() { return AI_DELAYS[Math.min(aiRound, AI_DELAYS.length-1)]; }
 
 function setAIStatus(show, text) {
   const el = document.getElementById('aiStatus');
-  if(el) { el.style.display = show ? 'flex' : 'none'; }
+  if(el) el.style.display = show ? 'flex' : 'none';
   const t = document.getElementById('aiStatusTxt');
   if(t && text) t.textContent = text;
 }
 
+function handleAIBtn() {
+  if(aiModeActive) { stopAIMode(); return; }
+  if(!geminiKey) { openAIKeyPopup(); return; }
+  startAIMode();
+}
+
+function openAIKeyPopup() {
+  const p = document.getElementById('aiKeyPopup');
+  if(p) p.classList.add('open');
+  const inp = document.getElementById('aiKeyInput');
+  if(inp) {
+    inp.value = geminiKey ? '••••••••••••••••••••••' : '';
+    inp.placeholder = geminiKey ? 'Ключ сохранён (введи новый чтобы заменить)' : 'AIzaSy...';
+  }
+  setTimeout(() => inp?.focus(), 80);
+}
+
+function forgetAIKey() {
+  geminiKey = '';
+  try { localStorage.removeItem('_gmk'); } catch(e) {}
+  const inp = document.getElementById('aiKeyInput');
+  if(inp) { inp.value = ''; inp.placeholder = 'AIzaSy...'; inp.focus(); }
+  showToast('🗑 Ключ удалён', 'red');
+}
+
+function closeAIKeyPopup() {
+  const p = document.getElementById('aiKeyPopup');
+  if(p) p.classList.remove('open');
+}
+
+function confirmAIKey() {
+  const inp = document.getElementById('aiKeyInput');
+  const key = inp?.value.trim();
+  if(!key || !key.startsWith('AIza')) {
+    if(inp) { inp.style.borderColor='var(--red)'; setTimeout(()=>inp.style.borderColor='',1200); }
+    return;
+  }
+  geminiKey = key;
+  try { localStorage.setItem('_gmk', key); } catch(e) {}
+  closeAIKeyPopup();
+  startAIMode();
+}
+
+// Автозагрузка ключа из localStorage
+(()=>{ try { const k = localStorage.getItem('_gmk'); if(k) geminiKey = k; } catch(e) {} })();
+
 async function callGemini(prompt) {
-  const body = {
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 1.0, maxOutputTokens: 1200 }
-  };
-  const r = await fetch(GEMINI_URL, {
+  const r = await fetch(GEMINI_URL_BASE + geminiKey, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 1.0, maxOutputTokens: 1200 }
+    })
   });
-  if(!r.ok) throw new Error('Gemini HTTP ' + r.status);
+  if(!r.ok) {
+    const err = await r.json().catch(()=>({}));
+    throw new Error(err?.error?.message || 'HTTP ' + r.status);
+  }
   const d = await r.json();
   return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
@@ -2693,41 +3088,33 @@ function extractCode(text) {
 async function aiStep() {
   if(!aiModeActive) return;
   aiRound++;
-  const roundTxt = `Раунд ${aiRound}`;
-  setAIStatus(true, `🤖 ${roundTxt} — Gemini думает...`);
+  setAIStatus(true, `🤖 Раунд ${aiRound}/15 — Gemini пишет код...`);
 
   const prevHistory = aiHistory.slice(-3).join('\n---\n');
   const prompt = `Ты — злобный AI, который постепенно ЛОМАЕТ веб-страницу. 
-Это раунд ${aiRound} из ~15. 
+Это раунд ${aiRound} из 15. 
 Предыдущие действия: ${prevHistory || 'нет'}
 
-Напиши ТОЛЬКО JavaScript код (без объяснений, без markdown кроме блока кода) который:
-- Добавляет хаотичные визуальные эффекты (но не слишком сразу — нарастай постепенно)
-- Меняет цвета, шрифты, размеры элементов, добавляет текст, эмодзи, анимации
-- На поздних раундах (${aiRound > 8 ? 'СЕЙЧАС' : 'пока нет'}) — начинай серьёзно ломать: крутить страницу, делать элементы огромными, заспамить DOM
-- На раунде 12+ делай страницу практически нечитаемой
-- Используй только vanilla JS, не импортируй ничего
-- Код должен быть коротким (до 30 строк) но эффективным
-- НЕ повторяй то что уже было сделано
-Верни только код в \`\`\`js блоке.`;
+Напиши ТОЛЬКО JavaScript код (без объяснений, только \`\`\`js блок) который:
+- Добавляет хаотичные визуальные эффекты нарастающей силы
+- На раундах 1-5: меняй цвета, добавляй эмодзи, анимации, случайные надписи
+- На раундах 6-10: крути/масштабируй элементы, искажай шрифты, спамь DOM
+- На раундах 11+: максимальный хаос, страница почти нечитаема
+- Сейчас раунд ${aiRound}, действуй соответственно
+- Код до 25 строк, только vanilla JS, без импортов
+- НЕ повторяй предыдущие действия`;
 
   try {
     const text = await callGemini(prompt);
     const code = extractCode(text);
-    aiHistory.push(`Раунд ${aiRound}: ${code.substring(0,100)}...`);
-    setAIStatus(true, `💀 ${roundTxt} — Выполняю...`);
-
-    try {
-      // eslint-disable-next-line no-new-func
-      new Function(code)();
-    } catch(e) {
-      console.warn('AI code error:', e);
-    }
+    aiHistory.push(`Раунд ${aiRound}: ${code.substring(0,80)}...`);
+    setAIStatus(true, `💀 Раунд ${aiRound}/15 — выполняю...`);
+    try { new Function(code)(); } catch(e) { console.warn('AI code err:', e); }
 
     if(aiRound >= 15) {
-      setAIStatus(true, '☠️ Сайт сломан! Перезагрузи страницу.');
+      setAIStatus(true, '☠️ Сайт уничтожен! Перезагрузи страницу.');
       const btn = document.getElementById('aiModeBtn');
-      if(btn) { btn.innerHTML = '☠️ СЛОМАНО'; btn.style.animation='none'; btn.style.background='#111'; }
+      if(btn) { btn.innerHTML = '☠️ СЛОМАНО'; btn.style.cssText += ';animation:none;background:#111;'; }
       aiModeActive = false;
       return;
     }
@@ -2736,29 +3123,37 @@ async function aiStep() {
     setAIStatus(true, `⚠️ Раунд ${aiRound}/15 — следующий через ${(delay/1000).toFixed(1)}с`);
     aiTimer = setTimeout(aiStep, delay);
   } catch(e) {
-    setAIStatus(true, '⚡ Ошибка API — пробую снова...');
-    aiTimer = setTimeout(aiStep, 5000);
+    setAIStatus(true, '❌ Ошибка: ' + e.message.substring(0,50));
+    // Если ключ невалидный — сбрасываем
+    if(e.message.includes('API_KEY') || e.message.includes('401') || e.message.includes('403')) {
+      geminiKey = '';
+      stopAIMode();
+      showToast('❌ Ключ недействителен. Введи новый.', 'red');
+      return;
+    }
+    aiTimer = setTimeout(aiStep, 6000);
   }
 }
 
 function startAIMode() {
-  const btn = document.getElementById('aiModeBtn');
-  if(aiModeActive) {
-    aiModeActive = false;
-    clearTimeout(aiTimer);
-    btn.classList.remove('active');
-    btn.innerHTML = '<span>🤖</span><span>AI Mode</span>';
-    setAIStatus(false);
-    return;
-  }
   aiModeActive = true;
   aiRound = 0;
   aiHistory.length = 0;
+  const btn = document.getElementById('aiModeBtn');
   btn.classList.add('active');
   btn.innerHTML = '<span>🛑</span><span>СТОП</span>';
-  showToast('🤖 Gemini AI запущен! Он начнёт ломать сайт...', 'acc');
+  showToast('🤖 Gemini запущен! Сайт начнёт ломаться...', 'acc');
   setAIStatus(true, '🤖 AI Mode активирован!');
-  aiTimer = setTimeout(aiStep, 3000);
+  aiTimer = setTimeout(aiStep, 2500);
+}
+
+function stopAIMode() {
+  aiModeActive = false;
+  clearTimeout(aiTimer);
+  const btn = document.getElementById('aiModeBtn');
+  btn.classList.remove('active');
+  btn.innerHTML = '<span>🤖</span><span>AI Mode</span>';
+  setAIStatus(false);
 }
 
 // admRainbow placeholder (effects layer)
