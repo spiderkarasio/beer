@@ -33,6 +33,6 @@
 ---
 *Сделано с любовью к крафту и хорошему коду.* 🍻
 
- by fucking gemini 1.5 flash
+ by  gemini 1.5 flash
 
 b
