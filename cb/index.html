@@ -355,6 +355,13 @@ input:focus{border-color:rgba(167,139,250,0.4);}
 .upg-row .ival{font-family:'Russo One',sans-serif;font-size:0.84rem;}
 .upg-row .ichance{font-size:0.6rem;color:var(--muted2);}
 @media(max-width:800px){#upg-layout{grid-template-columns:1fr!important;}}
+.boost-btn{padding:5px 10px;font-size:0.72rem;font-weight:700;border-radius:8px;border:1px solid var(--border2);background:var(--glass);color:var(--muted2);cursor:pointer;transition:all 0.2s;}
+.boost-btn:hover,.boost-btn.sel{border-color:var(--green);color:var(--green);background:rgba(52,211,153,0.1);}
+/* Secret page */
+#page-shkebede{background:radial-gradient(ellipse at center,#1a0a2e 0%,#07080f 70%);}
+.secret-title{font-family:'Russo One',sans-serif;font-size:clamp(2rem,8vw,5rem);text-transform:uppercase;letter-spacing:0.05em;background:linear-gradient(90deg,#ff0000,#ff7700,#ffff00,#00ff00,#0000ff,#8b00ff);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rainbow 3s linear infinite;}
+@keyframes rainbow{0%{background-position:0%}100%{background-position:300%}}
+.secret-card{background:rgba(255,255,255,0.04);backdrop-filter:var(--blur2);border:1px solid rgba(255,255,255,0.15);border-radius:24px;padding:32px;text-align:center;max-width:600px;margin:0 auto;}
 </style>
 </head>
 <body>
@@ -363,7 +370,7 @@ input:focus{border-color:rgba(167,139,250,0.4);}
 <!-- AUTH -->
 <div id="auth">
   <div class="auth-box">
-    <div class="auth-logo">CaseBeer</div>
+    <div class="auth-logo" id="auth-logo">CaseBeer</div>
     <div class="auth-sub">Открывай кейсы. Пей победу.</div>
     <div class="auth-tabs">
       <div class="auth-tab active" onclick="authTab('reg',this)">Регистрация</div>
@@ -490,6 +497,22 @@ input:focus{border-color:rgba(167,139,250,0.4);}
             <div id="upg-chance-fill" style="height:100%;border-radius:3px;width:0%;transition:width 0.5s ease,background 0.5s;"></div>
           </div>
         </div>
+        <!-- Balance boost -->
+        <div style="width:100%;background:rgba(0,0,0,0.25);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;">
+          <div style="font-size:0.66rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:8px;">💰 Добавить баланс к шансу</div>
+          <div style="display:flex;gap:7px;margin-bottom:7px;flex-wrap:wrap;" id="boost-presets">
+            <button class="boost-btn" onclick="setBoost(0)">Нет</button>
+            <button class="boost-btn" onclick="setBoost(1000)">1К</button>
+            <button class="boost-btn" onclick="setBoost(5000)">5К</button>
+            <button class="boost-btn" onclick="setBoost(10000)">10К</button>
+            <button class="boost-btn" onclick="setBoost(50000)">50К</button>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" id="boost-amt" placeholder="Своя сумма..." min="0" style="font-size:0.82rem;padding:7px 10px;flex:1;" oninput="onBoostInput()">
+            <div style="font-size:0.7rem;color:var(--muted2);white-space:nowrap">= <span id="boost-chance-bonus" style="color:var(--green);font-weight:700">+0%</span></div>
+          </div>
+          <div style="font-size:0.62rem;color:var(--muted);margin-top:5px;line-height:1.5;">Каждые 1% стоимости цели = +1% к шансу.<br>При проигрыше баланс теряется.</div>
+        </div>
         <button id="upg-btn" onclick="doUpgrade()" disabled style="padding:12px 40px;font-family:'Russo One',sans-serif;font-size:1rem;letter-spacing:0.05em;text-transform:uppercase;border:none;border-radius:14px;cursor:pointer;background:linear-gradient(135deg,var(--p2),var(--p));color:#fff;box-shadow:0 6px 24px rgba(124,58,237,0.4);transition:all 0.2s;opacity:0.35;">
           Апгрейд
         </button>
@@ -558,6 +581,18 @@ input:focus{border-color:rgba(167,139,250,0.4);}
       <div class="sec-title" style="margin-bottom:12px;">Дневные <span>Задания</span></div>
       <div class="tasks-grid" id="tasks-grid"></div>
     </div>
+    <!-- Promo codes -->
+    <div style="margin-bottom:24px;">
+      <div class="sec-title" style="margin-bottom:12px;">Промо <span>Коды</span></div>
+      <div style="background:rgba(255,255,255,0.04);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:16px;padding:18px;">
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input type="text" id="promo-input" placeholder="Введи промокод..." style="flex:1;font-size:0.88rem;letter-spacing:0.06em;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+          <button class="btn btn-p" style="padding:10px 18px;font-size:0.82rem;white-space:nowrap;" onclick="applyPromo()">Применить</button>
+        </div>
+        <div id="promo-msg" style="font-size:0.76rem;min-height:18px;"></div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;" id="promo-used-list"></div>
+      </div>
+    </div>
     <!-- Inventory -->
     <div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -568,6 +603,57 @@ input:focus{border-color:rgba(167,139,250,0.4);}
         </div>
       </div>
       <div class="inv-grid" id="inventory-grid"></div>
+    </div>
+  </div>
+</div>
+<!-- SECRET PAGE -->
+<div id="page-shkebede" class="page">
+  <div class="section" style="text-align:center;padding-top:60px;">
+    <div class="secret-card">
+      <div style="font-size:4rem;margin-bottom:16px;animation:float 2s ease-in-out infinite;">🍺</div>
+      <div class="secret-title">SHKEBEDE</div>
+      <div style="margin-top:20px;color:var(--muted2);font-size:0.95rem;line-height:1.9;">
+        Ты нашёл секретную страницу.<br>
+        <span style="color:var(--green);font-weight:700">shekebede</span> — легенда.<br>
+        Только для избранных.
+      </div>
+      <div style="margin-top:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:14px;padding:16px;">
+          <div style="font-size:2rem;margin-bottom:6px;">👑</div>
+          <div style="font-size:0.75rem;color:var(--yellow);font-weight:700">+1 000 000 ₽</div>
+          <div style="font-size:0.62rem;color:var(--muted2);margin-top:3px;">Бонус найдена</div>
+        </div>
+        <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:14px;padding:16px;">
+          <div style="font-size:2rem;margin-bottom:6px;">⚡</div>
+          <div style="font-size:0.75rem;color:var(--p3);font-weight:700">+5 000 XP</div>
+          <div style="font-size:0.62rem;color:var(--muted2);margin-top:3px;">Секрет раскрыт</div>
+        </div>
+        <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:14px;padding:16px;">
+          <div style="font-size:2rem;margin-bottom:6px;">🔪</div>
+          <div style="font-size:0.75rem;color:var(--green);font-weight:700">Нож в инвент</div>
+          <div style="font-size:0.62rem;color:var(--muted2);margin-top:3px;">Бесплатно</div>
+        </div>
+      </div>
+      <button class="btn btn-p" style="margin-top:22px;padding:11px 28px;" onclick="claimSecretReward()" id="secret-claim-btn">Забрать награду</button>
+
+      <!-- Bottom text + link -->
+      <div style="margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:1rem;color:var(--text);line-height:1.8;margin-bottom:18px;">
+          бля брат, ну ты и молодец конечно,<br>
+          давай заходи по ссылке 👇
+        </div>
+        <a href="https://beerlanguage.ru/shkebede" target="_blank" rel="noopener"
+           style="display:inline-flex;align-items:center;gap:10px;padding:13px 28px;
+                  background:linear-gradient(135deg,var(--p2),var(--p));
+                  border-radius:14px;color:#fff;text-decoration:none;font-weight:700;font-size:0.9rem;
+                  box-shadow:0 6px 24px rgba(124,58,237,0.4);transition:all 0.2s;letter-spacing:0.04em;"
+           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 32px rgba(124,58,237,0.6)'"
+           onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 6px 24px rgba(124,58,237,0.4)'">
+          <span style="font-size:1.2rem">🍺</span> shkebede
+        </a>
+      </div>
+
+      <div style="margin-top:16px;font-size:0.68rem;color:var(--muted);opacity:0.5;">DevTools → Elements → .nav-logo → "shkebede"</div>
     </div>
   </div>
 </div>
@@ -641,6 +727,8 @@ const SKINS={
     {name:"MAG-7 | Heaven Guard",emoji:"🔫",val:35,rarity:"consumer"},
     {name:"XM1014 | Red Leather",emoji:"🔫",val:48,rarity:"consumer"},
     {name:"Dual Berettas | Colony",emoji:"🔫",val:60,rarity:"consumer"},
+    {name:"PP-Bizon | Sand Dashed",emoji:"🔫",val:14,rarity:"consumer"},
+    {name:"Sawed-Off | Black Sand",emoji:"🔫",val:22,rarity:"consumer"},
   ],
   common:[
     {name:"P250 | Contamination",emoji:"🔫",val:80,rarity:"common"},
@@ -651,6 +739,8 @@ const SKINS={
     {name:"MAC-10 | Candy Apple",emoji:"🔫",val:380,rarity:"common"},
     {name:"CZ75-Auto | Chalice",emoji:"🔫",val:460,rarity:"common"},
     {name:"P90 | Storm",emoji:"🔫",val:550,rarity:"common"},
+    {name:"Negev | Army Sheen",emoji:"🔫",val:190,rarity:"common"},
+    {name:"MP9 | Hypnotic",emoji:"🔫",val:320,rarity:"common"},
   ],
   uncommon:[
     {name:"AK-47 | Safari Mesh",emoji:"🔫",val:700,rarity:"uncommon"},
@@ -661,6 +751,8 @@ const SKINS={
     {name:"Desert Eagle | Oxide Blaze",emoji:"💥",val:3200,rarity:"uncommon"},
     {name:"AUG | Aristocrat",emoji:"🔫",val:4100,rarity:"uncommon"},
     {name:"AK-47 | Redline",emoji:"🔫",val:5200,rarity:"uncommon"},
+    {name:"FAMAS | Meow 36",emoji:"🐱",val:1600,rarity:"uncommon"},
+    {name:"SG 553 | Phantom",emoji:"🔫",val:2800,rarity:"uncommon"},
   ],
   rare:[
     {name:"AWP | Fever Dream",emoji:"🎯",val:7000,rarity:"rare"},
@@ -671,6 +763,8 @@ const SKINS={
     {name:"M4A4 | Neo-Noir",emoji:"🔫",val:28000,rarity:"rare"},
     {name:"M4A4 | 龍王 Dragon King",emoji:"🐲",val:36000,rarity:"rare"},
     {name:"AK-47 | Case Hardened",emoji:"🔫",val:50000,rarity:"rare"},
+    {name:"Glock | Fade",emoji:"🔫",val:11000,rarity:"rare"},
+    {name:"USP-S | Kill Confirmed",emoji:"🔫",val:19000,rarity:"rare"},
   ],
   epic:[
     {name:"AK-47 | Wild Lotus",emoji:"🌸",val:70000,rarity:"epic"},
@@ -679,6 +773,10 @@ const SKINS={
     {name:"M4A4 | Howl",emoji:"🐺",val:180000,rarity:"epic"},
     {name:"Karambit | Doppler",emoji:"🔪",val:230000,rarity:"epic"},
     {name:"M9 Bayonet | Marble Fade",emoji:"🔪",val:290000,rarity:"epic"},
+    {name:"Talon Knife | Doppler",emoji:"🔪",val:160000,rarity:"epic"},
+    {name:"Stiletto Knife | Tiger Tooth",emoji:"🔪",val:110000,rarity:"epic"},
+    {name:"Paracord Knife | Blue Steel",emoji:"🔪",val:85000,rarity:"epic"},
+    {name:"Nomad Knife | Fade",emoji:"🔪",val:200000,rarity:"epic"},
   ],
   legendary:[
     {name:"Butterfly Knife | Tiger Tooth",emoji:"🔪",val:380000,rarity:"legendary"},
@@ -687,20 +785,81 @@ const SKINS={
     {name:"Butterfly Knife | Doppler",emoji:"🔪",val:760000,rarity:"legendary"},
     {name:"Karambit | Blue Gem",emoji:"🔪",val:900000,rarity:"legendary"},
     {name:"AK-47 | Fire Serpent",emoji:"🐍",val:1000000,rarity:"legendary"},
+    {name:"M4A4 | Howl Factory New",emoji:"🐺",val:1500000,rarity:"legendary"},
+    {name:"Butterfly Knife | Crimson Web",emoji:"🔪",val:2200000,rarity:"legendary"},
+    {name:"Karambit | Crimson Web",emoji:"🔪",val:3000000,rarity:"legendary"},
+    {name:"AWP | Medusa",emoji:"🐍",val:4500000,rarity:"legendary"},
+  ],
+  mythic:[
+    {name:"AK-47 | Case Hardened Blue Gem",emoji:"💎",val:8000000,rarity:"mythic"},
+    {name:"Karambit | Case Hardened Blue Gem",emoji:"🔪",val:15000000,rarity:"mythic"},
+    {name:"Butterfly Knife | Case Hardened Max Blue",emoji:"🔪",val:28000000,rarity:"mythic"},
+    {name:"M4A4 | Howl Souvenir",emoji:"🐺",val:50000000,rarity:"mythic"},
+    {name:"AK-47 | Hydroponic",emoji:"🌿",val:80000000,rarity:"mythic"},
+    {name:"Karambit | Black Pearl Max Float",emoji:"🔪",val:120000000,rarity:"mythic"},
+    {name:"M9 Bayonet | Lore Souvenir",emoji:"🔪",val:200000000,rarity:"mythic"},
+    {name:"Karambit | Doppler Black Pearl",emoji:"🔪",val:350000000,rarity:"mythic"},
+    {name:"Desert Eagle | Blaze Souvenir",emoji:"💥",val:500000000,rarity:"mythic"},
+    {name:"🌌 COSMIC GUN | Universe",emoji:"🌌",val:1000000000000,rarity:"mythic"},
   ]
 };
 
 const CASES=[
-  {id:1,name:"Дешёвый",price:13,emoji:"📦",cc:"#94a3b8",items:[...SKINS.consumer.slice(0,6),...SKINS.common.slice(0,2)],probs:[22,18,15,12,10,8,10,5]},
-  {id:2,name:"Стартовый",price:49,emoji:"🎁",cc:"#4ade80",items:[...SKINS.consumer.slice(3),...SKINS.common.slice(0,4)],probs:[20,17,15,12,10,8,10,8]},
-  {id:3,name:"Базовый",price:99,emoji:"📫",cc:"#60a5fa",items:[...SKINS.common,...SKINS.uncommon.slice(0,2)],probs:[18,15,13,11,9,8,7,7,7,5]},
-  {id:4,name:"Боевой",price:299,emoji:"⚔️",cc:"#f87171",items:[...SKINS.common.slice(4),...SKINS.uncommon.slice(0,4),...SKINS.rare.slice(0,1)],probs:[22,18,15,13,10,8,7,5,2]},
-  {id:5,name:"Призма",price:699,emoji:"💠",cc:"#c084fc",items:[...SKINS.uncommon,...SKINS.rare.slice(0,3)],probs:[18,15,12,10,8,7,7,5,10,5,3]},
-  {id:6,name:"Элитный",price:1999,emoji:"🔱",cc:"#67e8f9",items:[...SKINS.uncommon.slice(4),...SKINS.rare.slice(0,4),...SKINS.epic.slice(0,1)],probs:[20,17,14,12,9,8,7,5,8]},
-  {id:7,name:"Легендарный",price:4999,emoji:"👑",cc:"#fbbf24",items:[...SKINS.rare,...SKINS.epic.slice(0,3)],probs:[18,15,12,10,8,7,7,5,8,5,5]},
-  {id:8,name:"Апекс",price:14999,emoji:"💎",cc:"#fb923c",items:[...SKINS.rare.slice(4),...SKINS.epic,...SKINS.legendary.slice(0,2)],probs:[18,14,15,12,10,8,7,6,5,3,2]},
-  {id:9,name:"Мифик",price:49999,emoji:"🌟",cc:"#a78bfa",items:[...SKINS.epic,...SKINS.legendary.slice(0,4)],probs:[20,16,13,11,9,8,8,5,5,3,2]},
-  {id:10,name:"БОГ",price:999999,emoji:"☄️",cc:"#fbbf24",items:[...SKINS.epic.slice(3),...SKINS.legendary],probs:[18,14,20,15,12,10,7,4]},
+  {id:1,name:"Дешёвый",price:13,emoji:"📦",cc:"#94a3b8",
+   items:[...SKINS.consumer.slice(0,7),...SKINS.common.slice(0,2)],
+   probs:[22,18,15,12,10,8,7,5,3]},
+  {id:2,name:"Стартовый",price:49,emoji:"🎁",cc:"#4ade80",
+   items:[...SKINS.consumer.slice(3),...SKINS.common.slice(0,4)],
+   probs:[20,17,15,12,10,8,10,8]},
+  {id:3,name:"Базовый",price:99,emoji:"📫",cc:"#60a5fa",
+   items:[...SKINS.common,...SKINS.uncommon.slice(0,2)],
+   probs:[18,15,13,11,9,8,7,7,7,5]},
+  {id:4,name:"Боевой",price:299,emoji:"⚔️",cc:"#f87171",
+   items:[...SKINS.common.slice(4),...SKINS.uncommon.slice(0,4),...SKINS.rare.slice(0,1)],
+   probs:[22,18,15,13,10,8,7,5,2]},
+  // ПРИЗМА — много нон-окупов (consumer дропы в дорогом кейсе)
+  {id:5,name:"Призма",price:699,emoji:"💠",cc:"#c084fc",
+   items:[...SKINS.consumer.slice(0,3),...SKINS.common.slice(0,3),...SKINS.uncommon.slice(0,3),...SKINS.rare.slice(0,2)],
+   probs:[18,16,14,12,10,9,8,7,4,2]},
+  // ЭЛИТНЫЙ — много дешёвых
+  {id:6,name:"Элитный",price:1999,emoji:"🔱",cc:"#67e8f9",
+   items:[...SKINS.consumer.slice(0,2),...SKINS.common.slice(0,2),...SKINS.uncommon.slice(3,6),...SKINS.rare.slice(0,3),...SKINS.epic.slice(0,1)],
+   probs:[16,14,12,11,10,9,8,7,5,8]},
+  // ЛЕГЕНДАРНЫЙ — можно слить
+  {id:7,name:"Легендарный",price:4999,emoji:"👑",cc:"#fbbf24",
+   items:[...SKINS.consumer.slice(0,2),...SKINS.common.slice(0,2),...SKINS.uncommon.slice(4,6),...SKINS.rare.slice(0,4),...SKINS.epic.slice(0,2)],
+   probs:[15,13,12,10,9,9,8,7,6,7,4]},
+  // АПЕКС — жёсткий слив возможен
+  {id:8,name:"Апекс",price:14999,emoji:"💎",cc:"#fb923c",
+   items:[...SKINS.consumer.slice(0,2),...SKINS.uncommon.slice(5,7),...SKINS.rare.slice(0,4),...SKINS.epic.slice(0,4),...SKINS.legendary.slice(0,2)],
+   probs:[14,12,10,10,9,8,8,7,7,6,5,4]},
+  // МИФИК — дорогой и много нон-окупов
+  {id:9,name:"Мифик",price:49999,emoji:"🌟",cc:"#a78bfa",
+   items:[...SKINS.consumer.slice(0,2),...SKINS.rare.slice(0,2),...SKINS.epic.slice(0,5),...SKINS.legendary.slice(0,4),...SKINS.mythic.slice(0,2)],
+   probs:[13,11,9,9,8,8,7,7,6,6,5,4,4,3]},
+  // БОГ — базово плохой
+  {id:10,name:"БОГ",price:999999,emoji:"☄️",cc:"#fbbf24",
+   items:[...SKINS.epic.slice(3,6),...SKINS.legendary.slice(0,6),...SKINS.mythic.slice(0,4)],
+   probs:[16,14,13,12,11,10,9,7,4,3,1]},
+  // НОВЫЕ КЕЙСЫ
+  {id:11,name:"Нано",price:7,emoji:"⚗️",cc:"#6ee7b7",
+   items:[...SKINS.consumer],
+   probs:[18,16,14,12,10,9,8,7,4,2]},
+  {id:12,name:"Охота",price:599,emoji:"🏹",cc:"#86efac",
+   items:[...SKINS.common.slice(4),...SKINS.uncommon.slice(0,5),...SKINS.rare.slice(0,2)],
+   probs:[20,18,15,12,10,9,8,5,3]},
+  {id:13,name:"Контракт",price:9999,emoji:"📜",cc:"#f9a8d4",
+   items:[...SKINS.uncommon.slice(5),...SKINS.rare,...SKINS.epic.slice(0,4)],
+   probs:[16,14,12,10,9,8,8,7,6,6,4]},
+  {id:14,name:"Омега",price:99999,emoji:"🔮",cc:"#818cf8",
+   items:[...SKINS.rare.slice(4),...SKINS.epic,...SKINS.legendary.slice(0,5),...SKINS.mythic.slice(0,3)],
+   probs:[14,12,10,9,8,7,7,7,6,6,5,4,3,2]},
+  {id:15,name:"Галактика",price:9999999,emoji:"🌌",cc:"#c026d3",
+   items:[...SKINS.legendary,...SKINS.mythic],
+   probs:[14,12,11,10,9,9,8,7,6,5,4,2,1,1,1]},
+  {id:16,name:"ТРИЛЛ",price:999999999999,emoji:"💀",cc:"#ff0000",
+   items:[...SKINS.mythic],
+   probs:[30,22,16,12,8,5,3,2,1,1]},
 ];
 
 // Contract tiers
@@ -712,7 +871,7 @@ const CON_TIERS=[
 ];
 const CON_NEXT={consumer:'common',common:'uncommon',uncommon:'rare',rare:'epic',epic:'legendary',legendary:'legendary'};
 
-const USERS=["KFCfan99","ColdFace","Sniper228","ProGamer","Nikolay_K","Димас1337","XDkiller","iFrag","TopPlaya","s1mple_fan","AimBot666","HeadShot99","BWN_master","FlashGod","g2_enjoyer","Вася_Пупкин","Артём_Pro"];
+const USERS=["flankker","4x3","kotak_bas","артем1337","12kkot","noul","illka2407","shekebede","pidor","marklox228","moskwich","mecori","deltoao","fakitly","liana1xx","dviz","arsovich","егор1337","v1","gemeni","lafore","gart","m1dni9ht","pixel","amnam","chellol","pookie","xrenobys","coolver","rayla","7sofa7","wnexy","dalbanzik","KFCfan99","ColdFace","Sniper228","s1mple_fan","FlashGod","Вася_Пупкин","BWN_master","g2_enjoyer","navi_enjoyer","major_kid","clutch_king","aim_trainer","one_tap_god","ecoround","rush_b","molotov_man","bhopper","pro_noob"];
 
 // ══ STATE ══
 let S={
@@ -726,54 +885,66 @@ let S={
 };
 
 // ══ HELPERS ══
-function rColor(r){return{consumer:'#94a3b8',common:'#4ade80',uncommon:'#60a5fa',rare:'#c084fc',epic:'#fb923c',legendary:'#f87171'}[r]||'#94a3b8';}
-function rRGB(r){return{consumer:'148,163,184',common:'74,222,128',uncommon:'96,165,250',rare:'192,132,252',epic:'251,146,60',legendary:'248,113,113'}[r]||'148,163,184';}
-function rName(r){return{consumer:'Consumer',common:'Common',uncommon:'Uncommon',rare:'Rare',epic:'Epic',legendary:'Legendary'}[r]||r;}
-function fmt(v){if(v>=1000000)return (v/1000000).toFixed(v%1000000===0?0:2)+'М ₽';if(v>=1000)return Math.round(v).toLocaleString('ru-RU')+' ₽';return v+' ₽';}
+function rColor(r){return{consumer:'#94a3b8',common:'#4ade80',uncommon:'#60a5fa',rare:'#c084fc',epic:'#fb923c',legendary:'#f87171',mythic:'#fbbf24'}[r]||'#94a3b8';}
+function rRGB(r){return{consumer:'148,163,184',common:'74,222,128',uncommon:'96,165,250',rare:'192,132,252',epic:'251,146,60',legendary:'248,113,113',mythic:'251,191,36'}[r]||'148,163,184';}
+function rName(r){return{consumer:'Consumer',common:'Common',uncommon:'Uncommon',rare:'Rare',epic:'Epic',legendary:'Legendary',mythic:'MYTHIC ★'}[r]||r;}
+function fmt(v){
+  if(v>=1000000000000)return (v/1000000000000).toFixed(2)+'Т ₽';
+  if(v>=1000000000)return (v/1000000000).toFixed(2)+'млрд ₽';
+  if(v>=1000000)return (v/1000000).toFixed(v%1000000===0?0:2)+'М ₽';
+  if(v>=1000)return Math.round(v).toLocaleString('ru-RU')+' ₽';
+  return v+' ₽';
+}
 function rcls(r){return 'rc-'+r;}
 function allSkins(){return Object.values(SKINS).flat();}
 
-// ══ XP/LEVEL ══
-const XP_TABLE=[0,300,800,1600,2800,4500,7000,10500,15000,21000,29000,39000,52000,68000,88000,115000,148000,190000,242000,310000];
-function getLv(xp){let l=1;for(let i=1;i<XP_TABLE.length;i++){if(xp>=XP_TABLE[i])l=i+1;else break;}return Math.min(l,20);}
+// ══ XP/LEVEL (10 уровней, простая кривая) ══
+const XP_TABLE=[0,200,600,1400,3000,6000,12000,22000,40000,70000];
+function getLv(xp){let l=1;for(let i=1;i<XP_TABLE.length;i++){if(xp>=XP_TABLE[i])l=i+1;else break;}return Math.min(l,10);}
 function addXP(amt){
-  const ol=getLv(S.xp);S.xp+=amt;
+  const ol=getLv(S.xp);S.xp+=Math.round(amt);
   const nl=getLv(S.xp);
-  if(nl>ol){S.level=nl;const bonus=nl*200;S.balance+=bonus;updateBalance();showToast(`⬆️ Уровень ${nl}! Бонус +${fmt(bonus)}!`,'success');}
-  else S.level=nl;
+  if(nl>ol){
+    S.level=nl;
+    const bonuses=[0,1000,3000,7000,15000,30000,60000,120000,250000,500000];
+    const bonus=bonuses[nl-1]||nl*1000;
+    S.balance+=bonus;updateBalance();
+    showToast(`⬆️ Уровень ${nl}! Бонус +${fmt(bonus)}!`,'success');
+  } else {S.level=nl;}
   renderXP();
 }
 function renderXP(){
   const lv=S.level,xp=S.xp;
   const base=XP_TABLE[lv-1]||0;
-  const next=XP_TABLE[lv]||(XP_TABLE[XP_TABLE.length-1]+50000);
-  const pct=lv>=20?100:Math.min(100,((xp-base)/(next-base))*100);
-  const el=id=>document.getElementById(id);
-  if(el('xp-label'))el('xp-label').textContent=`${xp.toLocaleString('ru-RU')} XP`;
-  if(el('xp-fill'))el('xp-fill').style.width=pct+'%';
-  if(el('xp-next'))el('xp-next').textContent=lv>=20?'Макс. уровень!':`До ур.${lv+1}: ${(next-xp).toLocaleString('ru-RU')} XP`;
-  if(el('level-badge'))el('level-badge').textContent='Ур. '+lv;
+  const next=XP_TABLE[lv]||(XP_TABLE[XP_TABLE.length-1]+100000);
+  const pct=lv>=10?100:Math.min(100,((xp-base)/(next-base))*100);
+  const g=id=>document.getElementById(id);
+  if(g('xp-label'))g('xp-label').textContent=`${xp.toLocaleString('ru-RU')} XP`;
+  if(g('xp-fill'))g('xp-fill').style.width=pct+'%';
+  if(g('xp-next'))g('xp-next').textContent=lv>=10?'Макс. уровень!':`До ур.${lv+1}: ${(next-xp).toLocaleString('ru-RU')} XP`;
+  if(g('level-badge'))g('level-badge').textContent='Ур. '+lv;
   document.getElementById('nav-avatar').title='Ур. '+lv;
 }
-function getSellBonus(){return 1+S.level*0.015;}// +1.5% per level
+function getSellBonus(){return 1+S.level*0.05;} // +5% за уровень, до +50%
+function getSellXP(val){return Math.max(10,Math.round(val/500));}
 
-// ══ TASKS ══
+// ══ TASKS (простые) ══
 const TASKS_DEF=[
-  {id:'open3',icon:'📦',name:'Открыть 3 кейса',goal:3,reward:500,xp:120,type:'cases'},
-  {id:'open10',icon:'🎰',name:'Открыть 10 кейсов',goal:10,reward:2000,xp:400,type:'cases'},
-  {id:'open50',icon:'🚀',name:'Открыть 50 кейсов',goal:50,reward:10000,xp:2000,type:'cases'},
-  {id:'upgrade1',icon:'⚡',name:'Сделай апгрейд',goal:1,reward:2000,xp:200,type:'upgrade'},
-  {id:'upgrade5',icon:'🔥',name:'5 апгрейдов',goal:5,reward:8000,xp:800,type:'upgrade'},
-  {id:'sell50k',icon:'💰',name:'Продай на 50 000 ₽',goal:50000,reward:5000,xp:500,type:'sell'},
-  {id:'streak3',icon:'🔥',name:'Серия 3 дня',goal:3,reward:8000,xp:800,type:'streak'},
-  {id:'legendary',icon:'👑',name:'Дроп Legendary',goal:1,reward:20000,xp:2000,type:'legendary'},
+  {id:'open5',   icon:'📦',name:'Открыть 5 кейсов',  goal:5,     reward:2000,   xp:300,  type:'cases'},
+  {id:'open30',  icon:'🎰',name:'Открыть 30 кейсов',  goal:30,    reward:15000,  xp:2000, type:'cases'},
+  {id:'upg3',    icon:'⚡',name:'3 апгрейда',          goal:3,     reward:8000,   xp:800,  type:'upgrade'},
+  {id:'upg15',   icon:'🔥',name:'15 апгрейдов',        goal:15,    reward:50000,  xp:5000, type:'upgrade'},
+  {id:'sell50k', icon:'💰',name:'Продай на 50 000 ₽',  goal:50000, reward:10000,  xp:1000, type:'sell'},
+  {id:'streak3', icon:'🔥',name:'Серия 3 дня',          goal:3,     reward:20000,  xp:2000, type:'streak'},
+  {id:'legendary',icon:'👑',name:'Дроп Legendary',     goal:1,     reward:40000,  xp:5000, type:'legendary'},
+  {id:'mythic',  icon:'🌌',name:'Дроп Mythic',         goal:1,     reward:200000, xp:20000,type:'mythic'},
 ];
 function initTasks(){S.tasks={};TASKS_DEF.forEach(d=>{S.tasks[d.id]={progress:0,done:false};});}
 function updateTask(type,amt){
   TASKS_DEF.filter(d=>d.type===type).forEach(d=>{
     const t=S.tasks[d.id];if(!t||t.done)return;
     t.progress=Math.min(d.goal,(t.progress||0)+amt);
-    if(t.progress>=d.goal){t.done=true;S.balance+=d.reward;addXP(d.xp);updateBalance();showToast(`✅ Задание "${d.name}"! +${fmt(d.reward)}!`,'success');}
+    if(t.progress>=d.goal){t.done=true;S.balance+=d.reward;addXP(d.xp);updateBalance();showToast(`✅ "${d.name}"! +${fmt(d.reward)} +${d.xp}XP!`,'success');}
   });
   renderTasks();
 }
@@ -808,6 +979,59 @@ function checkStreak(){
   document.getElementById('streak-badge').className='streak-badge'+(S.streak>=3?' hot':'');
 }
 
+// ══ EASTER EGG — через DevTools панель ══
+// Открой DevTools → Elements → найди <div class="nav-logo">
+// Дважды кликни на текст "CaseBeer" → измени на "shkebede" → Enter
+// Секретная страница откроется автоматически!
+let secretUnlocked=false;let secretClaimed=false;
+
+function activateSecret(){
+  if(secretUnlocked)return;
+  secretUnlocked=true;
+  // Радужный логотип
+  const logo=document.querySelector('.nav-logo');
+  if(logo){
+    logo.style.background='linear-gradient(90deg,#ff0,#f0f,#0ff,#0f0,#ff0)';
+    logo.style.backgroundSize='300%';
+    logo.style.webkitBackgroundClip='text';
+    logo.style.webkitTextFillColor='transparent';
+    logo.style.animation='rainbow 1.5s linear infinite';
+  }
+  // Добавить секретную кнопку в навбар
+  const nl=document.querySelector('.nav-links');
+  if(nl&&!document.getElementById('nav-secret')){
+    const sb=document.createElement('button');
+    sb.className='nav-link';sb.id='nav-secret';
+    sb.style.cssText='background:linear-gradient(90deg,#fbbf24,#f0f,#0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;border:1px solid rgba(251,191,36,0.3);';
+    sb.textContent='🍺 SHKEBEDE';
+    sb.onclick=()=>showPage('shkebede',sb);
+    nl.appendChild(sb);
+  }
+  showToast('🍺 ПАСХАЛКА! Открой секретную страницу в навбаре!','success');
+}
+
+function claimSecretReward(){
+  if(secretClaimed){showToast('Уже получено!','info');return;}
+  secretClaimed=true;
+  S.balance+=1000000;addXP(5000);updateBalance();
+  const knife=SKINS.legendary[Math.floor(Math.random()*SKINS.legendary.length)];
+  S.inventory.push({...knife});
+  document.getElementById('secret-claim-btn').textContent='✓ Получено!';
+  document.getElementById('secret-claim-btn').disabled=true;
+  showToast(`🔪 ${knife.emoji} ${knife.name} + 1М ₽ + 5000 XP!`,'success');
+}
+
+// MutationObserver — следит за изменением текста nav-logo через DevTools
+(function watchNavLogo(){
+  const target=document.querySelector('.nav-logo');
+  if(!target)return;
+  const obs=new MutationObserver(()=>{
+    const txt=target.textContent.trim().toLowerCase().replace(/\s/g,'');
+    if(txt==='shkebede'){activateSecret();}
+  });
+  obs.observe(target,{childList:true,characterData:true,subtree:true});
+})();
+
 // ══ AUTH ══
 function authTab(t,el){
   document.querySelectorAll('.auth-tab').forEach(x=>x.classList.remove('active'));
@@ -837,6 +1061,17 @@ function launchApp(name){
   document.getElementById('nav-avatar').textContent=ini;
   document.getElementById('prof-ava').textContent=ini;
   document.getElementById('prof-name').textContent=name;
+  // Show secret link if egg was triggered
+  if(secretUnlocked){
+    const nl=document.querySelector('.nav-links');
+    if(nl&&!document.getElementById('nav-secret')){
+      const sb=document.createElement('button');
+      sb.className='nav-link';sb.id='nav-secret';
+      sb.style.color='#fbbf24';sb.textContent='🍺 shkebede';
+      sb.onclick=()=>showPage('shkebede',sb);
+      nl.appendChild(sb);
+    }
+  }
   updateBalance();renderHome();checkStreak();
   showToast(`👋 Добро пожаловать, ${name}! Баланс: 100 000 ₽`,'success');
 }
@@ -850,12 +1085,23 @@ function showPage(id,btn){
   if(id==='home')renderHome();
   if(id==='cases')document.getElementById('all-cases').innerHTML=CASES.map(caseCardHTML).join('');
   if(id==='upgrade')renderUpgrade();
-  if(id==='profile')renderProfile();
+  if(id==='profile'){renderProfile();if(secretUnlocked&&!secretClaimed){setTimeout(()=>{showPage('shkebede');},300);}}
+  if(id==='shkebede'){}// secret page
 }
 
 // ══ HOME ══
+const KNIFE_SKINS=allSkins().filter(s=>s.emoji==='🔪');
+function genDrop(){
+  const u=USERS[Math.floor(Math.random()*USERS.length)];
+  let sk;
+  if(u==='lafore'){// lafore only gets knives
+    sk=KNIFE_SKINS.length?KNIFE_SKINS[Math.floor(Math.random()*KNIFE_SKINS.length)]:allSkins()[0];
+  } else {
+    sk=allSkins()[Math.floor(Math.random()*allSkins().length)];
+  }
+  return{user:u,skin:sk.name,val:sk.val,emoji:sk.emoji,rarity:sk.rarity};
+}
 const LIVE_Q=[];
-function genDrop(){const sk=allSkins()[Math.floor(Math.random()*allSkins().length)];const u=USERS[Math.floor(Math.random()*USERS.length)];return{user:u,skin:sk.name,val:sk.val,emoji:sk.emoji,rarity:sk.rarity};}
 function renderHome(){
   document.getElementById('home-cases').innerHTML=CASES.slice(0,6).map(caseCardHTML).join('');
   renderLive();
@@ -949,7 +1195,11 @@ function startSpin(){
   const results=[];for(let i=0;i<S.openCount;i++)results.push(pickResult(c));
   const main=results[results.length-1];
   S.lastResult=main;S.multiResults=results;S.resultHandled=false;
-  results.forEach(r=>{if(r.val>S.bestDrop)S.bestDrop=r.val;if(r.rarity==='legendary')updateTask('legendary',1);});
+  results.forEach(r=>{
+    if(r.val>S.bestDrop)S.bestDrop=r.val;
+    if(r.rarity==='legendary')updateTask('legendary',1);
+    if(r.rarity==='mythic')updateTask('mythic',1);
+  });
   addXP(Math.max(5,Math.round(c.price/200)));
 
   // Inject winner at pos 62
@@ -1049,7 +1299,35 @@ function sellAllMulti(){
 }
 
 // ══ UPGRADE ══
-let UPG={srcIdx:null,tgtItem:null,chance:0,spinning:false,needleAngle:0};
+let UPG={srcIdx:null,tgtItem:null,chance:0,spinning:false,needleAngle:0,boostAmt:0};
+
+// ── Boost functions ──
+function setBoost(amt){
+  UPG.boostAmt=amt;
+  document.getElementById('boost-amt').value=amt||'';
+  document.querySelectorAll('.boost-btn').forEach(b=>b.classList.remove('sel'));
+  // Mark correct preset
+  const presets=[0,1000,5000,10000,50000];
+  const idx=presets.indexOf(amt);
+  if(idx>=0)document.querySelectorAll('.boost-btn')[idx].classList.add('sel');
+  recalcBoost();
+}
+function onBoostInput(){
+  const v=parseFloat(document.getElementById('boost-amt').value)||0;
+  UPG.boostAmt=v;
+  document.querySelectorAll('.boost-btn').forEach(b=>b.classList.remove('sel'));
+  recalcBoost();
+}
+function recalcBoost(){
+  const bonus=calcBoostChance();
+  document.getElementById('boost-chance-bonus').textContent=`+${bonus.toFixed(1)}%`;
+  if(UPG.tgtItem)updateUpgUI();
+}
+function calcBoostChance(){
+  if(!UPG.tgtItem||!UPG.boostAmt)return 0;
+  // 1% of target value = 1% chance boost, capped at 45%
+  return Math.min(45,(UPG.boostAmt/UPG.tgtItem.val)*100);
+}
 
 function renderUpgrade(){
   renderUpgInv();renderUpgTargets();
@@ -1130,14 +1408,16 @@ function updateUpgUI(){
   const pct=document.getElementById('upg-chance-pct');
   const fill=document.getElementById('upg-chance-fill');
   if(UPG.srcIdx!==null&&UPG.tgtItem){
-    const ch=UPG.chance;
+    const ch=Math.min(90,UPG.chance+calcBoostChance());
     const col=ch>40?'var(--green)':ch>20?'var(--yellow)':'var(--red)';
     pct.textContent=ch.toFixed(1)+'%';pct.style.color=col;
     fill.style.width=ch+'%';fill.style.background=col;
+    drawUpgWheel(ch);
     btn.disabled=false;btn.style.opacity='1';
   } else {
     pct.textContent='—';pct.style.color='var(--muted2)';
     fill.style.width='0%';btn.disabled=true;btn.style.opacity='0.35';
+    drawUpgWheel(0);
   }
 }
 
@@ -1205,7 +1485,14 @@ function drawUpgWheel(ch){
 function doUpgrade(){
   if(UPG.spinning||UPG.srcIdx===null||!UPG.tgtItem)return;
   const srcItem=S.inventory[UPG.srcIdx];if(!srcItem)return;
-  const ch=UPG.chance,tgt=UPG.tgtItem;
+  const boostBonus=calcBoostChance();
+  const ch=Math.min(90,UPG.chance+boostBonus);
+  const tgt=UPG.tgtItem;
+  const boostSpend=UPG.boostAmt||0;
+
+  // Validate boost balance
+  if(boostSpend>0&&boostSpend>S.balance){showToast('Недостаточно баланса для буста!','error');return;}
+
   const won=Math.random()*100<=ch;
   UPG.spinning=true;
   document.getElementById('upg-btn').disabled=true;
@@ -1245,10 +1532,11 @@ function doUpgrade(){
     needle.style.transform=`rotate(${startA+total*ease(t)}deg)`;
     if(t<1){requestAnimationFrame(frame);}
     else{
-      // Save exact final angle
       UPG.needleAngle=targetAbs;
       needle.style.transform=`rotate(${startA+total}deg)`;
       UPG.spinning=false;
+      // Deduct boost cost regardless of result
+      if(boostSpend>0){S.balance-=boostSpend;updateBalance();}
       S.inventory.splice(UPG.srcIdx,1);
       const overlay=document.getElementById('upg-overlay');
       const otxt=document.getElementById('upg-overlay-text');
@@ -1261,21 +1549,26 @@ function doUpgrade(){
         overlay.style.opacity='1';
         ['upg-src-card','upg-tgt-card'].forEach(id=>document.getElementById(id).classList.add('win-glow'));
         const fl=document.getElementById('spin-flash');fl.style.background=rColor(tgt.rarity);fl.classList.remove('active');void fl.offsetWidth;fl.classList.add('active');
-        showToast(`🎉 АПГРЕЙД WIN! ${tgt.emoji} ${tgt.name} (${fmt(tgt.val)})!`,'success');
+        const boostMsg=boostSpend>0?` (потрачено ${fmt(boostSpend)} на буст)`:'';
+        showToast(`🎉 WIN! ${tgt.emoji} ${tgt.name} (${fmt(tgt.val)})${boostMsg}!`,'success');
       } else {
         S.upgrades=(S.upgrades||0)+1;
         otxt.textContent='LOSE';otxt.style.color='var(--red)';
-        osub.textContent=`${srcItem.emoji} потерян`;
+        const lostVal=boostSpend>0?` -${fmt(boostSpend)} баланса`:'';
+        osub.textContent=`${srcItem.emoji} потерян${lostVal}`;
         overlay.style.opacity='1';
         document.getElementById('upg-tgt-card').classList.add('lose-glow');
-        showToast(`💀 Провал. ${srcItem.name} потерян.`,'error');
+        showToast(`💀 Провал. ${srcItem.name} потерян${boostSpend>0?` + ${fmt(boostSpend)} баланса`:''}!`,'error');
       }
       setTimeout(()=>{
         overlay.style.opacity='0';
         ['upg-src-card','upg-tgt-card'].forEach(id=>document.getElementById(id).classList.remove('win-glow','lose-glow','has-skin'));
-        UPG.srcIdx=null;UPG.tgtItem=null;UPG.chance=0;
+        UPG.srcIdx=null;UPG.tgtItem=null;UPG.chance=0;UPG.boostAmt=0;
         document.getElementById('upg-src-empty').style.display='flex';document.getElementById('upg-src-item').style.display='none';
         document.getElementById('upg-tgt-empty').style.display='flex';document.getElementById('upg-tgt-item').style.display='none';
+        document.getElementById('boost-amt').value='';
+        document.getElementById('boost-chance-bonus').textContent='+0%';
+        document.querySelectorAll('.boost-btn').forEach(b=>b.classList.remove('sel'));
         renderUpgrade();
       },2400);
     }
@@ -1288,7 +1581,7 @@ function renderProfile(){
   document.getElementById('prof-upgrades').textContent=S.upgrades||0;
   document.getElementById('prof-best').textContent=fmt(S.bestDrop);
   document.getElementById('prof-balance').textContent=fmt(S.balance);
-  renderXP();renderTasks();renderInventory();
+  renderXP();renderTasks();renderUsedPromos();renderInventory();
   document.getElementById('streak-badge').textContent=`🔥 ${S.streak} серия`;
 }
 function renderInventory(){
@@ -1312,7 +1605,7 @@ function sellInvItem(i){
   const item=S.inventory[i];if(!item)return;
   S.conSlots=S.conSlots.map(s=>{if(!s)return null;if(s._invIdx===i)return null;if(s._invIdx>i)return{...s,_invIdx:s._invIdx-1};return s;});
   const sv=Math.round(item.val*getSellBonus());
-  S.balance+=sv;updateBalance();updateTask('sell',sv);addXP(Math.max(5,Math.round(item.val/500)));
+  S.balance+=sv;updateBalance();updateTask('sell',sv);addXP(getSellXP(item.val));
   S.inventory.splice(i,1);
   const bonus=sv-item.val;
   showToast(`💰 ${fmt(sv)}${bonus>0?' (+'+fmt(bonus)+' бонус)':''}!`,'success');
@@ -1325,6 +1618,56 @@ function sellAll(){
   S.balance+=total;updateBalance();updateTask('sell',total);
   S.inventory=[];S.conSlots=Array(CON_TIERS[S.conTier]?.need||10).fill(null);
   showToast(`💰 Продано всё за ${fmt(total)}!`,'success');renderInventory();
+}
+
+// ══ PROMO CODES ══
+const PROMOS={
+  'CASEBEER':{reward:5000,  xp:500,   desc:'Стартовый бонус',      type:'balance'},
+  'SHKEBEDE':{reward:50000, xp:2000,  desc:'Легендарный промо',     type:'balance'},
+  'DALBANZIK':{reward:10000,xp:800,   desc:'Дружеский бонус',       type:'balance'},
+  'DVIZ':{reward:15000,     xp:1000,  desc:'Движ бонус',            type:'balance'},
+  'PIDOR':{reward:1000,     xp:100,   desc:'Ну хорошо...',          type:'balance'},
+  'WNEXY':{reward:20000,    xp:1500,  desc:'Wnexy одобряет',        type:'balance'},
+  'LAFORE':{reward:0,       xp:0,     desc:'Нож в инвентарь',       type:'knife'},
+  'COOLVER':{reward:25000,  xp:2000,  desc:'Coolver is watching',   type:'balance'},
+  'FLANKKER':{reward:30000, xp:2500,  desc:'Flankker бонус',        type:'balance'},
+  'V1':{reward:100000,      xp:5000,  desc:'V1 — только для своих', type:'balance'},
+};
+
+const USED_PROMOS=new Set();
+
+function applyPromo(){
+  const code=document.getElementById('promo-input').value.trim().toUpperCase();
+  const msgEl=document.getElementById('promo-msg');
+  if(!code){msgEl.innerHTML='<span style="color:var(--red)">Введи промокод!</span>';return;}
+  if(USED_PROMOS.has(code)){msgEl.innerHTML=`<span style="color:var(--red)">❌ Промокод уже использован!</span>`;return;}
+  const p=PROMOS[code];
+  if(!p){msgEl.innerHTML=`<span style="color:var(--red)">❌ Неверный промокод</span>`;return;}
+  USED_PROMOS.add(code);
+  document.getElementById('promo-input').value='';
+  if(p.type==='knife'){
+    const knives=allSkins().filter(s=>s.emoji==='🔪');
+    const knife=knives[Math.floor(Math.random()*knives.length)];
+    S.inventory.push({...knife});
+    addXP(p.xp||500);
+    msgEl.innerHTML=`<span style="color:var(--green)">✅ ${p.desc} — ${knife.emoji} ${knife.name} в инвентарь!</span>`;
+    showToast(`🔪 ${knife.name} добавлен в инвентарь!`,'success');
+  } else {
+    S.balance+=p.reward;updateBalance();
+    if(p.xp)addXP(p.xp);
+    msgEl.innerHTML=`<span style="color:var(--green)">✅ ${p.desc} — +${fmt(p.reward)} зачислено!</span>`;
+    showToast(`🎁 Промокод ${code}: +${fmt(p.reward)}!`,'success');
+  }
+  renderUsedPromos();
+  renderInventory();
+}
+function renderUsedPromos(){
+  const el=document.getElementById('promo-used-list');if(!el)return;
+  if(!USED_PROMOS.size){el.innerHTML='';return;}
+  el.innerHTML=[...USED_PROMOS].map(c=>`
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:20px;font-size:0.65rem;font-weight:700;color:var(--green);letter-spacing:0.06em;">
+      ✓ ${c}
+    </span>`).join('');
 }
 
 // ══ UTILS ══
@@ -1347,6 +1690,7 @@ setInterval(()=>{
   const n=parseInt(el.textContent.replace(/\D/g,''))||1247;
   el.textContent=Math.max(900,Math.min(2600,n+(Math.floor(Math.random()*14)-6))).toLocaleString('ru-RU');
 },4000);
+
 
 renderHome();
 </script>
