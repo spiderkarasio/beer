@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>CLiCKeR</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  background:#111;
+  width:100vw; height:100vh;
+  overflow:hidden;
+  font-family:'Caveat',cursive;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ── BUTTON ── */
+#main-btn {
+  background:transparent;
+  border:3px solid #ddd;
+  border-radius:12px;
+  color:#ddd;
+  font-family:'Caveat',cursive;
+  font-size:3rem;
+  font-weight:700;
+  padding:22px 70px;
+  cursor:pointer;
+  letter-spacing:3px;
+  user-select:none;
+  position:relative;
+  box-shadow:0 0 40px rgba(255,255,255,.06);
+  transition:border-color .2s,color .2s,transform .08s;
+}
+#main-btn:active{transform:scale(.95);}
+#main-btn.c1{border-style:dashed;border-color:#bbb;}
+#main-btn.c2{border-style:dashed;border-color:#999;transform:rotate(-1.5deg);}
+#main-btn.c3{border-color:#777;transform:rotate(2.5deg) skew(-2deg);color:#aaa;}
+
+/* ── RAGDOLL PIECES ── */
+.piece{
+  position:fixed;
+  pointer-events:none;
+  z-index:300;
+  font-family:'Caveat',cursive;
+  font-weight:700;
+  color:#ddd;
+  border:3px solid #ddd;
+  border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  letter-spacing:3px;
+}
+
+/* ── PARTICLES ── */
+.pt{
+  position:fixed;
+  border-radius:2px;
+  pointer-events:none;
+  z-index:400;
+}
+
+/* ── CHARACTER ── */
+#char{
+  position:fixed;
+  z-index:50;
+  width:80px;
+  display:flex;flex-direction:column;align-items:center;
+  left:-160px;
+  bottom:30px;
+  opacity:0;
+}
+
+.arm{
+  position:absolute;
+  width:13px; height:46px;
+  background:#c8c0b4;
+  border-radius:6px;
+  top:20px;
+  z-index:1;
+}
+.arm::after{ /* fist */
+  content:'';
+  position:absolute;
+  bottom:-11px; left:50%;
+  transform:translateX(-50%);
+  width:17px; height:17px;
+  background:#b0a898;
+  border-radius:4px;
+}
+.arm-l{
+  left:-15px;
+  transform-origin:top center;
+  transform:rotate(22deg);
+}
+.arm-r{
+  right:-15px;
+  transform-origin:top center;
+  transform:rotate(-22deg);
+  transition:transform .2s ease;
+}
+.arm-r.windup{ transform:rotate(-105deg) translateX(5px); transition:transform .28s ease-out; }
+.arm-r.smash { transform:rotate(35deg);                    transition:transform .09s ease-in; }
+.arm-r.rest  { transform:rotate(-22deg);                   transition:transform .35s ease-out; }
+
+.char-body{
+  width:80px; height:80px;
+  border-radius:10px;
+  border:3px solid #bbb;
+  background:#1e1e1e;
+  overflow:hidden;
+  position:relative;
+  z-index:2;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;
+}
+.char-body img{
+  width:100%;height:100%;
+  object-fit:contain;
+  display:none;
+}
+
+.legs{display:flex;gap:16px;margin-top:3px;}
+.leg{
+  width:10px;height:26px;
+  background:#bbb;
+  border-radius:5px;
+  transform-origin:top center;
+}
+#char.walk .leg:nth-child(1){animation:legA .34s ease-in-out infinite;}
+#char.walk .leg:nth-child(2){animation:legB .34s ease-in-out infinite;}
+@keyframes legA{0%,100%{transform:rotate(-25deg)}50%{transform:rotate(25deg)}}
+@keyframes legB{0%,100%{transform:rotate(25deg)}50%{transform:rotate(-25deg)}}
+
+/* ── SPEECH BUBBLE ── */
+#bubble{
+  position:fixed;
+  bottom:185px; left:50%;
+  transform:translateX(-50%) scale(.75);
+  background:#fff;
+  border:2.5px solid #111;
+  border-radius:14px;
+  padding:14px 22px;
+  font-size:1.3rem;
+  color:#111;
+  line-height:1.6;
+  text-align:center;
+  box-shadow:4px 4px 0 #333;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s,transform .35s cubic-bezier(.34,1.4,.64,1);
+  z-index:70;
+  white-space:nowrap;
+}
+#bubble.show{opacity:1;transform:translateX(-50%) scale(1);pointer-events:auto;}
+#bubble::after{
+  content:'';position:absolute;
+  bottom:-14px;left:50%;transform:translateX(-50%);
+  border:8px solid transparent;border-top-color:#111;
+}
+#bubble::before{
+  content:'';position:absolute;
+  bottom:-10px;left:50%;transform:translateX(-50%);
+  border:7px solid transparent;border-top-color:#fff;
+  z-index:1;
+}
+#bubble a{color:#1a6cc4;font-weight:700;text-decoration:underline;}
+
+@keyframes screenShake{
+  0%,100%{transform:translate(0,0)}
+  20%{transform:translate(-8px,5px)}
+  40%{transform:translate(8px,-5px)}
+  60%{transform:translate(-5px,7px)}
+  80%{transform:translate(5px,-3px)}
+}
+body.shake{animation:screenShake .45s ease;}
+
+#restart{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  background:transparent;border:2px solid #333;color:#555;
+  font-family:'Caveat',cursive;font-size:1.2rem;
+  padding:6px 24px;border-radius:8px;cursor:pointer;
+  opacity:0;transition:opacity .5s,color .2s,border-color .2s;
+  pointer-events:none;
+}
+#restart.show{opacity:1;pointer-events:auto;}
+#restart:hover{color:#aaa;border-color:#666;}
+</style>
+</head>
+<body>
+
+<button id="main-btn">CLiCKeR</button>
+
+<div id="char">
+  <div class="arm arm-l"></div>
+  <div class="arm arm-r"></div>
+  <div class="char-body">
+    <span id="char-emoji">🟫</span>
+    <img id="char-img" src="" alt="">
+  </div>
+  <div class="legs">
+    <div class="leg"></div>
+    <div class="leg"></div>
+  </div>
+</div>
+
+<div id="bubble">
+  бля, ну короче, вот тебе мой сайт, друк,<br>
+  заходи сюда по чаще<br>
+  <a href="https://wenduyx.github.io" target="_blank">wenduyx.github.io</a>
+</div>
+
+<button id="restart">↺ заново</button>
+
+<script>
+// ══════════════════════════════════════════════
+//  ВСТАВЬ СЮДА ПРЯМУЮ ССЫЛКУ НА PNG С GITHUB
+//  Пример: 'https://wenduyx.github.io/char.png'
+const CHAR_IMAGE_URL = '';
+// ══════════════════════════════════════════════
+
+let clicks = 0;
+let active = true;
+
+const btn        = document.getElementById('main-btn');
+const charEl     = document.getElementById('char');
+const armR       = charEl.querySelector('.arm-r');
+const charImg    = document.getElementById('char-img');
+const charEmoji  = document.getElementById('char-emoji');
+const bubble     = document.getElementById('bubble');
+const restartBtn = document.getElementById('restart');
+
+if (CHAR_IMAGE_URL) {
+  charImg.src = CHAR_IMAGE_URL;
+  charImg.style.display = 'block';
+  charEmoji.style.display = 'none';
+  charImg.onerror = () => {
+    charImg.style.display = 'none';
+    charEmoji.style.display = 'block';
+  };
+}
+
+// ── particles ──
+function burst(x, y) {
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement('div');
+    p.className = 'pt';
+    const sz = 4 + Math.random() * 9;
+    p.style.cssText = `left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;
+      background:${['#ddd','#bbb','#fff','#aaa','#666'][i%5]};`;
+    document.body.appendChild(p);
+    const a = Math.random() * Math.PI * 2;
+    const s = 90 + Math.random() * 220;
+    p.animate([
+      {transform:'translate(0,0) rotate(0deg) scale(1)',opacity:1},
+      {transform:`translate(${Math.cos(a)*s}px,${Math.sin(a)*s+150}px) rotate(${Math.random()*540}deg) scale(0)`,opacity:0}
+    ],{duration:500+Math.random()*450,easing:'ease-out',fill:'forwards'})
+      .onfinish = () => p.remove();
+  }
+}
+
+// ── ragdoll button ──
+function explodeButton() {
+  const r = btn.getBoundingClientRect();
+  const x = r.left, y = r.top, W = r.width, H = r.height;
+
+  const pieces = [
+    // main text halves
+    {text:'CLI',   rx:0,       ry:0,   w:W*.44, h:H, fs:'3rem', bt:3,br:0,bb:3,bl:3, brad:'12px 0 0 12px'},
+    {text:'CKeR',  rx:W*.44,   ry:0,   w:W*.56, h:H, fs:'3rem', bt:3,br:3,bb:3,bl:0, brad:'0 12px 12px 0'},
+    // top edge shard
+    {text:'',      rx:W*.12,   ry:-3,  w:W*.28, h:6, fs:'0',    bt:3,br:0,bb:0,bl:0, brad:'0'},
+    // bottom edge shard
+    {text:'',      rx:W*.55,   ry:H-3, w:W*.22, h:6, fs:'0',    bt:0,br:0,bb:3,bl:0, brad:'0'},
+    // top-left corner
+    {text:'',      rx:0,       ry:0,   w:22,    h:22,fs:'0',    bt:3,br:0,bb:0,bl:3, brad:'12px 0 0 0'},
+    // bottom-right corner
+    {text:'',      rx:W-22,    ry:H-22,w:22,    h:22,fs:'0',    bt:0,br:3,bb:3,bl:0, brad:'0 0 12px 0'},
+    // top-right corner
+    {text:'',      rx:W-22,    ry:0,   w:22,    h:22,fs:'0',    bt:3,br:3,bb:0,bl:0, brad:'0 12px 0 0'},
+    // left fragment
+    {text:'',      rx:0,       ry:H*.3,w:6,     h:H*.3,fs:'0', bt:0,br:0,bb:0,bl:3, brad:'0'},
+  ];
+
+  btn.style.opacity = '0';
+  btn.style.pointerEvents = 'none';
+
+  pieces.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'piece';
+    el.style.left   = (x + p.rx) + 'px';
+    el.style.top    = (y + p.ry) + 'px';
+    el.style.width  = p.w + 'px';
+    el.style.height = p.h + 'px';
+    el.style.fontSize = p.fs;
+    el.style.borderTopWidth    = p.bt + 'px';
+    el.style.borderRightWidth  = p.br + 'px';
+    el.style.borderBottomWidth = p.bb + 'px';
+    el.style.borderLeftWidth   = p.bl + 'px';
+    el.style.borderStyle = 'solid';
+    el.style.borderColor = '#ddd';
+    el.style.borderRadius = p.brad;
+    el.textContent = p.text;
+    document.body.appendChild(el);
+
+    const dx  = (Math.random() - 0.5) * 700;
+    const dy  = -(80 + Math.random() * 400);
+    const rot = (Math.random() - 0.5) * 800;
+    const dur = 700 + Math.random() * 500;
+
+    el.animate([
+      {transform:`translate(0,0) rotate(0deg)`, opacity:1},
+      {transform:`translate(${dx}px,${dy + 200}px) rotate(${rot}deg) scale(.2)`, opacity:0}
+    ],{duration:dur, easing:'cubic-bezier(.25,.46,.45,.94)', fill:'forwards'})
+      .onfinish = () => el.remove();
+  });
+}
+
+// ── click ──
+btn.addEventListener('click', e => {
+  if (!active) return;
+  clicks++;
+
+  btn.classList.remove('c1','c2','c3');
+  if (clicks >= 4 && clicks < 7) btn.classList.add('c1');
+  if (clicks >= 7 && clicks < 9) btn.classList.add('c2');
+  if (clicks === 9)              btn.classList.add('c3');
+
+  btn.animate([
+    {transform:'scale(1)'},{transform:'scale(.90)'},{transform:'scale(1.05)'},{transform:'scale(1)'}
+  ],{duration:150,easing:'ease'});
+
+  if (clicks >= 10) {
+    active = false;
+    runSequence();
+  }
+});
+
+function runSequence() {
+  // 1. char walks in to button
+  charEl.style.opacity = '1';
+  charEl.classList.add('walk');
+
+  const btnRect = btn.getBoundingClientRect();
+  const destLeft = btnRect.left - 105;
+
+  charEl.style.transition = 'left 1.5s linear, opacity .4s';
+  charEl.style.left = destLeft + 'px';
+
+  setTimeout(() => {
+    // arrived
+    charEl.classList.remove('walk');
+
+    // 2. wind up arm
+    setTimeout(() => {
+      armR.classList.add('windup');
+
+      // 3. smash
+      setTimeout(() => {
+        armR.classList.remove('windup');
+        armR.classList.add('smash');
+
+        // at impact point
+        setTimeout(() => {
+          document.body.classList.add('shake');
+          setTimeout(() => document.body.classList.remove('shake'), 500);
+
+          const r = btn.getBoundingClientRect();
+          burst(r.left + r.width / 2, r.top + r.height / 2);
+          explodeButton();
+
+          setTimeout(() => {
+            armR.classList.remove('smash');
+            armR.classList.add('rest');
+          }, 200);
+
+          // 4. bubble
+          setTimeout(() => {
+            bubble.classList.add('show');
+
+            // 5. leave
+            setTimeout(() => {
+              bubble.classList.remove('show');
+              setTimeout(() => {
+                charEl.classList.add('walk');
+                charEl.style.transition = 'left 1.9s linear, opacity .5s 1.5s';
+                charEl.style.left = (window.innerWidth + 200) + 'px';
+                charEl.style.opacity = '0';
+                setTimeout(() => restartBtn.classList.add('show'), 2200);
+              }, 350);
+            }, 4200);
+          }, 500);
+
+        }, 80); // impact delay after smash starts
+      }, 350); // hold windup
+    }, 450); // pause before windup
+  }, 1600); // walk duration
+}
+
+// ── restart ──
+restartBtn.addEventListener('click', () => {
+  clicks = 0; active = true;
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = '';
+  btn.className = '';
+
+  charEl.style.transition = 'none';
+  charEl.style.left = '-160px';
+  charEl.style.opacity = '0';
+  charEl.classList.remove('walk');
+  armR.className = 'arm arm-r';
+
+  bubble.classList.remove('show');
+  restartBtn.classList.remove('show');
+});
+</script>
+</body>
+</html>
