@@ -726,9 +726,7 @@ const SKINS={
     {name:"FAMAS | Colony",emoji:"🔫",val:25,rarity:"consumer"},
     {name:"MAG-7 | Heaven Guard",emoji:"🔫",val:35,rarity:"consumer"},
     {name:"XM1014 | Red Leather",emoji:"🔫",val:48,rarity:"consumer"},
-    {name:"Dual Berettas | Colony",emoji:"🔫",val:60,rarity:"consumer"},
     {name:"PP-Bizon | Sand Dashed",emoji:"🔫",val:14,rarity:"consumer"},
-    {name:"Sawed-Off | Black Sand",emoji:"🔫",val:22,rarity:"consumer"},
   ],
   common:[
     {name:"P250 | Contamination",emoji:"🔫",val:80,rarity:"common"},
@@ -739,8 +737,6 @@ const SKINS={
     {name:"MAC-10 | Candy Apple",emoji:"🔫",val:380,rarity:"common"},
     {name:"CZ75-Auto | Chalice",emoji:"🔫",val:460,rarity:"common"},
     {name:"P90 | Storm",emoji:"🔫",val:550,rarity:"common"},
-    {name:"Negev | Army Sheen",emoji:"🔫",val:190,rarity:"common"},
-    {name:"MP9 | Hypnotic",emoji:"🔫",val:320,rarity:"common"},
   ],
   uncommon:[
     {name:"AK-47 | Safari Mesh",emoji:"🔫",val:700,rarity:"uncommon"},
@@ -800,68 +796,83 @@ const SKINS={
     {name:"M9 Bayonet | Lore Souvenir",emoji:"🔪",val:200000000,rarity:"mythic"},
     {name:"Karambit | Doppler Black Pearl",emoji:"🔪",val:350000000,rarity:"mythic"},
     {name:"Desert Eagle | Blaze Souvenir",emoji:"💥",val:500000000,rarity:"mythic"},
-    {name:"🌌 COSMIC GUN | Universe",emoji:"🌌",val:1000000000000,rarity:"mythic"},
+    {name:"Karambit | Crimson Web Souvenir",emoji:"🔪",val:900000000,rarity:"mythic"},
+  ],
+  godly:[
+    {name:"☢️ AK-47 | ЯДЕРНЫЙ",emoji:"☢️",val:5000000000000,rarity:"godly"},
+    {name:"🌋 M4A4 | ЛАВА ЗЕМЛИ",emoji:"🌋",val:20000000000000,rarity:"godly"},
+    {name:"⚡ AWP | МОЛНИЯ ЗЕВСА",emoji:"⚡",val:80000000000000,rarity:"godly"},
+    {name:"🔪 Karambit | ТЬМА ВЕЧНОСТИ",emoji:"🔪",val:250000000000000,rarity:"godly"},
+    {name:"🌊 Butterfly Knife | ОКЕАН",emoji:"🔪",val:700000000000000,rarity:"godly"},
+    {name:"💫 AK-47 | ГАЛАКТИКА АНДРОМЕДА",emoji:"💫",val:2000000000000000,rarity:"godly"},
+    {name:"🌌 M9 Bayonet | ВСЕЛЕННАЯ",emoji:"🔪",val:8000000000000000,rarity:"godly"},
+    {name:"👑 Karambit | БОГ ВОЙНЫ",emoji:"👑",val:50000000000000000,rarity:"godly"},
+    {name:"💀 Desert Eagle | КОНЕЦ СВЕТА",emoji:"💀",val:200000000000000000,rarity:"godly"},
+    {name:"🌟 АБСОЛЮТ | КВИНТИЛЛИОН",emoji:"🌟",val:1000000000000000000,rarity:"godly"},
   ]
 };
 
+// ─── THEMED CASES ─────────────────────────────────────────────────────────────
+// 3 слив-предмета = ~40% вероятности — идеальный баланс CS-сайта
 const CASES=[
-  {id:1,name:"Дешёвый",price:13,emoji:"📦",cc:"#94a3b8",
-   items:[...SKINS.consumer.slice(0,7),...SKINS.common.slice(0,2)],
-   probs:[22,18,15,12,10,8,7,5,3]},
-  {id:2,name:"Стартовый",price:49,emoji:"🎁",cc:"#4ade80",
-   items:[...SKINS.consumer.slice(3),...SKINS.common.slice(0,4)],
-   probs:[20,17,15,12,10,8,10,8]},
-  {id:3,name:"Базовый",price:99,emoji:"📫",cc:"#60a5fa",
-   items:[...SKINS.common,...SKINS.uncommon.slice(0,2)],
-   probs:[18,15,13,11,9,8,7,7,7,5]},
-  {id:4,name:"Боевой",price:299,emoji:"⚔️",cc:"#f87171",
-   items:[...SKINS.common.slice(4),...SKINS.uncommon.slice(0,4),...SKINS.rare.slice(0,1)],
-   probs:[22,18,15,13,10,8,7,5,2]},
-  // ПРИЗМА — много нон-окупов (consumer дропы в дорогом кейсе)
-  {id:5,name:"Призма",price:699,emoji:"💠",cc:"#c084fc",
-   items:[...SKINS.consumer.slice(0,3),...SKINS.common.slice(0,3),...SKINS.uncommon.slice(0,3),...SKINS.rare.slice(0,2)],
-   probs:[18,16,14,12,10,9,8,7,4,2]},
-  // ЭЛИТНЫЙ — много дешёвых
-  {id:6,name:"Элитный",price:1999,emoji:"🔱",cc:"#67e8f9",
-   items:[...SKINS.consumer.slice(0,2),...SKINS.common.slice(0,2),...SKINS.uncommon.slice(3,6),...SKINS.rare.slice(0,3),...SKINS.epic.slice(0,1)],
-   probs:[16,14,12,11,10,9,8,7,5,8]},
-  // ЛЕГЕНДАРНЫЙ — можно слить
-  {id:7,name:"Легендарный",price:4999,emoji:"👑",cc:"#fbbf24",
-   items:[...SKINS.consumer.slice(0,2),...SKINS.common.slice(0,2),...SKINS.uncommon.slice(4,6),...SKINS.rare.slice(0,4),...SKINS.epic.slice(0,2)],
-   probs:[15,13,12,10,9,9,8,7,6,7,4]},
-  // АПЕКС — жёсткий слив возможен
-  {id:8,name:"Апекс",price:14999,emoji:"💎",cc:"#fb923c",
-   items:[...SKINS.consumer.slice(0,2),...SKINS.uncommon.slice(5,7),...SKINS.rare.slice(0,4),...SKINS.epic.slice(0,4),...SKINS.legendary.slice(0,2)],
-   probs:[14,12,10,10,9,8,8,7,7,6,5,4]},
-  // МИФИК — дорогой и много нон-окупов
-  {id:9,name:"Мифик",price:49999,emoji:"🌟",cc:"#a78bfa",
-   items:[...SKINS.consumer.slice(0,2),...SKINS.rare.slice(0,2),...SKINS.epic.slice(0,5),...SKINS.legendary.slice(0,4),...SKINS.mythic.slice(0,2)],
-   probs:[13,11,9,9,8,8,7,7,6,6,5,4,4,3]},
-  // БОГ — базово плохой
-  {id:10,name:"БОГ",price:999999,emoji:"☄️",cc:"#fbbf24",
-   items:[...SKINS.epic.slice(3,6),...SKINS.legendary.slice(0,6),...SKINS.mythic.slice(0,4)],
-   probs:[16,14,13,12,11,10,9,7,4,3,1]},
-  // НОВЫЕ КЕЙСЫ
-  {id:11,name:"Нано",price:7,emoji:"⚗️",cc:"#6ee7b7",
-   items:[...SKINS.consumer],
-   probs:[18,16,14,12,10,9,8,7,4,2]},
-  {id:12,name:"Охота",price:599,emoji:"🏹",cc:"#86efac",
-   items:[...SKINS.common.slice(4),...SKINS.uncommon.slice(0,5),...SKINS.rare.slice(0,2)],
-   probs:[20,18,15,12,10,9,8,5,3]},
-  {id:13,name:"Контракт",price:9999,emoji:"📜",cc:"#f9a8d4",
-   items:[...SKINS.uncommon.slice(5),...SKINS.rare,...SKINS.epic.slice(0,4)],
-   probs:[16,14,12,10,9,8,8,7,6,6,4]},
-  {id:14,name:"Омега",price:99999,emoji:"🔮",cc:"#818cf8",
-   items:[...SKINS.rare.slice(4),...SKINS.epic,...SKINS.legendary.slice(0,5),...SKINS.mythic.slice(0,3)],
-   probs:[14,12,10,9,8,7,7,7,6,6,5,4,3,2]},
-  {id:15,name:"Галактика",price:9999999,emoji:"🌌",cc:"#c026d3",
-   items:[...SKINS.legendary,...SKINS.mythic],
-   probs:[14,12,11,10,9,9,8,7,6,5,4,2,1,1,1]},
-  {id:16,name:"ТРИЛЛ",price:999999999999,emoji:"💀",cc:"#ff0000",
-   items:[...SKINS.mythic],
-   probs:[30,22,16,12,8,5,3,2,1,1]},
-];
 
+  {id:1,name:"🔫 Пистолеты",price:13,emoji:"🔫",cc:"#94a3b8",
+   items:[...SKINS.consumer.slice(0,3),...SKINS.common],
+   probs:[15,13,10, 11,10,9,8,7,6,6,5]},
+
+  {id:2,name:"🪖 Военный",price:49,emoji:"🪖",cc:"#86efac",
+   items:[...SKINS.consumer.slice(0,3),...SKINS.common,...SKINS.uncommon.slice(0,3)],
+   probs:[15,13,10, 9,8,7,7,6,5,4,3, 7,5,2]},
+
+  {id:3,name:"🔥 Штурм",price:99,emoji:"🔥",cc:"#60a5fa",
+   items:[...SKINS.consumer.slice(0,3),...SKINS.uncommon,...SKINS.rare.slice(0,3)],
+   probs:[15,13,10, 7,7,6,6,5,5,4,3,2, 7,5,5]},
+
+  {id:4,name:"⚔️ Боевой",price:299,emoji:"⚔️",cc:"#f87171",
+   items:[...SKINS.consumer.slice(0,3),...SKINS.uncommon,...SKINS.rare.slice(0,4),...SKINS.epic.slice(0,1)],
+   probs:[15,13,10, 6,6,5,5,5,4,4,3,3,2, 5,4,4,2, 4]},
+
+  {id:5,name:"🔪 Ножевой",price:699,emoji:"🔪",cc:"#c084fc",
+   items:[...SKINS.common.slice(0,3),...SKINS.uncommon.slice(4,7),...SKINS.rare.slice(0,3),...SKINS.epic.filter(s=>s.emoji==='🔪'),...SKINS.legendary.filter(s=>s.emoji==='🔪').slice(0,3)],
+   probs:[15,13,10, 7,6,5, 6,5,5, 5,4,4,4,3,3, 3,2,1]},
+
+  {id:6,name:"🎯 Снайпер",price:1999,emoji:"🎯",cc:"#67e8f9",
+   items:[...SKINS.common.slice(0,3),{name:"AWP | Safari Mesh",emoji:"🎯",val:600,rarity:"uncommon"},{name:"AWP | Pit Viper",emoji:"🎯",val:1200,rarity:"uncommon"},...SKINS.rare.filter(s=>s.name.includes('AWP')),...SKINS.epic.filter(s=>s.name.includes('AWP')||s.name.includes('AK')).slice(0,4),...SKINS.legendary.filter(s=>s.name.includes('AWP')||s.name.includes('AK'))],
+   probs:[15,13,10, 6,5, 6,5, 5,4,3,3, 4,3,3,2,2,1]},
+
+  {id:7,name:"👑 Элита",price:4999,emoji:"👑",cc:"#fbbf24",
+   items:[...SKINS.uncommon.slice(0,3),...SKINS.rare.slice(5,8),...SKINS.epic,...SKINS.legendary.slice(0,4)],
+   probs:[15,13,10, 5,5,4, 5,4,4,4,4,3,3,3,2,2, 4,3,3,1]},
+
+  {id:8,name:"💎 Апекс",price:14999,emoji:"💎",cc:"#fb923c",
+   items:[...SKINS.rare.slice(0,3),...SKINS.epic,...SKINS.legendary,...SKINS.mythic.slice(0,2)],
+   // mythic: 0.8+0.4 = 1.2%
+   probs:[15,13,10, 5,4,4,4,3,3,3,3,3,2, 3,3,2,2,2,2,1,1, 0.8,0.4]},
+
+  {id:9,name:"🌟 Мифик",price:49999,emoji:"🌟",cc:"#a78bfa",
+   items:[...SKINS.rare.slice(0,3),...SKINS.legendary,...SKINS.mythic,...SKINS.godly.slice(0,3)],
+   // mythic: 3+2.5+2+1.5+1+0.8+0.6+0.4+0.3+0.2 = ~12.3%   godly: 0.4+0.2+0.1 = 0.7%
+   probs:[15,13,10, 4,3,3,3,3,2,2,2,2,1, 3,2.5,2,1.5,1,0.8,0.6,0.4,0.3,0.2, 0.4,0.2,0.1]},
+
+  {id:10,name:"🔮 Омега",price:99999,emoji:"🔮",cc:"#818cf8",
+   items:[...SKINS.epic.slice(0,3),...SKINS.mythic,...SKINS.godly.slice(0,5)],
+   // mythic: 3+2.5+2+1.5+1+0.8+0.6+0.4+0.3+0.2 = ~12.3%   godly: 1.5+1+0.8+0.5+0.2 = 4%
+   probs:[15,13,10, 6,5,5,5,4,4,3,3,3,3, 3,2.5,2,1.5,1,0.8,0.6,0.4,0.3,0.2, 1.5,1,0.8,0.5,0.2]},
+
+  {id:11,name:"☄️ БОГ",price:999999,emoji:"☄️",cc:"#ef4444",
+   items:[...SKINS.rare.slice(0,3),...SKINS.mythic,...SKINS.godly],
+   // mythic: 3+2.5+2+1.5+1+0.8+0.6+0.4+0.3+0.2 = ~12.3%   godly: ~6.6%
+   probs:[15,13,10, 6,5,5,5,4,4,4,3,2,2, 3,2.5,2,1.5,1,0.8,0.6,0.4,0.3,0.2, 1.5,1.2,1,0.8,0.6,0.5,0.4,0.3,0.2,0.1]},
+
+  {id:12,name:"🌌 Галактика",price:9999999,emoji:"🌌",cc:"#c026d3",
+   items:[...SKINS.rare.slice(0,3),...SKINS.mythic,...SKINS.godly],
+   // mythic: ~15%   godly: ~8.5%
+   probs:[15,13,10, 5,4,4,4,3,3,2,2,2,1, 4,3,2.5,2,1.5,1,0.8,0.6,0.4,0.3, 2,1.5,1.2,1,0.8,0.6,0.5,0.4,0.3,0.2]},
+
+  {id:13,name:"💀 ТРИЛЛ",price:999999999999,emoji:"💀",cc:"#ff0000",
+   items:[...SKINS.godly],
+   probs:[28,22,14, 11,8,6,4,3,2,2]},
+]
 // Contract tiers
 const CON_TIERS=[
   {id:'t1',label:'Базовый',need:5,rarities:['consumer','common'],bonus:1.8,desc:'5 скинов Consumer/Common → 1 Uncommon'},
@@ -885,59 +896,59 @@ let S={
 };
 
 // ══ HELPERS ══
-function rColor(r){return{consumer:'#94a3b8',common:'#4ade80',uncommon:'#60a5fa',rare:'#c084fc',epic:'#fb923c',legendary:'#f87171',mythic:'#fbbf24'}[r]||'#94a3b8';}
-function rRGB(r){return{consumer:'148,163,184',common:'74,222,128',uncommon:'96,165,250',rare:'192,132,252',epic:'251,146,60',legendary:'248,113,113',mythic:'251,191,36'}[r]||'148,163,184';}
-function rName(r){return{consumer:'Consumer',common:'Common',uncommon:'Uncommon',rare:'Rare',epic:'Epic',legendary:'Legendary',mythic:'MYTHIC ★'}[r]||r;}
+function rColor(r){return{consumer:'#94a3b8',common:'#4ade80',uncommon:'#60a5fa',rare:'#c084fc',epic:'#fb923c',legendary:'#f87171',mythic:'#fbbf24',godly:'#ff0000'}[r]||'#94a3b8';}
+function rRGB(r){return{consumer:'148,163,184',common:'74,222,128',uncommon:'96,165,250',rare:'192,132,252',epic:'251,146,60',legendary:'248,113,113',mythic:'251,191,36',godly:'255,0,0'}[r]||'148,163,184';}
+function rName(r){return{consumer:'Consumer',common:'Common',uncommon:'Uncommon',rare:'Rare',epic:'Epic',legendary:'Legendary',mythic:'MYTHIC ★',godly:'⚡ GODLY ⚡'}[r]||r;}
 function fmt(v){
-  if(v>=1000000000000)return (v/1000000000000).toFixed(2)+'Т ₽';
-  if(v>=1000000000)return (v/1000000000).toFixed(2)+'млрд ₽';
-  if(v>=1000000)return (v/1000000).toFixed(v%1000000===0?0:2)+'М ₽';
-  if(v>=1000)return Math.round(v).toLocaleString('ru-RU')+' ₽';
+  if(v>=1e18) return (v/1e18).toFixed(2)+'КВТ ₽'; // квинтиллион
+  if(v>=1e15) return (v/1e15).toFixed(2)+'КВД ₽'; // квадриллион
+  if(v>=1e12) return (v/1e12).toFixed(2)+'Т ₽';   // триллион
+  if(v>=1e9)  return (v/1e9).toFixed(2)+'млрд ₽';
+  if(v>=1e6)  return (v/1e6).toFixed(v%1e6===0?0:2)+'М ₽';
+  if(v>=1000) return Math.round(v).toLocaleString('ru-RU')+' ₽';
   return v+' ₽';
 }
 function rcls(r){return 'rc-'+r;}
 function allSkins(){return Object.values(SKINS).flat();}
 
-// ══ XP/LEVEL (10 уровней, простая кривая) ══
-const XP_TABLE=[0,200,600,1400,3000,6000,12000,22000,40000,70000];
-function getLv(xp){let l=1;for(let i=1;i<XP_TABLE.length;i++){if(xp>=XP_TABLE[i])l=i+1;else break;}return Math.min(l,10);}
+// ══ XP/LEVEL — минимальная роль в экономике ══
+const XP_TABLE=[0,100,400,1200,4000,12000];
+function getLv(xp){let l=1;for(let i=1;i<XP_TABLE.length;i++){if(xp>=XP_TABLE[i])l=i+1;else break;}return Math.min(l,5);}
 function addXP(amt){
   const ol=getLv(S.xp);S.xp+=Math.round(amt);
   const nl=getLv(S.xp);
   if(nl>ol){
     S.level=nl;
-    const bonuses=[0,1000,3000,7000,15000,30000,60000,120000,250000,500000];
-    const bonus=bonuses[nl-1]||nl*1000;
-    S.balance+=bonus;updateBalance();
-    showToast(`⬆️ Уровень ${nl}! Бонус +${fmt(bonus)}!`,'success');
+    // Очень маленький бонус — просто значок
+    showToast(`⬆️ Уровень ${nl}! Продажи теперь ×${getSellBonus().toFixed(2)}!`,'info');
   } else {S.level=nl;}
   renderXP();
 }
 function renderXP(){
   const lv=S.level,xp=S.xp;
   const base=XP_TABLE[lv-1]||0;
-  const next=XP_TABLE[lv]||(XP_TABLE[XP_TABLE.length-1]+100000);
-  const pct=lv>=10?100:Math.min(100,((xp-base)/(next-base))*100);
+  const next=XP_TABLE[lv]||XP_TABLE[XP_TABLE.length-1];
+  const pct=lv>=5?100:Math.min(100,((xp-base)/(next-base))*100);
   const g=id=>document.getElementById(id);
   if(g('xp-label'))g('xp-label').textContent=`${xp.toLocaleString('ru-RU')} XP`;
   if(g('xp-fill'))g('xp-fill').style.width=pct+'%';
-  if(g('xp-next'))g('xp-next').textContent=lv>=10?'Макс. уровень!':`До ур.${lv+1}: ${(next-xp).toLocaleString('ru-RU')} XP`;
+  if(g('xp-next'))g('xp-next').textContent=lv>=5?'Макс. уровень!':`До ур.${lv+1}: ${(next-xp).toLocaleString('ru-RU')} XP`;
   if(g('level-badge'))g('level-badge').textContent='Ур. '+lv;
   document.getElementById('nav-avatar').title='Ур. '+lv;
 }
-function getSellBonus(){return 1+S.level*0.05;} // +5% за уровень, до +50%
-function getSellXP(val){return Math.max(10,Math.round(val/500));}
+// Продаёшь всего за 60% цены — сразу теряешь 40%
+// Уровень почти ничего не добавляет: +2% за уровень
+function getSellBonus(){return 0.6+S.level*0.02;}
+function getSellXP(val){return Math.max(2,Math.round(val/50000));}
 
-// ══ TASKS (простые) ══
+// ══ TASKS — маленькие награды, не источник дохода ══
 const TASKS_DEF=[
-  {id:'open5',   icon:'📦',name:'Открыть 5 кейсов',  goal:5,     reward:2000,   xp:300,  type:'cases'},
-  {id:'open30',  icon:'🎰',name:'Открыть 30 кейсов',  goal:30,    reward:15000,  xp:2000, type:'cases'},
-  {id:'upg3',    icon:'⚡',name:'3 апгрейда',          goal:3,     reward:8000,   xp:800,  type:'upgrade'},
-  {id:'upg15',   icon:'🔥',name:'15 апгрейдов',        goal:15,    reward:50000,  xp:5000, type:'upgrade'},
-  {id:'sell50k', icon:'💰',name:'Продай на 50 000 ₽',  goal:50000, reward:10000,  xp:1000, type:'sell'},
-  {id:'streak3', icon:'🔥',name:'Серия 3 дня',          goal:3,     reward:20000,  xp:2000, type:'streak'},
-  {id:'legendary',icon:'👑',name:'Дроп Legendary',     goal:1,     reward:40000,  xp:5000, type:'legendary'},
-  {id:'mythic',  icon:'🌌',name:'Дроп Mythic',         goal:1,     reward:200000, xp:20000,type:'mythic'},
+  {id:'open5',   icon:'📦',name:'Открыть 5 кейсов',  goal:5,     reward:5000,  xp:300,  type:'cases'},
+  {id:'open20',  icon:'🎰',name:'Открыть 20 кейсов',  goal:20,    reward:20000, xp:1000, type:'cases'},
+  {id:'upg3',    icon:'⚡',name:'3 апгрейда',          goal:3,     reward:10000, xp:500,  type:'upgrade'},
+  {id:'sell30k', icon:'💰',name:'Продай на 30 000 ₽',  goal:30000, reward:5000,  xp:300,  type:'sell'},
+  {id:'legendary',icon:'👑',name:'Дроп Legendary',     goal:1,     reward:30000, xp:1000, type:'legendary'},
+  {id:'godly',   icon:'⚡',name:'Дроп GODLY',          goal:1,     reward:200000,xp:5000, type:'godly'},
 ];
 function initTasks(){S.tasks={};TASKS_DEF.forEach(d=>{S.tasks[d.id]={progress:0,done:false};});}
 function updateTask(type,amt){
@@ -1013,7 +1024,7 @@ function activateSecret(){
 function claimSecretReward(){
   if(secretClaimed){showToast('Уже получено!','info');return;}
   secretClaimed=true;
-  S.balance+=1000000;addXP(5000);updateBalance();
+  S.balance+=500000;addXP(2000);updateBalance();
   const knife=SKINS.legendary[Math.floor(Math.random()*SKINS.legendary.length)];
   S.inventory.push({...knife});
   document.getElementById('secret-claim-btn').textContent='✓ Получено!';
@@ -1197,8 +1208,8 @@ function startSpin(){
   S.lastResult=main;S.multiResults=results;S.resultHandled=false;
   results.forEach(r=>{
     if(r.val>S.bestDrop)S.bestDrop=r.val;
-    if(r.rarity==='legendary')updateTask('legendary',1);
-    if(r.rarity==='mythic')updateTask('mythic',1);
+    if(r.rarity==='legendary'||r.rarity==='mythic'||r.rarity==='godly')updateTask('legendary',1);
+    if(r.rarity==='godly')updateTask('godly',1);
   });
   addXP(Math.max(5,Math.round(c.price/200)));
 
@@ -1622,16 +1633,16 @@ function sellAll(){
 
 // ══ PROMO CODES ══
 const PROMOS={
-  'CASEBEER':{reward:5000,  xp:500,   desc:'Стартовый бонус',      type:'balance'},
-  'SHKEBEDE':{reward:50000, xp:2000,  desc:'Легендарный промо',     type:'balance'},
-  'DALBANZIK':{reward:10000,xp:800,   desc:'Дружеский бонус',       type:'balance'},
-  'DVIZ':{reward:15000,     xp:1000,  desc:'Движ бонус',            type:'balance'},
-  'PIDOR':{reward:1000,     xp:100,   desc:'Ну хорошо...',          type:'balance'},
-  'WNEXY':{reward:20000,    xp:1500,  desc:'Wnexy одобряет',        type:'balance'},
-  'LAFORE':{reward:0,       xp:0,     desc:'Нож в инвентарь',       type:'knife'},
-  'COOLVER':{reward:25000,  xp:2000,  desc:'Coolver is watching',   type:'balance'},
-  'FLANKKER':{reward:30000, xp:2500,  desc:'Flankker бонус',        type:'balance'},
-  'V1':{reward:100000,      xp:5000,  desc:'V1 — только для своих', type:'balance'},
+  'CASEBEER':{reward:5000,  xp:300,   desc:'Стартовый бонус',      type:'balance'},
+  'SHKEBEDE':{reward:50000, xp:1000,  desc:'Легендарный промо',     type:'balance'},
+  'DALBANZIK':{reward:10000,xp:500,   desc:'Дружеский бонус',       type:'balance'},
+  'DVIZ':{reward:15000,    xp:600,  desc:'Движ бонус',            type:'balance'},
+  'PIDOR':{reward:1000,    xp:50,   desc:'Ну хорошо...',          type:'balance'},
+  'WNEXY':{reward:20000,   xp:800,  desc:'Wnexy одобряет',        type:'balance'},
+  'LAFORE':{reward:0,       xp:0,    desc:'Нож в инвентарь',       type:'knife'},
+  'COOLVER':{reward:25000, xp:1000,  desc:'Coolver is watching',   type:'balance'},
+  'FLANKKER':{reward:30000,xp:1200,  desc:'Flankker бонус',        type:'balance'},
+  'V1':{reward:100000,    xp:3000,  desc:'V1 — только для своих', type:'balance'},
 };
 
 const USED_PROMOS=new Set();
